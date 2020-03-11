@@ -263,6 +263,13 @@ class _RenderBoxyElement extends RenderObjectElement {
     renderObject.markNeedsLayout();
     super.performRebuild(); // Calls widget.updateRenderObject (a no-op in this case).
   }
+
+  void updateSlotForChild(Element child, dynamic newSlot) {
+    if (newSlot is! Element) {
+      throw "Slot was not Element";
+    }
+    super.updateSlotForChild(child, newSlot);
+  }
 }
 
 class _RenderBoxy extends RenderBox with
