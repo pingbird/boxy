@@ -917,6 +917,10 @@ abstract class BoxyDelegate<T> {
 
     try {
       return func();
+    } catch(e, bt) {
+      print(e);
+      print(bt);
+      rethrow;
     } finally {
       context.setState(_BoxyDelegateState.None);
       _context = prevContext;
