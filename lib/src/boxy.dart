@@ -132,12 +132,15 @@ class _RenderBoxyElement extends RenderObjectElement {
       var entry = _delegateCache[id];
 
       owner.buildScope(this, () {
+        IndexedSlot nextSlot() => _children.isEmpty ?
+          IndexedSlot(null, _delegateChildren.last.element) : IndexedSlot(null, _children.last);
+
         try {
           if (entry != null) {
-            var slot = entry.previous?.element ?? _children.last;
+            var slot = IndexedSlot(null, entry.previous?.element ?? _children.last);
             entry.element = updateChild(entry.element, widget, slot);
           } else {
-            var slot = _delegateChildren.isEmpty ? _children.last : _delegateChildren.last.element;
+            var slot = nextSlot();
             entry = _RenderBoxyElementEntry(id, updateChild(null, widget, slot));
             _delegateCache[id] = entry;
           }
@@ -155,7 +158,8 @@ class _RenderBoxyElement extends RenderObjectElement {
           FlutterError.reportError(details);
 
           var errorWidget = ErrorWidget.builder(details);
-          var slot = _delegateChildren.isEmpty ? _children.last : _delegateChildren.last.element;
+          var slot = _children.isEmpty ?
+            IndexedSlot(null, _delegateChildren.last.element) : IndexedSlot(null, _children.last);
           entry = _RenderBoxyElementEntry(id, updateChild(null, errorWidget, slot));
           _delegateCache[id] = entry;
         }
@@ -179,24 +183,24 @@ class _RenderBoxyElement extends RenderObjectElement {
   final Set<Element> _forgottenChildren = HashSet<Element>();
 
   @override
-  void insertChildRenderObject(RenderObject child, Element slot) {
-    final renderObject = this.renderObject;
+  void insertChildRenderObject(RenderObject child, IndexedSlot<Element> slot) {
+    var renderObject = this.renderObject;
     assert(renderObject.debugValidateChild(child));
-    renderObject.insert(child, after: slot?.renderObject);
+    renderObject.insert(child, after: slot?.value?.renderObject);
     assert(renderObject == this.renderObject);
   }
 
   @override
-  void moveChildRenderObject(RenderObject child, Element slot) {
-    final renderObject = this.renderObject;
+  void moveChildRenderObject(RenderObject child, IndexedSlot<Element> slot) {
+    var renderObject = this.renderObject;
     assert(child.parent == renderObject);
-    renderObject.move(child, after: slot?.renderObject);
+    renderObject.move(child, after: slot?.value?.renderObject);
     assert(renderObject == this.renderObject);
   }
 
   @override
   void removeChildRenderObject(RenderObject child) {
-    final renderObject = this.renderObject;
+    var renderObject = this.renderObject;
     assert(child.parent == renderObject);
     renderObject.remove(child);
     assert(renderObject == this.renderObject);
@@ -230,7 +234,8 @@ class _RenderBoxyElement extends RenderObjectElement {
 
     Element previousChild;
     for (int i = 0; i < _children.length; i += 1) {
-      final Element newChild = inflateWidget(widget.children[i], previousChild);
+      var slot = IndexedSlot(i, previousChild);
+      var newChild = inflateWidget(widget.children[i], slot);
       _children[i] = newChild;
       previousChild = newChild;
     }
@@ -249,7 +254,8 @@ class _RenderBoxyElement extends RenderObjectElement {
     _removeEntriesWhere((e) => _forgottenChildren.contains(e.element));
 
     if (_delegateChildren.isNotEmpty) {
-      var newSlot = _children.isEmpty ? null : _children.last;
+      var newSlot = _children.isEmpty ?
+        IndexedSlot(null, null) : IndexedSlot(null, _children.last);
       updateSlotForChild(_delegateChildren.first.element, newSlot);
     }
 
@@ -262,13 +268,6 @@ class _RenderBoxyElement extends RenderObjectElement {
     // That might happen if, e.g., our delegate inflates Inherited widgets.
     renderObject.markNeedsLayout();
     super.performRebuild(); // Calls widget.updateRenderObject (a no-op in this case).
-  }
-
-  void updateSlotForChild(Element child, dynamic newSlot) {
-    if (newSlot is! Element) {
-      throw "Slot was not Element: ${newSlot.runtimeType} $newSlot";
-    }
-    super.updateSlotForChild(child, newSlot);
   }
 }
 
@@ -924,10 +923,6 @@ abstract class BoxyDelegate<T> {
 
     try {
       return func();
-    } catch(e, bt) {
-      print(e);
-      print(bt);
-      rethrow;
     } finally {
       context.setState(_BoxyDelegateState.None);
       _context = prevContext;
@@ -1154,3 +1149,5 @@ abstract class BoxyDelegate<T> {
     return 0.0;
   }
 }
+
+CustomMultiChildLayout a;
