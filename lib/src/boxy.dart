@@ -266,7 +266,7 @@ class _RenderBoxyElement extends RenderObjectElement {
 
   void updateSlotForChild(Element child, dynamic newSlot) {
     if (newSlot is! Element) {
-      throw "Slot was not Element";
+      throw "Slot was not Element: ${newSlot.runtimeType} $newSlot";
     }
     super.updateSlotForChild(child, newSlot);
   }
