@@ -28,6 +28,7 @@
 .packages
 .pub-cache/
 .pub/
+pubspec.lock
 build/
 
 # Android related
@@ -73,3 +74,4 @@ build/
 !**/ios/**/default.pbxuser
 !**/ios/**/default.perspectivev3
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
+
