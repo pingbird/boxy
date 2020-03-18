@@ -6,7 +6,6 @@ import 'package:flutter/rendering.dart';
 import 'package:gallery/main.dart';
 import 'package:tuple/tuple.dart';
 import 'package:rxdart/rxdart.dart' as rx;
-import 'dart:math';
 
 class ProductTitleController {
   var expanded = rx.BehaviorSubject<int>();

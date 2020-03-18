@@ -132,17 +132,21 @@ class _RenderBoxyElement extends RenderObjectElement {
       var entry = _delegateCache[id];
 
       owner.buildScope(this, () {
-        IndexedSlot nextSlot() => _children.isEmpty ?
-          IndexedSlot(null, _delegateChildren.last.element) : IndexedSlot(null, _children.last);
+        IndexedSlot<Element> nextSlot() => _children.isEmpty ?
+          IndexedSlot(null, _delegateChildren.last.element) :
+          IndexedSlot(null, _children.last);
 
         try {
           if (entry != null) {
-            var slot = IndexedSlot(null, entry.previous?.element ?? _children.last);
+            var slot = IndexedSlot<Element>(
+              null, entry.previous?.element ?? _children.last
+            );
             entry.element = updateChild(entry.element, widget, slot);
           } else {
             var slot = nextSlot();
             entry = _RenderBoxyElementEntry(id, updateChild(null, widget, slot));
             _delegateCache[id] = entry;
+            _delegateChildren.add(entry);
           }
         } catch (e, stack) {
           var details = FlutterErrorDetails(
@@ -254,8 +258,9 @@ class _RenderBoxyElement extends RenderObjectElement {
     _removeEntriesWhere((e) => _forgottenChildren.contains(e.element));
 
     if (_delegateChildren.isNotEmpty) {
-      var newSlot = _children.isEmpty ?
-        IndexedSlot(null, null) : IndexedSlot(null, _children.last);
+      IndexedSlot<Element> newSlot = _children.isEmpty ?
+        IndexedSlot(null, null) :
+        IndexedSlot(null, _children.last);
       updateSlotForChild(_delegateChildren.first.element, newSlot);
     }
 
@@ -705,8 +710,8 @@ class BoxyChild {
 ///
 ///     // Calculate the total size based on the size of each child
 ///     return Size(
-///       width: firstSize.width,
-///       height: firstSize.height + secondSize.height,
+///       firstSize.width,
+///       firstSize.height + secondSize.height,
 ///     );
 ///   }
 /// ```
