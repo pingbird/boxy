@@ -21,6 +21,7 @@ dependencies:
     path: ../..
   tuple: any
   material_design_icons_flutter: ^3.4.4995
+  rxdart: ^0.23.1
   flutter:
     sdk: flutter
 
