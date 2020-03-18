@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gallery/pages/product_tile.dart';
-import 'package:gallery/pages/tree_view.dart';
+import 'package:boxy_gallery/pages/product_tile.dart';
+import 'package:boxy_gallery/pages/tree_view.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 void main() => runApp(MyApp());
