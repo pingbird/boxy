@@ -899,6 +899,34 @@ abstract class BoxyDelegate<T> {
     return _context.paintingContext;
   }
 
+  /// Paints a [ContainerLayer] compositing layer in the current painting
+  /// context with an optional [painter] callback, this should only be called in
+  /// [paintChildren].
+  ///
+  /// This is useful if you wanted to apply filters to your children, for example:
+  ///
+  /// ```dart
+  /// paintLayer(
+  ///   OpacityLayer(alpha: 127),
+  ///   painter: children[#title].paint,
+  /// );
+  /// ```
+  void paintLayer(ContainerLayer layer, {
+    VoidCallback painter, Offset offset, Rect debugBounds
+  }) {
+    assert(layer != null);
+
+    paintingContext.pushLayer(layer, (context, offset) {
+      var lastContext = _context.paintingContext;
+      var lastOffset = _context.offset;
+      _context.paintingContext = context;
+      _context.offset = lastOffset;
+      if (painter != null) painter();
+      _context.paintingContext = lastContext;
+      _context.offset = lastOffset;
+    }, offset ?? _context.offset, childPaintBounds: debugBounds);
+  }
+
   /// The current hit test result, should only be accessed from [hitTest].
   BoxHitTestResult get hitTestResult {
     assert(() {
@@ -1079,7 +1107,7 @@ abstract class BoxyDelegate<T> {
   /// See also:
   ///
   ///  * [RenderBox.computeMinIntrinsicWidth], which has usage examples.
-  minIntrinsicWidth(double height) {
+  double minIntrinsicWidth(double height) {
     assert(() {
       if (!RenderObject.debugCheckingIntrinsics) {
         throw FlutterError(
@@ -1098,7 +1126,7 @@ abstract class BoxyDelegate<T> {
   /// See also:
   ///
   ///  * [RenderBox.computeMinIntrinsicWidth], which has usage examples.
-  maxIntrinsicWidth(double height) {
+  double maxIntrinsicWidth(double height) {
     assert(() {
       if (!RenderObject.debugCheckingIntrinsics) {
         throw FlutterError(
@@ -1117,7 +1145,7 @@ abstract class BoxyDelegate<T> {
   /// See also:
   ///
   ///  * [RenderBox.computeMinIntrinsicWidth], which has usage examples.
-  minIntrinsicHeight(double width) {
+  double minIntrinsicHeight(double width) {
     assert(() {
       if (!RenderObject.debugCheckingIntrinsics) {
         throw FlutterError(
@@ -1136,7 +1164,7 @@ abstract class BoxyDelegate<T> {
   /// See also:
   ///
   ///  * [RenderBox.computeMinIntrinsicWidth], which has usage examples.
-  maxIntrinsicHeight(double width) {
+  double maxIntrinsicHeight(double width) {
     assert(() {
       if (!RenderObject.debugCheckingIntrinsics) {
         throw FlutterError(
@@ -1149,5 +1177,3 @@ abstract class BoxyDelegate<T> {
     return 0.0;
   }
 }
-
-CustomMultiChildLayout a;
