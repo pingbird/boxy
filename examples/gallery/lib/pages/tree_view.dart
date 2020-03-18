@@ -2,8 +2,7 @@ import 'dart:math';
 
 import 'package:boxy/boxy.dart';
 import 'package:flutter/material.dart';
-import 'package:gallery/main.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:boxy_gallery/main.dart';
 import 'package:tuple/tuple.dart';
 
 class TreeViewPage extends StatefulWidget {
