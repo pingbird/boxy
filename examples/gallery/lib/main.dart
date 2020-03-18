@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gallery/pages/product_tile.dart';
 import 'package:gallery/pages/tree_view.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
@@ -20,7 +21,8 @@ class MyApp extends StatelessWidget {
     ),
     home: MyHomePage(),
     routes: {
-      "tree-view": (_) => TreeViewPage()
+      "tree-view": (_) => TreeViewPage(),
+      "product-tile": (_) => ProductTilePage(),
     },
   );
 }
@@ -120,6 +122,11 @@ class MyHomePage extends StatelessWidget {
         icon: MdiIcons.fileTree,
         name: "Tree view",
         route: "tree-view",
+      ),
+      DemoTile(
+        icon: MdiIcons.viewDashboardOutline,
+        name: "Product tile",
+        route: "product-tile",
       ),
       Separator(),
     ], physics: BouncingScrollPhysics()), color: NiceColors.primary),
