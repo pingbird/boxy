@@ -132,13 +132,13 @@ class _RenderBoxyElement extends RenderObjectElement {
       var entry = _delegateCache[id];
 
       owner.buildScope(this, () {
-        IndexedSlot<Element> nextSlot() => _children.isEmpty ?
-          IndexedSlot(null, _delegateChildren.last.element) :
-          IndexedSlot(null, _children.last);
+        _IndexedSlot<Element> nextSlot() => _children.isEmpty ?
+          _IndexedSlot(null, _delegateChildren.last.element) :
+          _IndexedSlot(null, _children.last);
 
         try {
           if (entry != null) {
-            var slot = IndexedSlot<Element>(
+            var slot = _IndexedSlot<Element>(
               null, entry.previous?.element ?? _children.last
             );
             entry.element = updateChild(entry.element, widget, slot);
@@ -163,7 +163,7 @@ class _RenderBoxyElement extends RenderObjectElement {
 
           var errorWidget = ErrorWidget.builder(details);
           var slot = _children.isEmpty ?
-            IndexedSlot(null, _delegateChildren.last.element) : IndexedSlot(null, _children.last);
+            _IndexedSlot(null, _delegateChildren.last.element) : _IndexedSlot(null, _children.last);
           entry = _RenderBoxyElementEntry(id, updateChild(null, errorWidget, slot));
           _delegateCache[id] = entry;
         }
@@ -187,7 +187,7 @@ class _RenderBoxyElement extends RenderObjectElement {
   final Set<Element> _forgottenChildren = HashSet<Element>();
 
   @override
-  void insertChildRenderObject(RenderObject child, IndexedSlot<Element> slot) {
+  void insertChildRenderObject(RenderObject child, _IndexedSlot<Element> slot) {
     var renderObject = this.renderObject;
     assert(renderObject.debugValidateChild(child));
     renderObject.insert(child, after: slot?.value?.renderObject);
@@ -195,7 +195,7 @@ class _RenderBoxyElement extends RenderObjectElement {
   }
 
   @override
-  void moveChildRenderObject(RenderObject child, IndexedSlot<Element> slot) {
+  void moveChildRenderObject(RenderObject child, _IndexedSlot<Element> slot) {
     var renderObject = this.renderObject;
     assert(child.parent == renderObject);
     renderObject.move(child, after: slot?.value?.renderObject);
@@ -238,7 +238,7 @@ class _RenderBoxyElement extends RenderObjectElement {
 
     Element previousChild;
     for (int i = 0; i < _children.length; i += 1) {
-      var slot = IndexedSlot(i, previousChild);
+      var slot = _IndexedSlot(i, previousChild);
       var newChild = inflateWidget(widget.children[i], slot);
       _children[i] = newChild;
       previousChild = newChild;
@@ -249,18 +249,148 @@ class _RenderBoxyElement extends RenderObjectElement {
     renderObject._element = this;
   }
 
+  /// Copy of [RenderObjectElement.updateChildren].
+  ///
+  /// A breaking change was made in Flutter v1.15.21 which changed slots from
+  /// Element to IndexedSlot<Element>, so to keep compatibility with old
+  /// versions we backport the algorithm.
+  List<Element> _updateChildren(
+    List<Element> oldChildren,
+    List<Widget> newWidgets, {
+    Set<Element> forgottenChildren,
+  }) {
+    assert(oldChildren != null);
+    assert(newWidgets != null);
+
+    Element replaceWithNullIfForgotten(Element child) {
+      return forgottenChildren != null && forgottenChildren.contains(child) ? null : child;
+    }
+
+    int newChildrenTop = 0;
+    int oldChildrenTop = 0;
+    int newChildrenBottom = newWidgets.length - 1;
+    int oldChildrenBottom = oldChildren.length - 1;
+
+    final List<Element> newChildren = oldChildren.length == newWidgets.length ?
+    oldChildren : List<Element>(newWidgets.length);
+
+    Element previousChild;
+
+    // Update the top of the list.
+    while ((oldChildrenTop <= oldChildrenBottom) && (newChildrenTop <= newChildrenBottom)) {
+      final Element oldChild = replaceWithNullIfForgotten(oldChildren[oldChildrenTop]);
+      final Widget newWidget = newWidgets[newChildrenTop];
+      assert(oldChild == null);
+      if (oldChild == null || !Widget.canUpdate(oldChild.widget, newWidget))
+        break;
+      final Element newChild = updateChild(oldChild, newWidget, _IndexedSlot<Element>(newChildrenTop, previousChild));
+      newChildren[newChildrenTop] = newChild;
+      previousChild = newChild;
+      newChildrenTop += 1;
+      oldChildrenTop += 1;
+    }
+
+    // Scan the bottom of the list.
+    while ((oldChildrenTop <= oldChildrenBottom) && (newChildrenTop <= newChildrenBottom)) {
+      final Element oldChild = replaceWithNullIfForgotten(oldChildren[oldChildrenBottom]);
+      final Widget newWidget = newWidgets[newChildrenBottom];
+      assert(oldChild == null);
+      if (oldChild == null || !Widget.canUpdate(oldChild.widget, newWidget))
+        break;
+      oldChildrenBottom -= 1;
+      newChildrenBottom -= 1;
+    }
+
+    // Scan the old children in the middle of the list.
+    final bool haveOldChildren = oldChildrenTop <= oldChildrenBottom;
+    Map<Key, Element> oldKeyedChildren;
+    if (haveOldChildren) {
+      oldKeyedChildren = <Key, Element>{};
+      while (oldChildrenTop <= oldChildrenBottom) {
+        final Element oldChild = replaceWithNullIfForgotten(oldChildren[oldChildrenTop]);
+        assert(oldChild == null);
+        if (oldChild != null) {
+          if (oldChild.widget.key != null)
+            oldKeyedChildren[oldChild.widget.key] = oldChild;
+          else
+            deactivateChild(oldChild);
+        }
+        oldChildrenTop += 1;
+      }
+    }
+
+    // Update the middle of the list.
+    while (newChildrenTop <= newChildrenBottom) {
+      Element oldChild;
+      final Widget newWidget = newWidgets[newChildrenTop];
+      if (haveOldChildren) {
+        final Key key = newWidget.key;
+        if (key != null) {
+          oldChild = oldKeyedChildren[key];
+          if (oldChild != null) {
+            if (Widget.canUpdate(oldChild.widget, newWidget)) {
+              // we found a match!
+              // remove it from oldKeyedChildren so we don't unsync it later
+              oldKeyedChildren.remove(key);
+            } else {
+              // Not a match, let's pretend we didn't see it for now.
+              oldChild = null;
+            }
+          }
+        }
+      }
+      assert(oldChild == null || Widget.canUpdate(oldChild.widget, newWidget));
+      final Element newChild = updateChild(oldChild, newWidget, _IndexedSlot<Element>(newChildrenTop, previousChild));
+      assert(oldChild == newChild || oldChild == null);
+      newChildren[newChildrenTop] = newChild;
+      previousChild = newChild;
+      newChildrenTop += 1;
+    }
+
+    // We've scanned the whole list.
+    assert(oldChildrenTop == oldChildrenBottom + 1);
+    assert(newChildrenTop == newChildrenBottom + 1);
+    assert(newWidgets.length - newChildrenTop == oldChildren.length - oldChildrenTop);
+    newChildrenBottom = newWidgets.length - 1;
+    oldChildrenBottom = oldChildren.length - 1;
+
+    // Update the bottom of the list.
+    while ((oldChildrenTop <= oldChildrenBottom) && (newChildrenTop <= newChildrenBottom)) {
+      final Element oldChild = oldChildren[oldChildrenTop];
+      assert(replaceWithNullIfForgotten(oldChild) != null);
+      final Widget newWidget = newWidgets[newChildrenTop];
+      assert(Widget.canUpdate(oldChild.widget, newWidget));
+      final Element newChild = updateChild(oldChild, newWidget, _IndexedSlot<Element>(newChildrenTop, previousChild));
+      assert(oldChild == newChild || oldChild == null);
+      newChildren[newChildrenTop] = newChild;
+      previousChild = newChild;
+      newChildrenTop += 1;
+      oldChildrenTop += 1;
+    }
+
+    // Clean up any of the remaining middle nodes from the old list.
+    if (haveOldChildren && oldKeyedChildren.isNotEmpty) {
+      for (final Element oldChild in oldKeyedChildren.values) {
+        if (forgottenChildren == null || !forgottenChildren.contains(oldChild))
+          deactivateChild(oldChild);
+      }
+    }
+
+    return newChildren;
+  }
+
   @override
   void update(Boxy newWidget) {
     super.update(newWidget);
     assert(widget == newWidget);
 
-    _children = updateChildren(_children, widget.children, forgottenChildren: _forgottenChildren);
+    _children = _updateChildren(_children, widget.children, forgottenChildren: _forgottenChildren);
     _removeEntriesWhere((e) => _forgottenChildren.contains(e.element));
 
     if (_delegateChildren.isNotEmpty) {
-      IndexedSlot<Element> newSlot = _children.isEmpty ?
-        IndexedSlot(null, null) :
-        IndexedSlot(null, _children.last);
+      _IndexedSlot<Element> newSlot = _children.isEmpty ?
+        _IndexedSlot(null, null) :
+        _IndexedSlot(null, _children.last);
       updateSlotForChild(_delegateChildren.first.element, newSlot);
     }
 
@@ -274,6 +404,33 @@ class _RenderBoxyElement extends RenderObjectElement {
     renderObject.markNeedsLayout();
     super.performRebuild(); // Calls widget.updateRenderObject (a no-op in this case).
   }
+}
+
+/// Copy of [IndexedSlot] to maintain compatibility with Flutter versions older
+/// than v1.15.21.
+@immutable
+class _IndexedSlot<T> {
+  /// Creates an [_IndexedSlot] with the provided [index] and slot [value].
+  const _IndexedSlot(this.index, this.value);
+
+  /// Information to define where the child occupying this slot fits in its
+  /// parent's child list.
+  final T value;
+
+  /// The index of this slot in the parent's child list.
+  final int index;
+
+  @override
+  bool operator ==(Object other) {
+    if (other.runtimeType != runtimeType)
+      return false;
+    return other is _IndexedSlot
+        && index == other.index
+        && value == other.value;
+  }
+
+  @override
+  int get hashCode => hashValues(index, value);
 }
 
 class _RenderBoxy extends RenderBox with
