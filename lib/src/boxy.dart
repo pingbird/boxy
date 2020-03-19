@@ -466,8 +466,7 @@ class _RenderBoxy extends RenderBox with
     _delegateContext.offset = null;
   }
 
-  bool hitTest(BoxHitTestResult result, { @required Offset position }) {
-    return defaultHitTestChildren(result, position: position);
+  bool hitTest(BoxHitTestResult result, {@required Offset position}) {
     _delegateContext.hitTestResult = result;
     _delegateContext.offset = position;
     try {
@@ -636,15 +635,26 @@ class BoxyChild {
     _context.paintingContext.paintChild(render, _context.offset + offset);
   }
 
-  bool hitTest(Offset position) {
+  /// Hit tests this child, returns true if the hit was a success. This should
+  /// only be called in [BoxyDelegate.hitTest].
+  ///
+  /// The [offset] argument specifies the relative position of this child,
+  /// defaults to the offset given to it during layout.
+  ///
+  /// The [position] argument specifies the relative position of the hit test,
+  /// defaults to the position given to [BoxyDelegate.hitTest].
+  bool hitTest({Offset offset, Offset position}) {
     return _context.hitTestResult.addWithPaintOffset(
-      offset: _context.offset,
-      position: position,
+      offset: offset ?? this.offset,
+      position: position ?? _context.offset,
       hitTest: (BoxHitTestResult result, Offset transformed) {
         return render.hitTest(result, position: transformed);
       },
     );
   }
+
+  @override
+  toString() => "BoxyChild(id: $id)";
 }
 
 /// A delegate that controls the layout of multiple children.
@@ -937,7 +947,7 @@ abstract class BoxyDelegate<T> {
     assert(() {
       if (_context == null || _context.debugState != _BoxyDelegateState.HitTest) {
         throw new FlutterError(
-          'The $this boxy attempted to get the hit test result outside of the hit hitTest method.'
+          'The $this boxy attempted to get the hit test result outside of the hitTest method.'
         );
       }
       return true;
@@ -1098,11 +1108,12 @@ abstract class BoxyDelegate<T> {
   /// result if any succeeded.
   bool hitTest(Offset position) {
     for (final child in children.values) {
-      if (child.hitTest(position)) {
+      if (child.hitTest()) {
         addHit();
         return true;
       }
     }
+
     return false;
   }
 
