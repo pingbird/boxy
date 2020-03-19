@@ -356,13 +356,13 @@ class TreeViewDelegate extends BoxyDelegate {
         if (pSize.height > cSize.height) {
           // Center branches to parent
           cOffset = pHalfHeight - midY;
-          var pad = max(0, -cOffset);
+          var pad = max(0.0, -cOffset);
           pOffset = pad;
           cOffset += pad;
         } else {
           // Center parent to branches
           pOffset = midY - pHalfHeight;
-          var pad = max(0, -pOffset);
+          var pad = max(0.0, -pOffset);
           cOffset = pad;
           pOffset += pad;
         }
