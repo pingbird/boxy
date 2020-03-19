@@ -36,6 +36,8 @@ class TestFrame extends StatelessWidget {
   build(BuildContext context) => Directionality(
     child: Stack(children: [
       Positioned(
+        top: 0,
+        left: 0,
         child: ConstrainedBox(child: child, constraints: constraints),
       ),
     ]),

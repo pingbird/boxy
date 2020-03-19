@@ -1,14 +1,9 @@
-# boxy
+# Boxy - Create advanced multi-child layouts in Flutter.
 
-Helper for building advanced multi child layouts.
+This library provides `Boxy`, a multi-child layout widget that allows you to inflate, constrain, and lay out each child
+manually similar to a `CustomMultiChildLayout`.
 
-## Getting Started
+The most common use case is when the size of one widget depends on the size of another, normally a layout
+like this would require implementing your own `RenderBox` or figure out a workaround with `IntrinsicWidth`,
+`InstrinsicHeight`, or `Positioned`.
 
-This project is a starting point for a Dart
-[package](https://flutter.dev/developing-packages/),
-a library module containing code that can be shared easily across
-multiple Flutter or Dart projects.
-
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.dev/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
