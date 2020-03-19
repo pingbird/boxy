@@ -10,8 +10,8 @@ class SimpleColumnDelegate extends BoxyDelegate {
   @override
   Size layout() {
     // Get both children by a Symbol id.
-    var firstChild = children[#first];
-    var secondChild = children[#second];
+    var firstChild = getChild(#first);
+    var secondChild = getChild(#second);
 
     // Lay out the first child with the incoming constraints
     var firstSize = firstChild.layout(constraints);
