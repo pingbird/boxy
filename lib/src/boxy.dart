@@ -455,13 +455,15 @@ class _RenderBoxy extends RenderBox with
       render: childObject,
     );
 
-    _delegateContext.children[id] = child;
+    _delegateContext.children.add(child);
+    _delegateContext.childrenMap[id] = child;
     return child;
   }
 
   @override
   void performLayout() {
     _delegateContext.render = this;
+    _delegateContext.childrenMap.clear();
     _delegateContext.children.clear();
 
     assert(() {
@@ -481,7 +483,7 @@ class _RenderBoxy extends RenderBox with
       }
 
       assert(() {
-        if (_delegateContext.children.containsKey(id)) {
+        if (_delegateContext.childrenMap.containsKey(id)) {
           throw FlutterError.fromParts(<DiagnosticsNode>[
             ErrorSummary('The $_delegate boxy delegate was given a child with a duplicate id.'),
             child.describeForError('The following child has the duplicate id $id'),
@@ -490,11 +492,15 @@ class _RenderBoxy extends RenderBox with
         return true;
       }());
 
-      _delegateContext.children[id] = BoxyChild._(
+
+      var handle = BoxyChild._(
         context: _delegateContext,
         id: id,
         render: child,
       );
+
+      _delegateContext.childrenMap[id] = handle;
+      _delegateContext.children.add(handle);
 
       assert(() {
         _delegateContext.debugChildrenNeedingLayout.add(id);
@@ -537,7 +543,7 @@ class _RenderBoxy extends RenderBox with
   }
 
   String _debugDescribeChild(Object id) =>
-    '$id: ${_delegateContext.children[id].render}';
+    '$id: ${_delegateContext.childrenMap[id].render}';
 
   @override
   double computeMinIntrinsicWidth(double height) => _delegate._callWithContext(
@@ -648,7 +654,8 @@ enum _BoxyDelegateState {
 
 class _BoxyDelegateContext {
   _RenderBoxy render;
-  Map<Object, BoxyChild> children = LinkedHashMap();
+  List<BoxyChild> children = [];
+  Map<Object, BoxyChild> childrenMap = HashMap();
   int indexedChildCount = 0;
   PaintingContext paintingContext;
   BoxHitTestResult hitTestResult;
@@ -670,8 +677,8 @@ class _BoxyDelegateContext {
 /// A handle used by custom [BoxyDelegate]s to lay out, paint, and hit test
 /// its children.
 ///
-/// This class cannot be instantiated directly, instead access children by name
-/// with [BoxyDelegate.children].
+/// This class cannot be instantiated directly, instead access children with
+/// [BoxyDelegate.getChild].
 ///
 /// See also:
 ///
@@ -826,9 +833,8 @@ class BoxyChild {
 /// should not keep any state. If you need to pass information from [layout] to
 /// another method, store it in [layoutData].
 ///
-/// Delegates may access their children by id through [children], this map is a
-/// [LinkedHashMap] of [BoxyChild] which can be iterated in the order the
-/// children are provided to [Boxy].
+/// Delegates may access their children by id with [getChild], alternatively
+/// they can be accessed through the [children] list.
 ///
 /// The default constructor accepts [Listenable]s that can trigger a re-layout
 /// and re-paint. For example during an animation it is more efficient to pass
@@ -854,8 +860,8 @@ class BoxyChild {
 ///   @override
 ///   Size layout() {
 ///     // Get both children by a Symbol id.
-///     var firstChild = children[#first];
-///     var secondChild = children[#second];
+///     var firstChild = getChild(#first);
+///     var secondChild = getChild(#second);
 ///
 ///     // Lay out the first child with the incoming constraints
 ///     var firstSize = firstChild.layout(constraints);
@@ -919,12 +925,12 @@ class BoxyChild {
 /// ```dart
 ///   @override
 ///   void paintChildren() {
-///     children[#first].paint();
+///     getChild(#first).paint();
 ///     canvas.drawRect(
 ///       paintOffset & render.size,
 ///       Paint()..color = Colors.blue.withOpacity(0.3),
 ///     );
-///     children[#second].paint();
+///     getChild(#second).paint();
 ///   }
 /// ```
 ///
@@ -948,7 +954,7 @@ class BoxyChild {
 /// ```dart
 ///   @override
 ///   Size layout() {
-///    var firstChild = children[#first];
+///    var firstChild = getChild(#first);
 ///
 ///    var firstSize = firstChild.layout(constraints);
 ///    firstChild.position(Offset.zero);
@@ -992,7 +998,7 @@ abstract class BoxyDelegate<T> {
     assert(() {
       if (_context == null || _context.debugState == _BoxyDelegateState.None) {
         throw new FlutterError(
-          'The $this boxy attempted to get the context outside of its normal lifecycle.\n'
+          'The $this boxy delegate attempted to get the context outside of its normal lifecycle.\n'
           'You should only access the BoxyDelegate from its overriden methods.'
         );
       }
@@ -1009,7 +1015,7 @@ abstract class BoxyDelegate<T> {
     assert(() {
       if (_context == null || _context.debugState != _BoxyDelegateState.Layout) {
         throw new FlutterError(
-          'The $this boxy attempted to set layout data outside of the layout method.\n'
+          'The $this boxy delegate attempted to set layout data outside of the layout method.\n'
         );
       }
       return true;
@@ -1019,9 +1025,27 @@ abstract class BoxyDelegate<T> {
 
   /// The RenderBox of the current context.
   _RenderBoxy get render => _getContext().render;
+  
+  /// A list of each [BoxyChild] handle, this should not be modified in any way.
+  List<BoxyChild> get children => _getContext().children;
 
-  /// A map from child ids to their [BoxyChild] handle.
-  Map<Object, BoxyChild> get children => _getContext().children;
+  /// Returns true if a child exists with the specified [id].
+  bool hasChild(Object id) => _getContext().childrenMap.containsKey(id);
+
+  /// Gets the child handle with the specified [id].
+  BoxyChild getChild(Object id) {
+    var child = _getContext().childrenMap[id];
+    assert(() {
+      if (child == null) {
+        throw new FlutterError(
+          'The $this boxy delegate attempted to get a nonexistent child.\n'
+          'There is no child with the id "$id".'
+        );
+      }
+      return true;
+    }());
+    return child;
+  }
 
   /// The number of children that have not been given a [LayoutId], this
   /// guarantees there are child ids between 0 (inclusive) to indexedChildCount
@@ -1036,7 +1060,7 @@ abstract class BoxyDelegate<T> {
     assert(() {
       if (_context == null || _context.debugState != _BoxyDelegateState.Painting) {
         throw new FlutterError(
-          'The $this boxy attempted to access the canvas outside of a paint method.'
+          'The $this boxy delegate attempted to access the canvas outside of a paint method.'
         );
       }
       return true;
@@ -1050,7 +1074,7 @@ abstract class BoxyDelegate<T> {
     assert(() {
       if (_context == null || _context.debugState != _BoxyDelegateState.Painting) {
         throw new FlutterError(
-          'The $this boxy attempted to access the paint offset outside of a paint method.'
+          'The $this boxy delegate attempted to access the paint offset outside of a paint method.'
         );
       }
       return true;
@@ -1063,7 +1087,7 @@ abstract class BoxyDelegate<T> {
     assert(() {
       if (_context == null || _context.debugState != _BoxyDelegateState.Painting) {
         throw new FlutterError(
-          'The $this boxy attempted to access the paint context outside of a paint method.'
+          'The $this boxy delegate attempted to access the paint context outside of a paint method.'
         );
       }
       return true;
@@ -1080,7 +1104,7 @@ abstract class BoxyDelegate<T> {
   /// ```dart
   /// paintLayer(
   ///   OpacityLayer(alpha: 127),
-  ///   painter: children[#title].paint,
+  ///   painter: getChild(#title).paint,
   /// );
   /// ```
   void paintLayer(ContainerLayer layer, {
@@ -1135,9 +1159,8 @@ abstract class BoxyDelegate<T> {
   /// If [id] is not provided the resulting child has an id of [indexedChildCount]
   /// which gets incremented.
   ///
-  /// After calling this method the child becomes available in [children] and
-  /// during further painting and hit testing, it is removed from the map before
-  /// the next call to [layout].
+  /// After calling this method the child becomes available with [getChild], it
+  /// is removed before the next call to [layout].
   ///
   /// Unlike children explicitly passed to [Boxy], keys are not managed for
   /// widgets inflated during layout meaning a widgets state can only be
@@ -1158,10 +1181,10 @@ abstract class BoxyDelegate<T> {
     }
 
     assert(() {
-      if (_context.children.containsKey(id)) {
+      if (hasChild(id)) {
         throw new FlutterError(
-          'The $this boxy attempted to inflate a widget with a duplicate id.\n'
-          'You should only call `inflate` from its overriden methods.'
+          'The $this boxy delegate attempted to inflate a widget with a duplicate id.\n'
+          'There is already a child with the id "$id"'
         );
       }
       _context.debugChildrenNeedingLayout.add(id);
@@ -1184,7 +1207,7 @@ abstract class BoxyDelegate<T> {
   /// to the largest dimensions, or the smallest size if there are no children.
   Size layout() {
     Size biggest = constraints.smallest;
-    for (final child in children.values) {
+    for (final child in children) {
       var size = child.layout(constraints);
       biggest = Size(
         max(biggest.width, size.width),
@@ -1238,7 +1261,7 @@ abstract class BoxyDelegate<T> {
   ///
   /// You can get the size of the widget with `render.size`.
   void paintChildren() {
-    for (final child in children.values) child.paint();
+    for (final child in children) child.paint();
   }
 
   /// Override this method to paint below children.
@@ -1264,7 +1287,7 @@ abstract class BoxyDelegate<T> {
   /// The default behavior is to hit test all children and add itself to the
   /// result if any succeeded.
   bool hitTest(Offset position) {
-    for (final child in children.values) {
+    for (final child in children.reversed) {
       if (child.hitTest()) {
         addHit();
         return true;

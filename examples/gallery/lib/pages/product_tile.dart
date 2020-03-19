@@ -364,9 +364,9 @@ class ProductTileDelegate extends BoxyDelegate {
 
   @override
   layout() {
-    var title = children[#title];
-    var seller = children[#seller];
-    var info = children[#info];
+    var title = getChild(#title);
+    var seller = getChild(#seller);
+    var info = getChild(#info);
 
     var sellerSize = seller.layout(constraints.deflate(
       EdgeInsets.only(right: style.sellerInset),
