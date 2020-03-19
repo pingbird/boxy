@@ -463,23 +463,50 @@ class _RenderBoxy extends RenderBox with
   @override
   void performLayout() {
     _delegateContext.render = this;
-    _delegateContext.childrenMap.clear();
-    _delegateContext.children.clear();
 
     assert(() {
-      _delegateContext.debugChildrenNeedingLayout = {};
+      _delegateContext.debugChildrenNeedingLayout.clear();
       return true;
     }());
 
-    int childIndex = 0;
+    int index = 0;
+    int movingIndex = 0;
     RenderBox child = firstChild;
+
+    // Attempt to recycle existing child handles
+    while (index < _delegateContext.children.length && child != null) {
+      final MultiChildLayoutParentData parentData = child.parentData;
+      var id = parentData.id;
+
+      // Assign the child an incrementing index if it does not already have one.
+      if (id == null) {
+        id = movingIndex++;
+      }
+
+      assert(() {
+        _delegateContext.debugChildrenNeedingLayout.add(id);
+        return true;
+      }());
+
+      var oldChild = _delegateContext.children[index];
+      if (oldChild.id != id || oldChild.render != child) break;
+      index++;
+      child = parentData.nextSibling;
+    }
+
+    // Discard child handles that might be old
+    for (int i = index; i < _delegateContext.children.length; i++) {
+      _delegateContext.childrenMap.remove(_delegateContext.children[i].id);
+    }
+    _delegateContext.children.length = index;
+
     while (child != null) {
       final MultiChildLayoutParentData parentData = child.parentData;
       var id = parentData.id;
 
       // Assign the child an incrementing index if it does not already have one.
       if (id == null) {
-        id = childIndex++;
+        id = movingIndex++;
       }
 
       assert(() {
@@ -491,7 +518,6 @@ class _RenderBoxy extends RenderBox with
         }
         return true;
       }());
-
 
       var handle = BoxyChild._(
         context: _delegateContext,
@@ -510,7 +536,7 @@ class _RenderBoxy extends RenderBox with
       child = parentData.nextSibling;
     }
 
-    _delegateContext.indexedChildCount = childIndex;
+    _delegateContext.indexedChildCount = movingIndex;
 
     invokeLayoutCallback((_) {
       _element.wrapInflaterCallback((inflater) {
@@ -613,16 +639,15 @@ class _RenderBoxy extends RenderBox with
     _delegateContext.offset = offset;
     _delegate._callWithContext(
       _delegateContext, _BoxyDelegateState.Painting, () {
-        var canvas = context.canvas;
-        canvas.save();
-        canvas.translate(offset.dx, offset.dy);
+        context.canvas.save();
+        context.canvas.translate(offset.dx, offset.dy);
         _delegate.paint();
-        canvas.restore();
+        context.canvas.restore();
         _delegate.paintChildren();
-        canvas.save();
-        canvas.translate(offset.dx, offset.dy);
+        context.canvas.save();
+        context.canvas.translate(offset.dx, offset.dy);
         _delegate.paintForeground();
-        canvas.restore();
+        context.canvas.restore();
       }
     );
     _delegateContext.paintingContext = null;
@@ -663,7 +688,7 @@ class _BoxyDelegateContext {
   Object layoutData;
   _RenderBoxyInflater inflater;
 
-  Set<Object> debugChildrenNeedingLayout;
+  final Set<Object> debugChildrenNeedingLayout = {};
   _BoxyDelegateState debugState = _BoxyDelegateState.None;
 
   void setState(_BoxyDelegateState state) {
@@ -1025,7 +1050,7 @@ abstract class BoxyDelegate<T> {
 
   /// The RenderBox of the current context.
   _RenderBoxy get render => _getContext().render;
-  
+
   /// A list of each [BoxyChild] handle, this should not be modified in any way.
   List<BoxyChild> get children => _getContext().children;
 
