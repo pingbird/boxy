@@ -280,7 +280,6 @@ class _RenderBoxyElement extends RenderObjectElement {
     while ((oldChildrenTop <= oldChildrenBottom) && (newChildrenTop <= newChildrenBottom)) {
       final Element oldChild = replaceWithNullIfForgotten(oldChildren[oldChildrenTop]);
       final Widget newWidget = newWidgets[newChildrenTop];
-      assert(oldChild == null);
       if (oldChild == null || !Widget.canUpdate(oldChild.widget, newWidget))
         break;
       final Element newChild = updateChild(oldChild, newWidget, _IndexedSlot<Element>(newChildrenTop, previousChild));
@@ -294,7 +293,6 @@ class _RenderBoxyElement extends RenderObjectElement {
     while ((oldChildrenTop <= oldChildrenBottom) && (newChildrenTop <= newChildrenBottom)) {
       final Element oldChild = replaceWithNullIfForgotten(oldChildren[oldChildrenBottom]);
       final Widget newWidget = newWidgets[newChildrenBottom];
-      assert(oldChild == null);
       if (oldChild == null || !Widget.canUpdate(oldChild.widget, newWidget))
         break;
       oldChildrenBottom -= 1;
@@ -308,7 +306,6 @@ class _RenderBoxyElement extends RenderObjectElement {
       oldKeyedChildren = <Key, Element>{};
       while (oldChildrenTop <= oldChildrenBottom) {
         final Element oldChild = replaceWithNullIfForgotten(oldChildren[oldChildrenTop]);
-        assert(oldChild == null);
         if (oldChild != null) {
           if (oldChild.widget.key != null)
             oldKeyedChildren[oldChild.widget.key] = oldChild;
@@ -341,7 +338,6 @@ class _RenderBoxyElement extends RenderObjectElement {
       }
       assert(oldChild == null || Widget.canUpdate(oldChild.widget, newWidget));
       final Element newChild = updateChild(oldChild, newWidget, _IndexedSlot<Element>(newChildrenTop, previousChild));
-      assert(oldChild == newChild || oldChild == null);
       newChildren[newChildrenTop] = newChild;
       previousChild = newChild;
       newChildrenTop += 1;
@@ -361,7 +357,6 @@ class _RenderBoxyElement extends RenderObjectElement {
       final Widget newWidget = newWidgets[newChildrenTop];
       assert(Widget.canUpdate(oldChild.widget, newWidget));
       final Element newChild = updateChild(oldChild, newWidget, _IndexedSlot<Element>(newChildrenTop, previousChild));
-      assert(oldChild == newChild || oldChild == null);
       newChildren[newChildrenTop] = newChild;
       previousChild = newChild;
       newChildrenTop += 1;
