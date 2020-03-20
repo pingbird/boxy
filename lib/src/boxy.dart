@@ -251,7 +251,7 @@ class _RenderBoxyElement extends RenderObjectElement {
 
   /// Copy of [RenderObjectElement.updateChildren].
   ///
-  /// A breaking change was made in Flutter v1.15.21 which changed slots from
+  /// A breaking change was made in Flutter v1.15.19 which changed slots from
   /// Element to IndexedSlot<Element>, so to keep compatibility with old
   /// versions we backport the algorithm.
   List<Element> _updateChildren(
@@ -407,7 +407,7 @@ class _RenderBoxyElement extends RenderObjectElement {
 }
 
 /// Copy of [IndexedSlot] to maintain compatibility with Flutter versions older
-/// than v1.15.21.
+/// than v1.15.19.
 @immutable
 class _IndexedSlot<T> {
   /// Creates an [_IndexedSlot] with the provided [index] and slot [value].
