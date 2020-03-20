@@ -6,7 +6,6 @@ homepage: https://github.com/PixelToast/flutter-boxy
 
 environment:
   sdk: '>=2.7.0 <3.0.0'
-  flutter: '>= 1.15.21'
 
 dependencies:
   flutter:
