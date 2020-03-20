@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:boxy_gallery/pages/product_tile.dart';
 import 'package:boxy_gallery/pages/tree_view.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 void main() => runApp(MyApp());
 
@@ -70,21 +71,21 @@ class Separator extends StatelessWidget {
   );
 }
 
-class GalleryAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final List<String> title;
-  
-  GalleryAppBar(this.title);
-  
-  build(context) => AppBar(
-    leading: title.length == 1 ? null : Padding(child: Material(child: InkWell(
+class GalleryAppBarButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+  final String tooltip;
+
+  GalleryAppBarButton(this.icon, this.onTap, {this.tooltip});
+
+  build(context) {
+    Widget result = ConstrainedBox(child: Padding(child: Material(child: InkWell(
       child: Icon(
-        Icons.arrow_back_ios,
+        icon,
         color: NiceColors.text,
         size: 16,
       ),
-      onTap: () {
-        Navigator.pop(context);
-      },
+      onTap: onTap,
     ),
       color: NiceColors.primary,
       borderRadius: BorderRadius.circular(2),
@@ -92,7 +93,31 @@ class GalleryAppBar extends StatelessWidget implements PreferredSizeWidget {
       top: 8,
       bottom: 8,
       left: 8,
-    )),
+    )), constraints: BoxConstraints(minWidth: 56));
+
+    if (tooltip != null) {
+      result = Tooltip(
+        message: tooltip,
+        child: result,
+      );
+    }
+
+    return result;
+  }
+}
+
+class GalleryAppBar extends StatelessWidget implements PreferredSizeWidget {
+  final List<String> title;
+  final String source;
+  
+  GalleryAppBar(this.title, {this.source});
+  
+  build(context) => AppBar(
+    leading: title.length == 1 ? null : GalleryAppBarButton(
+      Icons.arrow_back_ios, () {
+        Navigator.pop(context);
+      }
+    ),
     title: Row(children: [
       for (var i = 0; i < title.length; i++) ...[
         if (i != 0) Padding(
@@ -108,6 +133,14 @@ class GalleryAppBar extends StatelessWidget implements PreferredSizeWidget {
       ]
     ]),
     elevation: 0,
+    actions: [
+      if (source != null) GalleryAppBarButton(
+        Icons.description, () {
+          launch(source);
+        }, tooltip: "Source code",
+      ),
+      Padding(padding: EdgeInsets.only(right: 8)),
+    ],
   );
 
   get preferredSize => Size.fromHeight(kToolbarHeight);

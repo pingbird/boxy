@@ -11,6 +11,7 @@ dependencies:
   tuple: any
   material_design_icons_flutter: ^3.4.4995
   rxdart: ^0.23.1
+  url_launcher: ^5.4.2
   flutter:
     sdk: flutter
 

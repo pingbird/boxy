@@ -53,7 +53,10 @@ class ProductTilePageState extends State<ProductTilePage> {
   );
 
   build(BuildContext context) => Scaffold(
-    appBar: GalleryAppBar(["Boxy gallery", "Product tile"]),
+    appBar: GalleryAppBar(
+      ["Boxy gallery", "Product tile"],
+      source: "https://github.com/PixelToast/flutter-boxy/blob/master/examples/gallery/lib/pages/product_tile.dart",
+    ),
     backgroundColor: NiceColors.primary,
     body: Column(children: [
       Separator(),
