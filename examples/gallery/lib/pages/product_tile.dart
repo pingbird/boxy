@@ -29,32 +29,9 @@ class ProductTilePageState extends State<ProductTilePage> {
     titleCtrl.close();
   }
 
-  Widget buildSettings(Widget child) => LayoutBuilder(builder: (ctx, cns) =>
-    cns.maxWidth < settingsWidth ? child : Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [ConstrainedBox(
-        child: child,
-        constraints: BoxConstraints.tightFor(width: settingsWidth),
-      )],
-    ),
-  );
-
-  Widget buildTitle(String name) => Padding(
-    child: Text(
-      name,
-      style: TextStyle(
-        color: NiceColors.text,
-      ),
-    ),
-    padding: EdgeInsets.only(
-      left: 24,
-      top: 8,
-    ),
-  );
-
   build(BuildContext context) => Scaffold(
     appBar: GalleryAppBar(
-      ["Boxy gallery", "Product tile"],
+      ["Boxy Gallery", "Product Tile"],
       source: "https://github.com/PixelToast/flutter-boxy/blob/master/examples/gallery/lib/pages/product_tile.dart",
     ),
     backgroundColor: NiceColors.primary,
@@ -99,10 +76,6 @@ class ProductTilePageState extends State<ProductTilePage> {
         )),
         Padding(padding: EdgeInsets.only(top: 64)),
       ], physics: BouncingScrollPhysics()), color: NiceColors.background)),
-      Separator(),
-      buildSettings(Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        Padding(padding: EdgeInsets.only(top: 8)),
-      ])),
       Separator(),
     ]),
   );
