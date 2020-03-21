@@ -760,11 +760,12 @@ class BoxyChild {
   /// Lays out the child given constraints and returns the size the child that
   /// fits in those constraints.
   ///
-  /// By default [useSize] is true meaning if the child changes size the boxy is
-  /// marked for needing layout, set this to false if you are not using it.
+  /// If [useSize] is true, the boxy will re-layout when the child changes size,
+  /// this defaults to false if [constraints] are tight.
   ///
   /// This should only be called in [BoxyDelegate.layout].
-  Size layout(BoxConstraints constraints, {bool useSize = true}) {
+  Size layout(BoxConstraints constraints, {bool useSize}) {
+    useSize ??= !constraints.isTight;
     assert(() {
       if (_context.debugState != _BoxyDelegateState.Layout) {
         throw new FlutterError(
@@ -797,6 +798,12 @@ class BoxyChild {
     render.layout(constraints, parentUsesSize: useSize);
 
     return useSize ? render.size : null;
+  }
+
+  /// Tightly lays out and positions the child so that it fits in [rect].
+  layoutRect(Rect rect) {
+    layout(BoxConstraints.tight(rect.size));
+    position(rect.topLeft);
   }
 
   /// Paints the child in the current paint context, this should only be called
