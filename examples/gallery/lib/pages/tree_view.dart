@@ -38,7 +38,7 @@ class TreeViewPageState extends State<TreeViewPage> {
 
   build(BuildContext context) => Scaffold(
     appBar: GalleryAppBar(
-      ["Boxy gallery", "Tree view"],
+      ["Boxy Gallery", "Tree View"],
       source: "https://github.com/PixelToast/flutter-boxy/blob/master/examples/gallery/lib/pages/tree_view.dart",
     ),
     backgroundColor: NiceColors.primary,

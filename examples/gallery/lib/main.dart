@@ -1,3 +1,4 @@
+import 'package:boxy_gallery/pages/line_numbers.dart';
 import 'package:flutter/material.dart';
 import 'package:boxy_gallery/pages/product_tile.dart';
 import 'package:boxy_gallery/pages/tree_view.dart';
@@ -24,6 +25,7 @@ class MyApp extends StatelessWidget {
     routes: {
       "tree-view": (_) => TreeViewPage(),
       "product-tile": (_) => ProductTilePage(),
+      "line-numbers": (_) => LineNumberPage(),
     },
   );
 }
@@ -148,18 +150,23 @@ class GalleryAppBar extends StatelessWidget implements PreferredSizeWidget {
 
 class MyHomePage extends StatelessWidget {
   build(BuildContext context) => Scaffold(
-    appBar: GalleryAppBar(["Boxy gallery"]),
+    appBar: GalleryAppBar(["Boxy Gallery"]),
     body: Container(child: ListView(children: [
       Separator(),
       DemoTile(
         icon: MdiIcons.fileTree,
-        name: "Tree view",
+        name: "Tree View",
         route: "tree-view",
       ),
       DemoTile(
         icon: MdiIcons.viewDashboardOutline,
-        name: "Product tile",
+        name: "Product Tile",
         route: "product-tile",
+      ),
+      DemoTile(
+        icon: MdiIcons.formatListNumbered,
+        name: "Line Numbers",
+        route: "line-numbers",
       ),
       Separator(),
     ], physics: BouncingScrollPhysics()), color: NiceColors.primary),
