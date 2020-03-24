@@ -137,12 +137,11 @@ class _RenderBoxyElement extends RenderObjectElement {
     _RenderBoxyElementEntry lastEntry;
 
     RenderBox inflateChild(Object id, Widget widget) {
+      var slotIndex = _children.length + inflatedIds.length;
       inflatedIds.add(id);
       var entry = _delegateCache[id];
 
       owner.buildScope(this, () {
-        var slotIndex = _children.length + inflatedIds.length;
-
         void pushChild(Widget widget) {
           var newSlot = _IndexedSlot(
             slotIndex, lastEntry == null ?
