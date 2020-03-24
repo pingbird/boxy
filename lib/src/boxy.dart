@@ -94,9 +94,9 @@ class _RenderBoxyElement extends RenderObjectElement {
   // Elements of children explicitly passed to the widget.
   List<Element> _children;
 
-  // Elements of widgets inflated by the delegate, this is separate from
-  // explicit children so we can leverage updateChildren without
-  // touching widgets inflated by the delegate.
+  // Elements of widgets inflated at layout time, this is separate from
+  // _children so we can leverage the performance of _updateChildren without
+  // touching ones inflated by the delegate.
   LinkedList<_RenderBoxyElementEntry> _delegateChildren;
 
   // Hash map of each entry in _delegateChildren
@@ -115,7 +115,15 @@ class _RenderBoxyElement extends RenderObjectElement {
         _unlinked = true;
       } else if (_unlinked) {
         // Previous entry was unlinked, update slot.
-        updateSlotForChild(entry.element, entry.previous?.element ?? _children.last);
+        var newSlot = _IndexedSlot<Element>(
+          // Preserve index since its order is determined during layout
+          (entry.element.slot as _IndexedSlot).index, entry.previous?.element ??
+          (_children.isEmpty ? null : _children.last)
+        );
+        if (entry.element.slot != newSlot) {
+          updateSlotForChild(entry.element, newSlot);
+          moveChildRenderObject(entry.element.renderObject, newSlot);
+        }
         _unlinked = false;
       }
       entry = next;
@@ -126,27 +134,55 @@ class _RenderBoxyElement extends RenderObjectElement {
     assert(_delegateCache != null && _delegateChildren != null);
 
     var inflatedIds = <Object>{};
+    _RenderBoxyElementEntry lastEntry;
 
     RenderBox inflateChild(Object id, Widget widget) {
       inflatedIds.add(id);
       var entry = _delegateCache[id];
 
       owner.buildScope(this, () {
-        _IndexedSlot<Element> nextSlot() => _children.isEmpty ?
-          _IndexedSlot(null, _delegateChildren.last.element) :
-          _IndexedSlot(null, _children.last);
+        var slotIndex = _children.length + inflatedIds.length;
+
+        void pushChild(Widget widget) {
+          var newSlot = _IndexedSlot(
+            slotIndex, lastEntry == null ?
+              (_children.isEmpty ? null : _children.last) : lastEntry.element,
+          );
+          entry = _RenderBoxyElementEntry(id, updateChild(null, widget, newSlot));
+          _delegateCache[id] = entry;
+          if (lastEntry == null) {
+            _delegateChildren.addFirst(entry);
+          } else {
+            lastEntry.insertAfter(entry);
+          }
+        }
 
         try {
           if (entry != null) {
-            var slot = _IndexedSlot<Element>(
-              null, entry.previous?.element ?? _children.last
-            );
-            entry.element = updateChild(entry.element, widget, slot);
+            bool movedTop = lastEntry == null && entry.previous != null;
+            bool moved = movedTop || (lastEntry != null && entry.previous?.id != lastEntry.id);
+
+            var newSlot = _IndexedSlot(slotIndex, moved ?
+              (movedTop ?
+                (_children.isEmpty ? null : _children.last) :
+                lastEntry.element) :
+              entry.previous?.element ??
+                (_children.isEmpty ? null : _children.last));
+
+            entry.element = updateChild(entry.element, widget, newSlot);
+
+            // Move child if it was inflated in a different order
+            if (moved) {
+              entry.unlink();
+              if (movedTop) {
+                _delegateChildren.addFirst(entry);
+              } else {
+                lastEntry.insertAfter(entry);
+              }
+              moveChildRenderObject(entry.element.renderObject, newSlot);
+            }
           } else {
-            var slot = nextSlot();
-            entry = _RenderBoxyElementEntry(id, updateChild(null, widget, slot));
-            _delegateCache[id] = entry;
-            _delegateChildren.add(entry);
+            pushChild(widget);
           }
         } catch (e, stack) {
           var details = FlutterErrorDetails(
@@ -161,12 +197,10 @@ class _RenderBoxyElement extends RenderObjectElement {
 
           FlutterError.reportError(details);
 
-          var errorWidget = ErrorWidget.builder(details);
-          var slot = _children.isEmpty ?
-            _IndexedSlot(null, _delegateChildren.last.element) : _IndexedSlot(null, _children.last);
-          entry = _RenderBoxyElementEntry(id, updateChild(null, errorWidget, slot));
-          _delegateCache[id] = entry;
+          pushChild(ErrorWidget.builder(details));
         }
+
+        lastEntry = entry;
       });
 
       assert(entry.element.renderObject != null);
@@ -178,7 +212,7 @@ class _RenderBoxyElement extends RenderObjectElement {
 
     if (inflatedIds.length != _delegateCache.length) {
       // One or more cached children were not inflated, deactivate them.
-      _removeEntriesWhere((e) => !inflatedIds.contains(e));
+      _removeEntriesWhere((e) => !inflatedIds.contains(e.id));
     }
   }
 
@@ -384,9 +418,12 @@ class _RenderBoxyElement extends RenderObjectElement {
 
     if (_delegateChildren.isNotEmpty) {
       _IndexedSlot<Element> newSlot = _children.isEmpty ?
-        _IndexedSlot(null, null) :
-        _IndexedSlot(null, _children.last);
-      updateSlotForChild(_delegateChildren.first.element, newSlot);
+        _IndexedSlot(0, null) :
+        _IndexedSlot(_children.length, _children.last);
+      var childElement = _delegateChildren.first.element;
+      if (childElement.slot != newSlot) {
+        updateSlotForChild(childElement, newSlot);
+      }
     }
 
     _forgottenChildren.clear();
@@ -420,8 +457,8 @@ class _IndexedSlot<T> {
     if (other.runtimeType != runtimeType)
       return false;
     return other is _IndexedSlot
-        && index == other.index
-        && value == other.value;
+      && index == other.index
+      && value == other.value;
   }
 
   @override
@@ -458,6 +495,7 @@ class _RenderBoxy extends RenderBox with
   @override
   void performLayout() {
     _delegateContext.render = this;
+    _delegateContext.childrenMap.clear();
 
     assert(() {
       _delegateContext.debugChildrenNeedingLayout.clear();
@@ -469,9 +507,13 @@ class _RenderBoxy extends RenderBox with
     RenderBox child = firstChild;
 
     // Attempt to recycle existing child handles
-    while (index < _delegateContext.children.length && child != null) {
+    var top = min(_element._children.length, _delegateContext.children.length);
+    while (index < top && child != null) {
       final MultiChildLayoutParentData parentData = child.parentData;
       var id = parentData.id;
+
+      var oldChild = _delegateContext.children[index];
+      if (oldChild.id != (id ?? movingIndex) || oldChild.render != child) break;
 
       // Assign the child an incrementing index if it does not already have one.
       if (id == null) {
@@ -483,9 +525,7 @@ class _RenderBoxy extends RenderBox with
         return true;
       }());
 
-      var oldChild = _delegateContext.children[index];
-      if (oldChild.id != id || oldChild.render != child) break;
-      index++;
+      _delegateContext.childrenMap[id] = _delegateContext.children[index++];
       child = parentData.nextSibling;
     }
 
@@ -495,7 +535,8 @@ class _RenderBoxy extends RenderBox with
     }
     _delegateContext.children.length = index;
 
-    while (child != null) {
+    // Create new child handles
+    while (child != null && index < _element._children.length) {
       final MultiChildLayoutParentData parentData = child.parentData;
       var id = parentData.id;
 
@@ -520,6 +561,8 @@ class _RenderBoxy extends RenderBox with
         render: child,
       );
 
+      assert(_delegateContext.children.length == index);
+      index++;
       _delegateContext.childrenMap[id] = handle;
       _delegateContext.children.add(handle);
 
@@ -711,7 +754,8 @@ class BoxyChild {
     @required this.render,
   }) :
     _context = context,
-    assert(render != null);
+    assert(render != null),
+    assert(render.parentData != null);
 
   final _BoxyDelegateContext _context;
 
