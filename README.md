@@ -1,5 +1,3 @@
-![](https://i.tst.sh/5wY5l.png)
-
 # Boxy - Create advanced multi-child layouts in Flutter.
 
 This library provides `Boxy`, a multi-child layout widget that allows you to inflate, constrain, and lay out each child
