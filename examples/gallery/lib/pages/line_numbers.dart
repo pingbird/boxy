@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:math';
 
 import 'package:boxy/boxy.dart';
@@ -6,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:boxy_gallery/main.dart';
 import 'package:tuple/tuple.dart';
-import 'package:rxdart/rxdart.dart' as rx;
 
 class LineNumberPage extends StatefulWidget {
   createState() => LineNumberPageState();
