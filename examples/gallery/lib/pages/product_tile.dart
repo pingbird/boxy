@@ -226,7 +226,6 @@ class SeebInfoTile extends StatelessWidget {
   );
 }
 
-
 class SeebInfo extends StatefulWidget {
   final String price;
 
