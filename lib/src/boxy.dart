@@ -102,34 +102,6 @@ class _RenderBoxyElement extends RenderObjectElement {
   // Hash map of each entry in _delegateChildren
   Map<Object, _RenderBoxyElementEntry> _delegateCache;
 
-  void _removeEntriesWhere(bool Function(_RenderBoxyElementEntry) predicate) {
-    var _unlinked = false;
-    var entry = _delegateChildren.isEmpty ? null : _delegateChildren.first;
-
-    while (entry != null) {
-      var next = entry.next;
-      if (predicate(entry)) {
-        deactivateChild(entry.element);
-        _delegateCache.remove(entry.id);
-        entry.unlink();
-        _unlinked = true;
-      } else if (_unlinked) {
-        // Previous entry was unlinked, update slot.
-        var newSlot = _IndexedSlot<Element>(
-          // Preserve slot index since it gets updated during layout
-          (entry.element.slot as _IndexedSlot).index,
-          entry.previous?.element ?? (_children.isEmpty ? null : _children.last)
-        );
-        if (entry.element.slot != newSlot) {
-          updateSlotForChild(entry.element, newSlot);
-          moveChildRenderObject(entry.element.renderObject, newSlot);
-        }
-        _unlinked = false;
-      }
-      entry = next;
-    }
-  }
-
   void wrapInflaterCallback(void Function(_RenderBoxyInflater) callback) {
     assert(_delegateCache != null && _delegateChildren != null);
 
@@ -153,73 +125,73 @@ class _RenderBoxyElement extends RenderObjectElement {
 
       var entry = _delegateCache[id];
 
-      owner.buildScope(this, () {
-        void pushChild(Widget widget) {
-          var newSlot = _IndexedSlot(
-            slotIndex, lastEntry == null ?
-              (_children.isEmpty ? null : _children.last) : lastEntry.element,
-          );
-          entry = _RenderBoxyElementEntry(id, updateChild(null, widget, newSlot));
-          _delegateCache[id] = entry;
-          if (lastEntry == null) {
-            _delegateChildren.addFirst(entry);
-          } else {
-            lastEntry.insertAfter(entry);
-          }
+      void pushChild(Widget widget) {
+        var newSlot = _IndexedSlot(
+          slotIndex, lastEntry == null ?
+            (_children.isEmpty ? null : _children.last) : lastEntry.element,
+        );
+        entry = _RenderBoxyElementEntry(id, updateChild(null, widget, newSlot));
+        _delegateCache[id] = entry;
+        if (lastEntry == null) {
+          _delegateChildren.addFirst(entry);
+        } else {
+          lastEntry.insertAfter(entry);
         }
+      }
 
-        try {
-          if (entry != null) {
-            bool movedTop = lastEntry == null && entry.previous != null;
-            bool moved = movedTop || (lastEntry != null && entry.previous?.id != lastEntry.id);
+      try {
+        if (entry != null) {
+          bool movedTop = lastEntry == null && entry.previous != null;
+          bool moved = movedTop || (lastEntry != null && entry.previous?.id != lastEntry.id);
 
-            var newSlot = _IndexedSlot(slotIndex, moved ?
-              (movedTop ?
-                (_children.isEmpty ? null : _children.last) :
-                lastEntry.element) :
-              entry.previous?.element ??
-                (_children.isEmpty ? null : _children.last));
+          var newSlot = _IndexedSlot(slotIndex, moved ?
+            (movedTop ?
+              (_children.isEmpty ? null : _children.last) :
+              lastEntry.element) :
+            entry.previous?.element ??
+              (_children.isEmpty ? null : _children.last));
 
-            entry.element = updateChild(entry.element, widget, newSlot);
+          entry.element = updateChild(entry.element, widget, newSlot);
 
-            // Move child if it was inflated in a different order
-            if (moved) {
-              entry.unlink();
-              if (movedTop) {
-                _delegateChildren.addFirst(entry);
-              } else {
-                lastEntry.insertAfter(entry);
-              }
-              moveChildRenderObject(entry.element.renderObject, newSlot);
+          // Move child if it was inflated in a different order
+          if (moved) {
+            entry.unlink();
+            if (movedTop) {
+              _delegateChildren.addFirst(entry);
+            } else {
+              lastEntry.insertAfter(entry);
             }
-          } else {
-            pushChild(widget);
+            moveChildRenderObject(entry.element.renderObject, newSlot);
           }
-        } catch (e, stack) {
-          var details = FlutterErrorDetails(
-            context: ErrorDescription('building $widget'),
-            exception: e,
-            library: "boxy library",
-            stack: stack,
-            informationCollector: () sync* {
-              yield DiagnosticsDebugCreator(DebugCreator(this));
-            }
-          );
-
-          FlutterError.reportError(details);
-
-          pushChild(ErrorWidget.builder(details));
+        } else {
+          pushChild(widget);
         }
+      } catch (e, stack) {
+        var details = FlutterErrorDetails(
+          context: ErrorDescription('building $widget'),
+          exception: e,
+          library: "boxy library",
+          stack: stack,
+          informationCollector: () sync* {
+            yield DiagnosticsDebugCreator(DebugCreator(this));
+          }
+        );
 
-        lastEntry = entry;
-      });
+        FlutterError.reportError(details);
+
+        pushChild(ErrorWidget.builder(details));
+      }
+
+      lastEntry = entry;
 
       assert(entry.element.renderObject != null);
 
       return entry.element.renderObject as RenderBox;
     }
 
-    callback(inflateChild);
+    owner.buildScope(this, () {
+      callback(inflateChild);
+    });
 
     // One or more cached children were not inflated, deactivate them.
     if (inflatedIds.length != _delegateCache.length) {
@@ -229,8 +201,8 @@ class _RenderBoxyElement extends RenderObjectElement {
         var next = lastEntry.next;
         assert(!inflatedIds.contains(lastEntry.id));
         deactivateChild(lastEntry.element);
-        _delegateCache.remove(lastEntry.id);
         lastEntry.unlink();
+        _delegateCache.remove(lastEntry.id);
         lastEntry = next;
       }
     }
@@ -271,17 +243,27 @@ class _RenderBoxyElement extends RenderObjectElement {
         visitor(child);
     }
 
-    for (final element in _delegateChildren) {
-      if (!_forgottenChildren.contains(element.element))
-        visitor(element.element);
+    for (final child in _delegateChildren) {
+      visitor(child.element);
     }
   }
 
   @override
   void forgetChild(Element child) {
-    assert(_children.contains(child) || _delegateChildren.contains(child));
-    assert(!_forgottenChildren.contains(child));
-    _forgottenChildren.add(child);
+    bool inflated = false;
+    for (var entry in _delegateChildren) {
+      if (entry.element == child) {
+        entry.unlink();
+        _delegateCache.remove(entry.id);
+        inflated = true;
+        break;
+      }
+    }
+    if (!inflated) {
+      assert(!_forgottenChildren.contains(child));
+      assert(_children.contains(child));
+      _forgottenChildren.add(child);
+    }
     super.forgetChild(child);
   }
 
@@ -434,9 +416,7 @@ class _RenderBoxyElement extends RenderObjectElement {
     assert(widget == newWidget);
 
     _children = _updateChildren(_children, widget.children, forgottenChildren: _forgottenChildren);
-    if (_forgottenChildren.isNotEmpty) {
-      _removeEntriesWhere((e) => _forgottenChildren.contains(e.element));
-    }
+    _forgottenChildren.clear();
 
     if (_delegateChildren.isNotEmpty) {
       _IndexedSlot<Element> newSlot = _children.isEmpty ?
@@ -447,8 +427,6 @@ class _RenderBoxyElement extends RenderObjectElement {
         updateSlotForChild(childElement, newSlot);
       }
     }
-
-    _forgottenChildren.clear();
   }
 
   @override
@@ -1274,9 +1252,12 @@ abstract class BoxyDelegate<T> {
   /// After calling this method the child becomes available with [getChild], it
   /// is removed before the next call to [layout].
   ///
-  /// Unlike children explicitly passed to [Boxy], keys are not managed for
-  /// widgets inflated during layout meaning a widgets state can only be
-  /// preserved if inflated with the same object id in the previous layout.
+  /// A child's state will only be preserved if inflated with the same id as the
+  /// previous layout.
+  ///
+  /// Unlike children passed to the widget, [Key]s cannot be used to move state
+  /// from one child id to another. You may hit duplicate [GlobalKey] assertions
+  /// from children inflated during the previous layout.
   BoxyChild inflate(Widget child, {Object id}) {
     assert(() {
       if (_context == null || _context.inflater == null) {
