@@ -1,3 +1,4 @@
+import 'package:boxy_gallery/pages/blog_tile.dart';
 import 'package:boxy_gallery/pages/line_numbers.dart';
 import 'package:flutter/material.dart';
 import 'package:boxy_gallery/pages/product_tile.dart';
@@ -26,6 +27,7 @@ class MyApp extends StatelessWidget {
       "tree-view": (_) => TreeViewPage(),
       "product-tile": (_) => ProductTilePage(),
       "line-numbers": (_) => LineNumberPage(),
+      "blog-tile": (_) => BlogTilePage(),
     },
   );
 }
@@ -159,7 +161,7 @@ class MyHomePage extends StatelessWidget {
         route: "tree-view",
       ),
       DemoTile(
-        icon: MdiIcons.viewDashboardOutline,
+        icon: MdiIcons.dockBottom,
         name: "Product Tile",
         route: "product-tile",
       ),
@@ -167,6 +169,11 @@ class MyHomePage extends StatelessWidget {
         icon: MdiIcons.formatListNumbered,
         name: "Line Numbers",
         route: "line-numbers",
+      ),
+      DemoTile(
+        icon: MdiIcons.viewSplitVertical,
+        name: "Blog Tile",
+        route: "blog-tile",
       ),
       Separator(),
     ], physics: BouncingScrollPhysics()), color: NiceColors.primary),
