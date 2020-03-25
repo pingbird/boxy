@@ -72,12 +72,12 @@ class StateTestDelegate extends BoxyDelegate {
 }
 
 void main() {
-  testWidgets('State preservation', (tester) async {
-    await tester.runAsync(() async {
-      var states = <String, StateTestChildState>{};
+  testWidgets('State preservation', (tester) => tester.runAsync(() async {
+    var states = <String, StateTestChildState>{};
 
-      Future<void> testMutate(Set<String> children, Set<String> inflated) async {
-        await tester.pumpWidget(TestFrame(child: Boxy(
+    Future<void> testMutate(Set<String> children, Set<String> inflated, Set<String> outside) async {
+      await tester.pumpWidget(TestFrame(child: Column(children: [
+        Boxy(
           key: GlobalObjectKey(#boxy),
           delegate: StateTestDelegate(
             numChildren: children.length,
@@ -86,79 +86,103 @@ void main() {
           children: [
             for (var nm in children) StateTestChild(key: GlobalObjectKey(nm)),
           ],
-        )));
+        ),
+        for (var nm in outside) StateTestChild(key: GlobalObjectKey(nm)),
+      ])));
 
-        var allNames = children.union(inflated);
+      var allNames = children.union(inflated).union(outside);
 
-        var boxyElement = keyElement(#boxy);
+      var boxyElement = keyElement(#boxy);
 
-        var childElements = <Element>[];
-        boxyElement.visitChildren(childElements.add);
-        expect(childElements, hasLength(allNames.length));
+      var childElements = <Element>[];
+      boxyElement.visitChildren(childElements.add);
+      expect(childElements, hasLength(allNames.length - outside.length));
 
-        var childRenderObjects = <RenderBox>[];
-        boxyElement.renderObject.visitChildren((child) {
-          childRenderObjects.add(child);
+      var childRenderObjects = <RenderBox>[];
+      boxyElement.renderObject.visitChildren(childRenderObjects.add);
+
+      // Make sure Element tree is in the correct order
+
+      for (var i = 0; i < children.length; i++) {
+        expect(childElements[i].widget.key, equals(GlobalObjectKey(children.elementAt(i))));
+      }
+
+      for (var i = 0; i < inflated.length; i++) {
+        expect(childElements[i + children.length].widget.key, equals(GlobalObjectKey(inflated.elementAt(i))));
+      }
+
+      // Make sure Element tree matches RenderObject tree
+
+      expect(childRenderObjects, hasLength(childElements.length));
+      for (var i = 0; i < childElements.length; i++) {
+        expect(childElements[i].renderObject, equals(childRenderObjects[i]));
+        Element parent;
+        childElements[i].visitAncestorElements((element) {
+          parent = element;
+          return false;
         });
+        expect(parent, equals(boxyElement));
+      }
 
-        // Make sure Element tree is in the correct order
+      for (var nm in allNames) {
+        var element = keyElement(nm) as StatefulElement;
+        expect(element.widget, isA<StateTestChild>());
+        var state = element.state as StateTestChildState;
 
-        for (var i = 0; i < children.length; i++) {
-          expect(childElements[i].widget.key, equals(GlobalObjectKey(children.elementAt(i))));
-        }
-
-        for (var i = 0; i < inflated.length; i++) {
-          expect(childElements[i + children.length].widget.key, equals(GlobalObjectKey(inflated.elementAt(i))));
-        }
-
-        // Make sure Element tree matches RenderObject tree
-
-        expect(childRenderObjects, hasLength(childElements.length));
-        for (var i = 0; i < childElements.length; i++) {
-          expect(childElements[i].renderObject, equals(childRenderObjects[i]));
-        }
-
-        for (var nm in allNames) {
-          var element = keyElement(nm) as StatefulElement;
-          expect(element.widget, isA<StateTestChild>());
-          var state = element.state as StateTestChildState;
-
-          if (!states.containsKey(nm)) {
-            // Make sure new children have new states
-            expect(state.isNew, isTrue);
-            state.isNew = false;
-            states[nm] = state;
-          } else {
-            // Make sure state has been preserved
-            expect(states[nm], equals(state));
-          }
-        }
-
-        // Make sure old children have been disposed
-        for (var nm in states.keys.where((nm) => !allNames.contains(nm)).toList()) {
-          var state = states[nm];
-          expect(state.checkDisposed, isTrue);
-          state.checkDisposed = false;
-          states.remove(nm);
+        if (!states.containsKey(nm)) {
+          // Make sure new children have new states
+          expect(state.isNew, isTrue);
+          state.isNew = false;
+          states[nm] = state;
+        } else {
+          // Make sure state has been preserved
+          expect(states[nm], equals(state));
         }
       }
 
-      Future<void> mutateIter(int n) => testMutate({
-        if (n & 1 != 0) "c0",
-        if ((n >> 1) & 1 != 0) "c1",
-        if ((n >> 2) & 1 != 0) "c2",
-      }, {
-        if ((n >> 3) & 1 != 0) "c3",
-        if ((n >> 4) & 1 != 0) "c4",
-        if ((n >> 5) & 1 != 0) "c5",
-      });
-
-      for (int i = 0; i < 64; i++) {
-        for (int j = 0; j < i; j++) {
-          await mutateIter(i);
-          await mutateIter(j);
-        }
+      // Make sure old children have been disposed
+      for (var nm in states.keys.where((nm) => !allNames.contains(nm)).toList()) {
+        var state = states[nm];
+        expect(state.checkDisposed, isTrue);
+        state.checkDisposed = false;
+        states.remove(nm);
       }
+    }
+
+    // Test arbitrary ordering of explicit children / inflated children
+    Future<void> mutateIter(int n) => testMutate({
+      if (n & 1 != 0) "c0",
+      if ((n >> 1) & 1 != 0) "c1",
+      if ((n >> 2) & 1 != 0) "c2",
+    }, {
+      if ((n >> 3) & 1 != 0) "c3",
+      if ((n >> 4) & 1 != 0) "c4",
+      if ((n >> 5) & 1 != 0) "c5",
+    }, {});
+
+    for (int i = 0; i < 64; i++) {
+      for (int j = 0; j < i; j++) {
+        await mutateIter(i);
+        await mutateIter(j);
+      }
+    }
+
+    // Test moving children in and out of the boxy element with GlobalKeys
+    Future<void> mutateIter2(int n) => testMutate({}, {
+      if (n % 3 == 1) "c0",
+      if ((n ~/ 3) % 3 == 1) "c1",
+      if ((n ~/ 9) % 3 == 1) "c2",
+    }, {
+      if (n % 3 == 2) "c0",
+      if ((n ~/ 3) % 3 == 2) "c1",
+      if ((n ~/ 9) % 3 == 2) "c2",
     });
-  });
+
+    for (int i = 0; i < 27; i++) {
+      for (int j = 0; j < i; j++) {
+        await mutateIter2(i);
+        await mutateIter2(j);
+      }
+    }
+  }));
 }
