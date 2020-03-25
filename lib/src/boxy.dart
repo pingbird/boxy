@@ -580,7 +580,9 @@ class _RenderBoxy extends RenderBox with
       _element.wrapInflaterCallback((inflater) {
         _delegateContext.inflater = inflater;
         delegate._callWithContext(_delegateContext, _BoxyDelegateState.Layout, () {
-          size = constraints.constrain(delegate.layout());
+          size = delegate.layout();
+          assert(size != null);
+          size = constraints.constrain(size);
         });
         _delegateContext.inflater = null;
       });
@@ -891,10 +893,12 @@ class BoxyChild {
     );
   }
 
-  /// Whether or not this child should be ignored from painting and hit testing,
-  /// the child must still be layed out.
-  bool get ignore => _ignore;
-  set ignore(bool value) {
+  /// Whether or not this child should be ignored from painting and hit testing.
+  bool get isIgnored => _ignore;
+
+  /// Causes this child to be dropped from paint and hit testing, the child
+  /// still needs to be layed out.
+  void ignore([bool value = true]) {
     assert(value != null);
     _ignore = value;
   }
@@ -1128,6 +1132,9 @@ abstract class BoxyDelegate<T> {
     }());
     return child;
   }
+
+  /// Gets the current build context of the boxy.
+  BuildContext get buildContext => _getContext().render._element;
 
   /// The number of children that have not been given a [LayoutId], this
   /// guarantees there are child ids between 0 (inclusive) to indexedChildCount
