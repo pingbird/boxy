@@ -524,7 +524,8 @@ class _RenderBoxy extends RenderBox with
         return true;
       }());
 
-      _delegateContext.childrenMap[id] = _delegateContext.children[index++];
+      _delegateContext.childrenMap[id] = _delegateContext.children[index++]
+        .._ignore = false;
       child = parentData.nextSibling;
     }
 
@@ -757,6 +758,7 @@ class BoxyChild {
     assert(render.parentData != null);
 
   final _BoxyDelegateContext _context;
+  bool _ignore = false;
 
   /// The id of the child, will either be the id given by [LayoutId] or an
   /// incrementing int in the order provided to [Boxy].
@@ -855,6 +857,7 @@ class BoxyChild {
   /// This the canvas must be restored before calling this because the child
   /// might need its own [Layer] which is rendered in a separate context.
   void paint({Offset offset}) {
+    if (_ignore) return;
     assert(() {
       if (_context.debugState != _BoxyDelegateState.Painting) {
         throw new FlutterError(
@@ -878,6 +881,7 @@ class BoxyChild {
   /// The [position] argument specifies the relative position of the hit test,
   /// defaults to the position given to [BoxyDelegate.hitTest].
   bool hitTest({Offset offset, Offset position}) {
+    if (_ignore) return false;
     return _context.hitTestResult.addWithPaintOffset(
       offset: offset ?? this.offset,
       position: position ?? _context.offset,
@@ -885,6 +889,14 @@ class BoxyChild {
         return render.hitTest(result, position: transformed);
       },
     );
+  }
+
+  /// Whether or not this child should be ignored from painting and hit testing,
+  /// the child must still be layed out.
+  bool get ignore => _ignore;
+  set ignore(bool value) {
+    assert(value != null);
+    _ignore = value;
   }
 
   @override
@@ -1024,35 +1036,35 @@ class BoxyChild {
 /// ```dart
 ///   @override
 ///   Size layout() {
-///    var firstChild = getChild(#first);
+///     var firstChild = getChild(#first);
 ///
-///    var firstSize = firstChild.layout(constraints);
-///    firstChild.position(Offset.zero);
+///     var firstSize = firstChild.layout(constraints);
+///     firstChild.position(Offset.zero);
 ///
-///    var text = Padding(child: Text(
-///      "^ This guy is ${firstSize.width} x ${firstSize.height}",
-///      textAlign: TextAlign.center,
-///    ), padding: EdgeInsets.all(8));
+///     var text = Padding(child: Text(
+///       "^ This guy is ${firstSize.width} x ${firstSize.height}",
+///       textAlign: TextAlign.center,
+///     ), padding: EdgeInsets.all(8));
 ///
-///    // Inflate the text widget
-///    var secondChild = inflate(text, id: #second);
+///     // Inflate the text widget
+///     var secondChild = inflate(text, id: #second);
 ///
-///    var secondSize = secondChild.layout(
-///      constraints.deflate(
-///        EdgeInsets.only(top: firstSize.height)
-///      ).tighten(
-///        width: firstSize.width
-///      )
-///    );
+///     var secondSize = secondChild.layout(
+///       constraints.deflate(
+///         EdgeInsets.only(top: firstSize.height)
+///       ).tighten(
+///         width: firstSize.width
+///       )
+///     );
 ///
-///    secondChild.position(Offset(0, firstSize.height));
+///     secondChild.position(Offset(0, firstSize.height));
 ///
-///    return Size(
-///      firstSize.width,
-///      firstSize.height + secondSize.height,
-///    );
-///  }
-///```
+///     return Size(
+///       firstSize.width,
+///       firstSize.height + secondSize.height,
+///     );
+///   }
+/// ```
 abstract class BoxyDelegate<T> {
   BoxyDelegate({
     Listenable relayout,
