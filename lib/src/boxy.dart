@@ -116,9 +116,9 @@ class _RenderBoxyElement extends RenderObjectElement {
       } else if (_unlinked) {
         // Previous entry was unlinked, update slot.
         var newSlot = _IndexedSlot<Element>(
-          // Preserve index since its order is determined during layout
-          (entry.element.slot as _IndexedSlot).index, entry.previous?.element ??
-          (_children.isEmpty ? null : _children.last)
+          // Preserve slot index since it gets updated during layout
+          (entry.element.slot as _IndexedSlot).index,
+          entry.previous?.element ?? (_children.isEmpty ? null : _children.last)
         );
         if (entry.element.slot != newSlot) {
           updateSlotForChild(entry.element, newSlot);
@@ -133,12 +133,24 @@ class _RenderBoxyElement extends RenderObjectElement {
   void wrapInflaterCallback(void Function(_RenderBoxyInflater) callback) {
     assert(_delegateCache != null && _delegateChildren != null);
 
-    var inflatedIds = <Object>{};
+    Set<Object> inflatedIds;
+
+    assert(() {
+      inflatedIds = <Object>{};
+      return true;
+    }());
+
+    int index = 0;
     _RenderBoxyElementEntry lastEntry;
 
     RenderBox inflateChild(Object id, Widget widget) {
-      var slotIndex = _children.length + inflatedIds.length;
-      inflatedIds.add(id);
+      var slotIndex = index++;
+
+      assert(() {
+        inflatedIds.add(id);
+        return true;
+      }());
+
       var entry = _delegateCache[id];
 
       owner.buildScope(this, () {
@@ -209,9 +221,18 @@ class _RenderBoxyElement extends RenderObjectElement {
 
     callback(inflateChild);
 
+    // One or more cached children were not inflated, deactivate them.
     if (inflatedIds.length != _delegateCache.length) {
-      // One or more cached children were not inflated, deactivate them.
-      _removeEntriesWhere((e) => !inflatedIds.contains(e.id));
+      assert(inflatedIds.length < _delegateCache.length);
+      lastEntry = lastEntry == null ? _delegateChildren.first : lastEntry.next;
+      while (lastEntry != null) {
+        var next = lastEntry.next;
+        assert(!inflatedIds.contains(lastEntry.id));
+        deactivateChild(lastEntry.element);
+        _delegateCache.remove(lastEntry.id);
+        lastEntry.unlink();
+        lastEntry = next;
+      }
     }
   }
 
@@ -413,7 +434,9 @@ class _RenderBoxyElement extends RenderObjectElement {
     assert(widget == newWidget);
 
     _children = _updateChildren(_children, widget.children, forgottenChildren: _forgottenChildren);
-    _removeEntriesWhere((e) => _forgottenChildren.contains(e.element));
+    if (_forgottenChildren.isNotEmpty) {
+      _removeEntriesWhere((e) => _forgottenChildren.contains(e.element));
+    }
 
     if (_delegateChildren.isNotEmpty) {
       _IndexedSlot<Element> newSlot = _children.isEmpty ?
