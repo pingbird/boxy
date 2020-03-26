@@ -175,7 +175,7 @@ class LineNumberView extends StatelessWidget {
     this.lineAlignment = 0.0,
   });
 
-  build(context) => Boxy(
+  build(context) => CustomBoxy(
     children: [
       if (numberBg != null) LayoutId(id: #numBg, child: numberBg),
       if (lineBg != null) LayoutId(id: #lineBg, child: lineBg),

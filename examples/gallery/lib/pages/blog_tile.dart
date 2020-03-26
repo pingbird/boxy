@@ -295,7 +295,7 @@ class BlogTile extends StatelessWidget {
     @required this.icons,
   });
 
-  build(context) => Boxy(
+  build(context) => CustomBoxy(
     delegate: BlogTileDelegate(
       numButtons: icons.length,
       buttonBuilder: (context, i) =>

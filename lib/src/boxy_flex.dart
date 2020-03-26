@@ -690,6 +690,12 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
       while (child != null) {
         var flex = _getFlex(child);
         if (_getDominant(child)) {
+          assert(() {
+            if (dominantChild != null) {
+              
+            }
+            return true;
+          }());
           if (flex == 0) {
             var mainSize = child.getMaxIntrinsicAxis(_direction, double.infinity);
             return childSize(child, mainSize);

@@ -31,8 +31,8 @@ import 'package:flutter/rendering.dart';
 /// See also:
 ///
 ///  * [BoxyDelegate], the base class of a delegate.
-class Boxy extends RenderObjectWidget {
-  Boxy({
+class CustomBoxy extends RenderObjectWidget {
+  CustomBoxy({
     Key key,
     @required this.delegate,
     this.children = const <Widget>[],
@@ -77,16 +77,16 @@ class _RenderBoxyElementEntry extends LinkedListEntry<_RenderBoxyElementEntry> {
 
 typedef _RenderBoxyInflater = RenderBox Function(Object, Widget);
 
-/// An Element that uses a [Boxy] as its configuration, this is similar to
+/// An Element that uses a [CustomBoxy] as its configuration, this is similar to
 /// [MultiChildRenderObjectElement] but allows multiple children to be inflated
 /// during layout.
 class _RenderBoxyElement extends RenderObjectElement {
-  _RenderBoxyElement(Boxy widget)
+  _RenderBoxyElement(CustomBoxy widget)
     : assert(!debugChildrenHaveDuplicateKeys(widget, widget.children)),
       super(widget);
 
   @override
-  Boxy get widget => super.widget as Boxy;
+  CustomBoxy get widget => super.widget as CustomBoxy;
 
   @override
   _RenderBoxy get renderObject => super.renderObject as _RenderBoxy;
@@ -411,7 +411,7 @@ class _RenderBoxyElement extends RenderObjectElement {
   }
 
   @override
-  void update(Boxy newWidget) {
+  void update(CustomBoxy newWidget) {
     super.update(newWidget);
     assert(widget == newWidget);
 
@@ -748,7 +748,7 @@ class _BoxyDelegateContext {
 ///
 /// See also:
 ///
-///  * [Boxy]
+///  * [CustomBoxy]
 ///  * [BoxyDelegate]
 class BoxyChild {
   BoxyChild._({
@@ -764,7 +764,7 @@ class BoxyChild {
   bool _ignore = false;
 
   /// The id of the child, will either be the id given by [LayoutId] or an
-  /// incrementing int in the order provided to [Boxy].
+  /// incrementing int in the order provided to [CustomBoxy].
   final Object id;
 
   /// The RenderBox for this child in case you need to access intrinsic
@@ -910,7 +910,7 @@ class BoxyChild {
 
 /// A delegate that controls the layout of multiple children.
 ///
-/// Used with [Boxy].
+/// Used with [CustomBoxy].
 ///
 /// Delegates must ensure an identical delegate produces the same layout.
 /// If your delegate takes arguments also make sure [shouldRelayout] and/or
@@ -925,7 +925,7 @@ class BoxyChild {
 ///
 /// The default constructor accepts [Listenable]s that can trigger a re-layout
 /// and re-paint. For example during an animation it is more efficient to pass
-/// the animation directly instead of having the parent rebuild [Boxy] with a
+/// the animation directly instead of having the parent rebuild [CustomBoxy] with a
 /// new delegate.
 ///
 /// ### Layout
@@ -1031,7 +1031,7 @@ class BoxyChild {
 /// during further painting and hit testing, it is removed from the map before
 /// the next call to [layout].
 ///
-/// Unlike children explicitly passed to [Boxy], keys are not managed for
+/// Unlike children explicitly passed to [CustomBoxy], keys are not managed for
 /// widgets inflated during layout meaning a widgets state can only be
 /// preserved if inflated with the same object id in the previous layout.
 ///

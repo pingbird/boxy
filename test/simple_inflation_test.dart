@@ -40,7 +40,7 @@ class SimpleInflationDelegate extends BoxyDelegate {
 
 void main() {
   testWidgets('Consistent subtitle', (tester) async {
-    await tester.pumpWidget(TestFrame(child: Boxy(
+    await tester.pumpWidget(TestFrame(child: CustomBoxy(
       key: GlobalObjectKey(#boxy),
       delegate: SimpleInflationDelegate(),
       children: [

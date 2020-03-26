@@ -320,7 +320,7 @@ class ProductTile extends StatelessWidget {
     this.style = const ProductTileStyle(),
   });
 
-  build(context) => Boxy(
+  build(context) => CustomBoxy(
     delegate: ProductTileDelegate(style: style),
     children: [
       LayoutId(id: #title, child: title),
