@@ -231,7 +231,7 @@ class TreeView extends StatelessWidget {
     var children = <Widget>[];
     root.addTo(children);
 
-    return Boxy(
+    return CustomBoxy(
       children: children,
       delegate: TreeViewDelegate(
         root: root,

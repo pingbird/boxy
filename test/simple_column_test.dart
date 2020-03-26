@@ -41,7 +41,7 @@ class SimpleColumnDelegate extends BoxyDelegate {
 
 void main() {
   testWidgets('Consistent dimensions', (tester) async {
-    await tester.pumpWidget(TestFrame(child: Boxy(
+    await tester.pumpWidget(TestFrame(child: CustomBoxy(
       key: GlobalObjectKey(#boxy),
       delegate: SimpleColumnDelegate(),
       children: [
@@ -67,7 +67,7 @@ void main() {
   });
 
   testWidgets('Height constraints', (tester) async {
-    await tester.pumpWidget(TestFrame(child: Boxy(
+    await tester.pumpWidget(TestFrame(child: CustomBoxy(
       key: GlobalObjectKey(#boxy),
       delegate: SimpleColumnDelegate(),
       children: [
