@@ -1,3 +1,1 @@
-library utils;
-
-export 'package:boxy/src/layout_utils.dart';
+export 'package:boxy/src/axis_utils.dart';
