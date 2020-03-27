@@ -946,7 +946,7 @@ class BoxyChild {
 /// ```dart
 ///   @override
 ///   Size layout() {
-///     // Get both children by a Symbol id.
+///     // Get both children by a Symbol id
 ///     var firstChild = getChild(#first);
 ///     var secondChild = getChild(#second);
 ///
