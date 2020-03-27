@@ -94,7 +94,8 @@ class MyLayout extends StatelessWidget {
       // Use LayoutId to give each child an id
       LayoutId(id: #top, child: top),
       LayoutId(id: #bottom, child: bottom),
-      // The middle widget should be rendered last so we put it at the bottom of the list
+      // The middle widget should be rendered above the others
+      // so we put it at the bottom of the list
       LayoutId(id: #middle, child: middle),
     ],
   );
