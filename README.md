@@ -94,7 +94,7 @@ class MyLayout extends StatelessWidget {
       // Use LayoutId to give each child an id
       LayoutId(id: #top, child: top),
       LayoutId(id: #bottom, child: bottom),
-      // The middle widget should be rendered last
+      // The middle widget should be rendered last so we put it at the bottom of the list
       LayoutId(id: #middle, child: middle),
     ],
   );
@@ -126,11 +126,13 @@ class MyDelegate extends BoxyDelegate {
       topSize.height - middle.height / 2,
     ));
     
-    // Lay out and position bottom widget
+    // Lay out bottom widget
     var bottomSize = info.layout(topConstraints.tighten(
-      // Bottom widget should be same size as top widget
+      // Bottom widget should be same width as top widget
       width: topSize.width,
     ));
+    
+    // Position bottom widget directly below top widget
     bottom.position(Offset(0, topSize.height));
     
     // Calculate total size
