@@ -28,25 +28,23 @@ as another child in the list, you can achieve this layout using `BoxyFlex`/`Boxy
 ```
 
 ```dart
-build(context) =>
-  BoxyColumn(children: [
-    Dominant(child: Child1()),
-    Child2(),
-  ]);
+BoxyColumn(children: [
+ Dominant(child: Child1()),
+ Child2(),
+]);
 
 // Alternatively,
-build(context) =>
-  BoxyFlex(
-    direction: Axis.vertical,
-    children: [
-      BoxyFlexible(
-        flex: 0,
-        dominant: true,
-        child: Child1(),
-      ),
-      Child2(),
-    ],
-  );
+BoxyFlex(
+  direction: Axis.vertical,
+  children: [
+    BoxyFlexible(
+      flex: 0,
+      dominant: true,
+      child: Child1(),
+    ),
+    Child2(),
+  ],
+);
 ```
 
 ### Complex custom layouts
