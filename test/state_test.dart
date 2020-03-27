@@ -77,7 +77,7 @@ void main() {
 
     Future<void> testMutate(Set<String> children, Set<String> inflated, Set<String> outside) async {
       await tester.pumpWidget(TestFrame(child: Column(children: [
-        Boxy(
+        CustomBoxy(
           key: GlobalObjectKey(#boxy),
           delegate: StateTestDelegate(
             numChildren: children.length,

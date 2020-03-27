@@ -139,6 +139,14 @@ extension BoxConstraintsAxisUtil on BoxConstraints {
     return axis == Axis.vertical ? minWidth : minHeight;
   }
 
+  /// Returns new box constraints with a tight main and/or cross axes.
+  BoxConstraints tightenAxis(Axis axis, {double cross, double main}) {
+    assert(axis != null);
+    return axis == Axis.vertical ?
+      tighten(width: cross, height: main) :
+      tighten(width: main, height: cross);
+  }
+
   /// Returns the size that both satisfies the constraints and is as close as
   /// possible to the given cross and main size.
   ///
@@ -318,4 +326,36 @@ extension SizeAxisUtil on Size {
     assert(axis != null);
     return axis == Axis.vertical ? width : height;
   }
+}
+
+/// A box with a specified size.
+///
+/// Identical to [SizedBox] but sizes its child based on the cross and main
+/// dimensions on the specified axis.
+class AxisSizedBox extends SizedBox {
+  /// Creates a fixed size box. The [cross] and [main] parameters can be null
+  /// to indicate that the size of the box should not be constrained in
+  /// the corresponding dimension.
+  const AxisSizedBox({
+    Key key,
+    @required Axis axis,
+    double cross,
+    double main,
+  }) : assert(axis != null), super(
+    key: key,
+    width: axis == Axis.vertical ? cross : main,
+    height: axis == Axis.vertical ? main : cross,
+  );
+
+  /// Same as the default constructor but sizes based on the cross axis.
+  const AxisSizedBox.cross({
+    @required Key key,
+    @required Axis axis,
+    double cross,
+    double main,
+  }) : assert(axis != null), super(
+    key: key,
+    width: axis == Axis.vertical ? main : cross,
+    height: axis == Axis.vertical ? cross : main,
+  );
 }

@@ -7,8 +7,10 @@ import 'dart:math' as math;
 
 /// A widget that displays its children in a one-dimensional array.
 ///
-/// This is identical to [Flex] but accepts [BoxyFlexible] and [Dominant]
+/// This is identical to [Flex] but also accepts [BoxyFlexible] and [Dominant]
 /// children.
+///
+/// Making a child
 class BoxyFlex extends MultiChildRenderObjectWidget {
   /// Creates a boxy flex layout.
   ///
@@ -196,7 +198,7 @@ class BoxyFlex extends MultiChildRenderObjectWidget {
 
 /// A widget that displays its children in a horizontal array.
 ///
-/// This is identical to [Row] but accepts [BoxyFlexible] and [Dominant]
+/// This is identical to [Row] but also accepts [BoxyFlexible] and [Dominant]
 /// children.
 class BoxyRow extends BoxyFlex {
   /// Creates a horizontal array of children.
@@ -236,7 +238,7 @@ class BoxyRow extends BoxyFlex {
 
 /// A widget that displays its children in a vertical array.
 ///
-/// This is identical to [Row] but accepts [BoxyFlexible] and [Dominant]
+/// This is identical to [Row] but also accepts [BoxyFlexible] and [Dominant]
 /// children.
 class BoxyColumn extends BoxyFlex {
   /// Creates a vertical array of children.
@@ -273,24 +275,7 @@ class BoxyColumn extends BoxyFlex {
 }
 
 /// Parent data for use with [RenderBoxyFlex].
-class BoxyFlexParentData extends ContainerBoxParentData<RenderBox> {
-  /// The flex factor to use for this child
-  ///
-  /// If null or zero, the child is inflexible and determines its own size. If
-  /// non-zero, the amount of space the child's can occupy in the main axis is
-  /// determined by dividing the free space (after placing the inflexible
-  /// children) according to the flex factors of the flexible children.
-  int flex;
-
-  /// How a flexible child is inscribed into the available space.
-  ///
-  /// If [flex] is non-zero, the [fit] determines whether the child fills the
-  /// space the parent makes available during layout. If the fit is
-  /// [FlexFit.tight], the child is required to fill the available space. If the
-  /// fit is [FlexFit.loose], the child can be at most as large as the available
-  /// space (but is allowed to be smaller).
-  FlexFit fit;
-
+class BoxyFlexParentData extends FlexParentData {
   /// Whether this child should determine the maximum cross axis size of every
   /// other child.
   bool dominant;
@@ -303,7 +288,7 @@ class BoxyFlexParentData extends ContainerBoxParentData<RenderBox> {
 /// [BoxyFlex] flexes.
 ///
 /// This is the same as [Flexible] but has a [dominant] flag.
-class BoxyFlexible extends ParentDataWidget<BoxyFlexParentData> {
+class BoxyFlexible extends ParentDataWidget<FlexParentData> {
   /// Creates a widget that controls how a child of a [Row], [Column], or [Flex]
   /// flexes.
   const BoxyFlexible({
@@ -674,7 +659,7 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
         } else {
           inflexibleSpace += childSize(child, extent);
         }
-        final BoxyFlexParentData childParentData = child.parentData as BoxyFlexParentData;
+        final FlexParentData childParentData = child.parentData as FlexParentData;
         child = childParentData.nextSibling;
       }
       return maxFlexFractionSoFar * totalFlex + inflexibleSpace;
@@ -692,7 +677,7 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
         if (_getDominant(child)) {
           assert(() {
             if (dominantChild != null) {
-              
+
             }
             return true;
           }());
@@ -702,7 +687,7 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
           }
           dominantChild = child;
         }
-        final childParentData = child.parentData as BoxyFlexParentData;
+        final childParentData = child.parentData as FlexParentData;
         child = childParentData.nextSibling;
       }
 
@@ -722,7 +707,7 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
             maxCrossSize = math.max(maxCrossSize, childSize(child, mainSize));
           }
         }
-        final BoxyFlexParentData childParentData = child.parentData as BoxyFlexParentData;
+        final FlexParentData childParentData = child.parentData as FlexParentData;
         child = childParentData.nextSibling;
       }
 
@@ -732,7 +717,7 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
         (availableMainSpace - inflexibleSpace) / totalFlex);
 
       if (dominantChild != null) {
-        return childSize(child, spacePerFlex * _getFlex(dominantChild));
+        return childSize(dominantChild, spacePerFlex * _getFlex(dominantChild));
       }
 
       // Size remaining (flexible) items, find the maximum cross size.
@@ -741,7 +726,7 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
         final int flex = _getFlex(child);
         if (flex > 0)
           maxCrossSize = math.max(maxCrossSize, childSize(child, spacePerFlex * flex));
-        final BoxyFlexParentData childParentData = child.parentData as BoxyFlexParentData;
+        final FlexParentData childParentData = child.parentData as FlexParentData;
         child = childParentData.nextSibling;
       }
 
@@ -843,44 +828,16 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
     RenderBox dominantChild;
     RenderBox child = firstChild;
     bool hasInflexible = false;
-    bool intrinsicDominant = false;
+    RenderBox lastFlexChild;
 
     while (child != null) {
       totalChildren++;
       hasInflexible |= _getFlex(child) == 0;
       if (_getDominant(child)) {
-
+        assert(dominantChild == null);
         dominantChild = child;
       }
-      final childParentData = child.parentData as BoxyFlexParentData;
-      child = childParentData.nextSibling;
-    }
 
-    double maxCrossSize;
-    double crossSize = 0.0;
-
-    if (dominantChild == null) {
-      maxCrossSize = constraints.maxCrossAxis(_direction);
-    } else {
-      intrinsicDominant = _getFlex(dominantChild) != 0 && hasInflexible;
-      if (intrinsicDominant) {
-        maxCrossSize = constraints.constrainCrossAxis(_direction,
-          dominantChild.getMaxIntrinsicCrossAxis(_direction, double.infinity),
-        );
-      } else {
-        dominantChild.layout(constraints.crossAxisConstraints(_direction));
-        maxCrossSize = dominantChild.size.crossAxisSize(_direction);
-      }
-    }
-
-    BoxConstraints innerConstraints = BoxConstraintsAxisUtil.tightFor(
-      _direction, cross: maxCrossSize
-    );
-    double allocatedSize = 0.0; // Sum of the sizes of the non-flexible children.
-    RenderBox lastFlexChild;
-    child = firstChild;
-    while (child != null) {
-      final BoxyFlexParentData childParentData = child.parentData as BoxyFlexParentData;
       final int flex = _getFlex(child);
       if (flex > 0) {
         assert(() {
@@ -947,21 +904,73 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
             ),
           ]);
         }());
-        totalFlex += childParentData.flex;
+        totalFlex += flex;
         lastFlexChild = child;
-      } else if (child != dominantChild) {
-        child.layout(innerConstraints, parentUsesSize: true);
-        allocatedSize += _getMainSize(child);
-        crossSize = math.max(crossSize, _getCrossSize(child));
       }
-      assert(child.parentData == childParentData);
+
+      final childParentData = child.parentData as FlexParentData;
       child = childParentData.nextSibling;
     }
 
+    double maxCrossSize;
+    double crossSize = 0.0;
+    double allocatedSize = 0.0;
+
+    if (dominantChild == null) {
+      maxCrossSize = constraints.maxCrossAxis(_direction);
+    } else {
+      final flex = _getFlex(dominantChild);
+      if (flex > 0) {
+        if (hasInflexible) {
+          maxCrossSize = constraints.constrainCrossAxis(_direction,
+            dominantChild.getMaxIntrinsicCrossAxis(_direction, double.infinity),
+          );
+        } else {
+          final freeSpace = math.max(0.0, (canFlex ? maxMainSize : 0.0) - allocatedSize);
+          final mainSize = (freeSpace / totalFlex) * flex;
+          final childConstraints = constraints.copyWithAxis(
+            _direction,
+            minMain: mainSize,
+            maxMain: mainSize,
+          );
+          dominantChild.layout(
+            childConstraints,
+            parentUsesSize: true,
+          );
+          maxCrossSize = _getCrossSize(dominantChild);
+        }
+      } else {
+        dominantChild.layout(
+          constraints.crossAxisConstraints(_direction),
+          parentUsesSize: true,
+        );
+        maxCrossSize = dominantChild.size.crossAxisSize(_direction);
+        allocatedSize += _getMainSize(dominantChild);
+      }
+    }
+
+    if (hasInflexible) {
+      BoxConstraints innerConstraints = BoxConstraintsAxisUtil.tightFor(
+          _direction, cross: maxCrossSize
+      );// Sum of the sizes of the non-flexible children.
+      child = firstChild;
+      while (child != null) {
+        final FlexParentData childParentData = child.parentData as FlexParentData;
+        final int flex = _getFlex(child);
+        if (flex == 0 && child != dominantChild) {
+          child.layout(innerConstraints, parentUsesSize: true);
+          allocatedSize += _getMainSize(child);
+          crossSize = math.max(crossSize, _getCrossSize(child));
+        }
+        assert(child.parentData == childParentData);
+        child = childParentData.nextSibling;
+      }
+    }
+
     // Distribute free space to flexible children, and determine baseline.
-    final double freeSpace = math.max(0.0, (canFlex ? maxMainSize : 0.0) - allocatedSize);
     double allocatedFlexSpace = 0.0;
     double maxBaselineDistance = 0.0;
+    final double freeSpace = math.max(0.0, (canFlex ? maxMainSize : 0.0) - allocatedSize);
     if (totalFlex > 0 || crossAxisAlignment == CrossAxisAlignment.baseline) {
       final double spacePerFlex = canFlex && totalFlex > 0 ? (freeSpace / totalFlex) : double.nan;
       child = firstChild;
@@ -983,18 +992,36 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
           }
           assert(minChildExtent != null);
 
-          BoxConstraints flexConstraints =
-            BoxConstraintsAxisUtil.create(_direction,
-              minCross: maxCrossSize,
-              maxCross: crossAxisAlignment == CrossAxisAlignment.stretch ?
-                maxCrossSize : 0.0,
-              minMain: minChildExtent,
-              maxMain: maxChildExtent,
-            );
+          if (child != dominantChild || hasInflexible) {
+            BoxConstraints flexConstraints;
 
-          child.layout(flexConstraints, parentUsesSize: true);
+            if (child == dominantChild) {
+              flexConstraints = BoxConstraintsAxisUtil.create(_direction,
+                minCross: maxCrossSize,
+                maxCross: maxCrossSize,
+                minMain: minChildExtent,
+                maxMain: maxChildExtent,
+              );
+            } else {
+              flexConstraints = BoxConstraintsAxisUtil.create(_direction,
+                minCross: crossAxisAlignment == CrossAxisAlignment.stretch ?
+                  maxCrossSize : 0.0,
+                maxCross: maxCrossSize,
+                minMain: minChildExtent,
+                maxMain: maxChildExtent,
+              );
+            }
+
+            child.layout(flexConstraints, parentUsesSize: true);
+          }
+
           final double childSize = _getMainSize(child);
-          assert(childSize <= maxChildExtent);
+          assert(() {
+            if (!(childSize <= maxChildExtent)) {
+              return false;
+            }
+            return true;
+          }());
           allocatedSize += childSize;
           allocatedFlexSpace += maxChildExtent;
           crossSize = math.max(crossSize, _getCrossSize(child));
@@ -1019,7 +1046,7 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
             crossSize = maxSizeAboveBaseline + maxSizeBelowBaseline;
           }
         }
-        final BoxyFlexParentData childParentData = child.parentData as BoxyFlexParentData;
+        final FlexParentData childParentData = child.parentData as FlexParentData;
         child = childParentData.nextSibling;
       }
     }
@@ -1081,7 +1108,7 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
     double childMainPosition = flipMainAxis ? actualSize - leadingSpace : leadingSpace;
     child = firstChild;
     while (child != null) {
-      final BoxyFlexParentData childParentData = child.parentData as BoxyFlexParentData;
+      final FlexParentData childParentData = child.parentData as FlexParentData;
       double childCrossPosition;
       switch (_crossAxisAlignment) {
         case CrossAxisAlignment.start:
