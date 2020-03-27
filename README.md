@@ -52,23 +52,6 @@ BoxyFlex(
 For more complex layouts this library provides `CustomBoxy`, a multi-child layout widget that allows you to inflate,
 constrain, lay out, and paint each child manually similar to a `CustomMultiChildLayout`.
 
-You implement a `CustomBoxy` as follows:
-
-```dart
-class MyLayout extends StatelessWidget {
-  build(context) => CustomBoxy(
-    delegate: MyDelegate,
-    children: [
-      // Add children
-    ],
-  );
-}
-
-class MyDelegate extends BoxyDelegate {
-  // Override layout, shouldRelayout, paint, shouldRepaint, hitTest, etc.
-}
-```
-
 This is useful if you need layouts that no other widget can provide, for example one where one child is positioned above
 the border of two others:
 
@@ -77,16 +60,90 @@ the border of two others:
 |       CustomBoxy        |
 |  +-------------------+  |
 |  |                   |  |
-|  |      Child 1      |  |
+|  |        Top        |  |
 |  |       +---------+ |  |
-|  +-------| Child 3 |-+  |
+|  +-------| Middle  |-+  |
 |  +-------|         |-+  |
 |  |       +---------+ |  |
-|  |      Child 2      |  |
+|  |      Bottom       |  |
 |  |                   |  |
 |  +-------------------+  |
 |                         |
 +-------------------------+
+```
+
+```dart
+class MyLayout extends StatelessWidget {
+  final Widget top;
+  final Widget middle;
+  final Widget bottom;
+  
+  // The margin between the middle widget and right edge
+  final double inset;
+  
+  MyLayout({
+    @required this.top,
+    @required this.middle,
+    @required this.bottom,
+    @required this.inset,
+  });
+
+  build(context) => CustomBoxy(
+    delegate: MyDelegate(inset: inset),
+    children: [
+      // Use LayoutId to give each child an id
+      LayoutId(id: #top, child: top),
+      LayoutId(id: #bottom, child: bottom),
+      // The middle widget should be rendered last
+      LayoutId(id: #middle, child: middle),
+    ],
+  );
+}
+
+class MyDelegate extends BoxyDelegate {
+  final double inset;
+
+  MyDelegate({@required this.inset});
+  
+  @override
+  layout() {
+    // Get each child handle by a Symbol id
+    var top = getChild(#top);
+    var middle = getChild(#middle);
+    var bottom = getChild(#bottom);
+    
+    // Children should have unbounded height
+    var topConstraints = constraints.widthConstraints();
+    
+    // Lay out and position top widget
+    var topSize = title.layout(topConstraints);
+    top.position(Offset.zero);
+    
+    // Lay out and position middle widget using size of top widget
+    var middleSize = middle.layout(BoxConstraints());
+    middle.position(Offset(
+      topSize.width - (middle.width + inset),
+      topSize.height - middle.height / 2,
+    ));
+    
+    // Lay out and position bottom widget
+    var bottomSize = info.layout(topConstraints.tighten(
+      // Bottom widget should be same size as top widget
+      width: topSize.width,
+    ));
+    bottom.position(Offset(0, topSize.height));
+    
+    // Calculate total size
+    return Size(
+      topSize.width,
+      topSize.height + bottomSize.height,
+    );
+  }
+  
+  // Check if any properties have changed
+  @override
+  shouldRelayout(MyDelegate old) => old.inset != inset;
+}
 ```
 
 See the [Product Tile](https://me.tst.sh/git/flutter-boxy/gallery/#product-tile) example for an implementation of this
