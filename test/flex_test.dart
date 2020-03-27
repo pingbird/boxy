@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:boxy/boxy.dart';
+import 'package:boxy/flex.dart';
 import 'package:boxy/utils.dart';
 
 import 'common.dart';
@@ -168,12 +168,12 @@ void main() {
 
       expect(second, equals(
         OffsetAxisUtil.create(direction, 0, 100) &
-        SizeAxisUtil.create(direction, 150, 200),
+          SizeAxisUtil.create(direction, 150, 200),
       ));
 
       expect(third, equals(
         OffsetAxisUtil.create(direction, 0, 300) &
-        SizeAxisUtil.create(direction, 150, 100),
+          SizeAxisUtil.create(direction, 150, 100),
       ));
     }
   });

@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:boxy/src/layout_utils.dart';
+import 'package:boxy/src/axis_utils.dart';
 
 import 'dart:math' as math;
 
