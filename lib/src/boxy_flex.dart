@@ -374,8 +374,8 @@ class BoxyFlexible extends ParentDataWidget<FlexParentData> {
   }
 }
 
-/// A widget that causes its child to determine the maximum width of every other
-/// child in a [BoxyRow], [BoxyColumn], or [BoxyFlex].
+/// A widget that causes its child to determine the maximum cross axis size of
+/// every other child in a [BoxyRow], [BoxyColumn], or [BoxyFlex].
 class Dominant extends BoxyFlexible {
   /// Creates a widget that expands a child of a [Row], [Column], or [Flex]
   /// so that the child fills the available space along the flex widget's
