@@ -8,9 +8,12 @@ import 'dart:math' as math;
 /// A widget that displays its children in a one-dimensional array.
 ///
 /// This is identical to [Flex] but also accepts [BoxyFlexible] and [Dominant]
-/// children.
+/// children. The default crossAxisAlignment is also
+/// [CrossAxisAlignment.stretch] instead of [CrossAxisAlignment.center].
 ///
-/// Making a child
+/// If a child is wrapped in a [Dominant] widget, it will be layed out first and
+/// every other child will match its maximum cross axis constraint to the size
+/// of said dominant widget.
 class BoxyFlex extends MultiChildRenderObjectWidget {
   /// Creates a boxy flex layout.
   ///
@@ -30,7 +33,7 @@ class BoxyFlex extends MultiChildRenderObjectWidget {
     @required this.direction,
     this.mainAxisAlignment = MainAxisAlignment.start,
     this.mainAxisSize = MainAxisSize.max,
-    this.crossAxisAlignment = CrossAxisAlignment.center,
+    this.crossAxisAlignment = CrossAxisAlignment.stretch,
     this.textDirection,
     this.verticalDirection = VerticalDirection.down,
     this.textBaseline,
@@ -199,7 +202,12 @@ class BoxyFlex extends MultiChildRenderObjectWidget {
 /// A widget that displays its children in a horizontal array.
 ///
 /// This is identical to [Row] but also accepts [BoxyFlexible] and [Dominant]
-/// children.
+/// children. The default crossAxisAlignment is also
+/// [CrossAxisAlignment.stretch] instead of [CrossAxisAlignment.center].
+///
+/// If a child is wrapped in a [Dominant] widget, it will be layed out first and
+/// every other child will match its maximum height constraint to the size
+/// of said dominant widget.
 class BoxyRow extends BoxyFlex {
   /// Creates a horizontal array of children.
   ///
@@ -238,8 +246,13 @@ class BoxyRow extends BoxyFlex {
 
 /// A widget that displays its children in a vertical array.
 ///
-/// This is identical to [Row] but also accepts [BoxyFlexible] and [Dominant]
-/// children.
+/// This is identical to [Column] but also accepts [BoxyFlexible] and [Dominant]
+/// children. The default crossAxisAlignment is also
+/// [CrossAxisAlignment.stretch] instead of [CrossAxisAlignment.center].
+///
+/// If a child is wrapped in a [Dominant] widget, it will be layed out first and
+/// every other child will match its maximum width constraint to the size
+/// of said dominant widget.
 class BoxyColumn extends BoxyFlex {
   /// Creates a vertical array of children.
   ///
