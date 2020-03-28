@@ -1,14 +1,15 @@
 name: boxy_gallery
 description: Examples for the boxy package.
-version: 1.0.0+1
+version: 1.0.0
+author: Andre Lipke <andre.lipke@gmail.com>
+homepage: https://github.com/PixelToast/flutter-boxy
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
-  boxy:
-    path: ../
-  tuple: any
+  boxy: ^1.0.0
+  tuple: ^1.0.3
   material_design_icons_flutter: ^3.4.4995
   rxdart: ^0.23.1
   url_launcher: ^5.4.2
@@ -21,6 +22,9 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-
 flutter:
   uses-material-design: true
+
+dependency_overrides:
+  boxy:
+    path: ../
