@@ -6,8 +6,7 @@ in-depth knowledge of the framework and minimal boilerplate.
 ### Flex layouts
 
 A common pattern is when you need one or more widgets in a `Row` or `Column` to have the same cross axis size
-as another child in the list, you can achieve this layout using `BoxyFlex`/`BoxyRow`/`BoxyColumn` and
-`BoxyFlexible`/`Dominant`:
+as another child in the list, you can achieve this layout using `BoxyColumn` and `Dominant` for example:
 
 ```
 +---------------------------+
