@@ -1,10 +1,11 @@
 name: boxy
-description: Create advanced multi-child layouts in Flutter.
-version: 1.0.0
+description: Provides widgets and utilities that enable you to create custom layouts with minimal boilerplate.
+version: 1.0.1
 homepage: https://github.com/PixelToast/flutter-boxy
 
 environment:
   sdk: '>=2.7.0 <3.0.0'
+  flutter: '>=1.16.3'
 
 dependencies:
   flutter:
