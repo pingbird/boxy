@@ -1,0 +1,26 @@
+name: boxy_gallery
+description: Examples for the boxy package.
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+
+dependencies:
+  boxy:
+    path: ../..
+  tuple: any
+  material_design_icons_flutter: ^3.4.4995
+  rxdart: ^0.23.1
+  url_launcher: ^5.4.2
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^0.1.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+
+flutter:
+  uses-material-design: true
