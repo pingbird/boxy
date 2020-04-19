@@ -740,7 +740,7 @@ class _BoxyDelegateContext {
   }
 }
 
-/// A handle used by custom [BoxyDelegate]s to lay out, paint, and hit test
+/// A handle used by a custom [BoxyDelegate] to lay out, paint, and hit test
 /// its children.
 ///
 /// This class cannot be instantiated directly, instead access children with
