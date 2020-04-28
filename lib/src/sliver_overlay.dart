@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:boxy/utils.dart';
@@ -7,10 +9,40 @@ class RenderSliverOverlay extends RenderSliver with RenderSliverHelpers {
     this.foreground,
     this.sliver,
     this.background,
-  }) {
+    double bufferExtent,
+  }) : this.bufferExtent = bufferExtent ?? 0.0 {
     if (foreground != null) adoptChild(foreground);
     if (sliver != null) adoptChild(sliver);
     if (background != null) adoptChild(background);
+  }
+
+  @override
+  void attach(PipelineOwner owner) {
+    super.attach(owner);
+    if (foreground != null) foreground.attach(owner);
+  }
+
+  @override
+  void detach() {
+    super.detach();
+    if (foreground != null) foreground.detach();
+    if (sliver != null) sliver.detach();
+    if (background != null) background.detach();
+  }
+
+  @override
+  void redepthChildren() {
+    if (foreground != null) redepthChild(foreground);
+    if (sliver != null) redepthChild(sliver);
+    if (background != null) redepthChild(background);
+  }
+
+  @override
+  void setupParentData(RenderObject child) {
+    if (!identical(child, sliver)) {
+      if (child.parentData is! BoxParentData)
+        child.parentData = BoxParentData();
+    }
   }
 
   void updateChild(RenderObject oldChild, RenderObject newChild) {
@@ -18,6 +50,7 @@ class RenderSliverOverlay extends RenderSliver with RenderSliverHelpers {
     if (newChild != null) adoptChild(newChild);
   }
 
+  double bufferExtent;
   RenderBox foreground;
   RenderSliver sliver;
   RenderBox background;
@@ -33,24 +66,44 @@ class RenderSliverOverlay extends RenderSliver with RenderSliverHelpers {
   void performLayout() {
     assert(sliver != null);
     sliver.layout(constraints, parentUsesSize: true);
-    final geometry = this.geometry = sliver.geometry;
+    var geometry = this.geometry = sliver.geometry;
+
+    var start = -min(constraints.scrollOffset, bufferExtent);
+    var end = min(geometry.maxPaintExtent - constraints.scrollOffset, geometry.paintExtent + bufferExtent);
+
+    if (constraints.scrollOffset > 0) {
+      start = min(start, end - bufferExtent * 2);
+    } else {
+      end = max(end, start + bufferExtent * 2);
+    }
+
     final boxConstraints = BoxConstraintsAxisUtil.tightFor(
       constraints.axis,
-      main: geometry.layoutExtent,
+      main: end - start,
       cross: constraints.crossAxisExtent,
     );
-    foreground?.layout(boxConstraints);
-    background?.layout(boxConstraints);
+
+    final offset = Offset(0, start);
+
+    if (foreground != null) {
+      (foreground.parentData as BoxParentData).offset = offset;
+      foreground.layout(boxConstraints);
+    }
+
+    if (background != null) {
+      (background.parentData as BoxParentData).offset = offset;
+      background.layout(boxConstraints);
+    }
   }
 
   @override
   void paint(PaintingContext context, Offset offset) {
     if (background != null)
-      context.paintChild(background, offset);
+      context.paintChild(background, offset + (background.parentData as BoxParentData).offset);
     if (sliver != null)
       context.paintChild(sliver, offset);
     if (foreground != null)
-      context.paintChild(foreground, offset);
+      context.paintChild(foreground, offset + (foreground.parentData as BoxParentData).offset);
   }
 
   @override
@@ -74,7 +127,11 @@ class RenderSliverOverlay extends RenderSliver with RenderSliverHelpers {
 
   @override
   double childMainAxisPosition(RenderObject child) {
-    return 0.0;
+    if (identical(child, sliver)) {
+      return 0.0;
+    } else {
+      return (child.parentData as BoxParentData).offset.dy;
+    }
   }
 }
 
@@ -84,19 +141,24 @@ class SliverOverlay extends RenderObjectWidget {
     this.foreground,
     @required this.sliver,
     this.background,
-  }) : super(key: key);
+    double bufferExtent,
+  }) :
+    this.bufferExtent = bufferExtent ?? 0.0,
+    super(key: key);
 
   final Widget foreground;
   final Widget sliver;
   final Widget background;
+  final double bufferExtent;
 
   createElement() => _SliverOverlayElement(this);
 
   RenderSliverOverlay createRenderObject(BuildContext context) {
-    return RenderSliverOverlay();
+    return RenderSliverOverlay(bufferExtent: bufferExtent);
   }
 
   updateRenderObject(BuildContext context, RenderSliverOverlay renderObject) {
+    renderObject.bufferExtent = bufferExtent;
   }
 }
 
