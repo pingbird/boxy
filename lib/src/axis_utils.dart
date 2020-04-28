@@ -222,6 +222,66 @@ extension AxisUtil on Axis {
   /// Gets the axis that this one crosses.
   Axis get cross => this == Axis.vertical ?
     Axis.horizontal : Axis.vertical;
+
+  /// Gets the down or right [AxisDirection] of this axis.
+  get direction => this == Axis.vertical ?
+    AxisDirection.down : AxisDirection.right;
+
+  /// Gets the down or right [AxisDirection] of the cross axis.
+  get crossDirection => this == Axis.vertical ?
+    AxisDirection.right : AxisDirection.down;
+}
+
+extension VerticalDirectionUtil on VerticalDirection {
+  /// Gets the reverse of this direction.
+  VerticalDirection get reversed => this == VerticalDirection.up ?
+    VerticalDirection.down : VerticalDirection.up;
+
+  /// Gets the up or down [AxisDirection] of this direction.
+  AxisDirection get direction => this == VerticalDirection.up ?
+    AxisDirection.up : AxisDirection.down;
+
+  /// Gets the reverse of this direction.
+  VerticalDirection operator-() => reversed;
+}
+
+extension AxisDirectionUtil on AxisDirection {
+  /// Gets the vertical or horizontal [Axis] of this direction.
+  Axis get axis => this == AxisDirection.up || this == AxisDirection.down ?
+    Axis.vertical : Axis.horizontal;
+
+  /// Gets the vertical or horizontal cross [Axis] of this direction.
+  Axis get crossAxis => this == AxisDirection.up || this == AxisDirection.down ?
+    Axis.horizontal : Axis.vertical;
+
+  /// Gets the reverse of this direction.
+  AxisDirection get reversed => const [
+    AxisDirection.down, AxisDirection.left,
+    AxisDirection.up, AxisDirection.right,
+  ][index];
+
+  /// Gets the direction counter-clockwise to this one.
+  AxisDirection get ccw => const [
+    AxisDirection.left, AxisDirection.up,
+    AxisDirection.right, AxisDirection.down,
+  ][index];
+
+  /// Gets the direction clockwise to this one.
+  AxisDirection get cw => const [
+    AxisDirection.right, AxisDirection.down,
+    AxisDirection.left, AxisDirection.up,
+  ][index];
+
+  /// Rotates this direction, where [AxisDirection.up] is the origin.
+  AxisDirection operator+(AxisDirection direction) =>
+    AxisDirection.values[(index + direction.index) % 4];
+
+  /// Counter rotates this direction, where [AxisDirection.up] is the origin.
+  AxisDirection operator-(AxisDirection direction) =>
+    AxisDirection.values[(index - direction.index) % 4];
+
+  /// Gets the reverse of this direction.
+  AxisDirection operator-() => reversed;
 }
 
 extension RenderBoxAxisUtil on RenderBox {
@@ -275,6 +335,16 @@ extension OffsetAxisUtil on Offset {
       Offset(main, cross);
   }
 
+  /// Creates an offset where [main] is the extent on [direction] and [cross]
+  /// is the extent counter-clockwise to [direction].
+  static Offset direction(AxisDirection direction, double cross, double main) {
+    assert(direction != null);
+    if (direction == AxisDirection.up) return Offset(cross, -main);
+    else if (direction == AxisDirection.right) return Offset(main, -cross);
+    else if (direction == AxisDirection.down) return Offset(cross, main);
+    else return Offset(-main, cross);
+  }
+
   /// Gets the component of this offset on [axis].
   double axisOffset(Axis axis) {
     assert(axis != null);
@@ -285,6 +355,15 @@ extension OffsetAxisUtil on Offset {
   double crossAxisOffset(Axis axis) {
     assert(axis != null);
     return axis == Axis.vertical ? dx : dy;
+  }
+
+  /// Returns the extent towards [direction].
+  double directionExtent(AxisDirection direction) {
+    assert(direction != null);
+    if (direction == AxisDirection.up) return -dy;
+    else if (direction == AxisDirection.right) return dx;
+    else if (direction == AxisDirection.down) return dy;
+    else return -dx;
   }
 }
 
