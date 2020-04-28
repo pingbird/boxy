@@ -15,16 +15,21 @@ final rainbow = <Color>[
   Colors.pink,
   Colors.purple,
   Colors.deepPurple,
+
   Colors.indigo,
   Colors.blue,
   Colors.lightBlue,
   Colors.cyan,
+
   Colors.teal,
   Colors.green,
   Colors.lightGreen,
   Colors.lime,
+
   Colors.amber,
   Colors.orange,
+  Colors.black,
+  Colors.white,
 ];
 
 class SliverOverlayPageState extends State<SliverOverlayPage> {
@@ -42,27 +47,32 @@ class SliverOverlayPageState extends State<SliverOverlayPage> {
           border: Border.all(color: NiceColors.text.withOpacity(0.1), width: 1),
         ),
         child: CustomScrollView(
-          cacheExtent: 0,
+          cacheExtent: 32,
           slivers: [
-            SliverPadding(
-              padding: EdgeInsets.all(32),
+            SliverAppBar(
+              expandedHeight: 150.0,
+              title: Text("Sliver card test"),
+              flexibleSpace: FlexibleSpaceBar(
+                background: Container(color: Colors.blue),
+              ),
+              pinned: true,
+            ),
+            for (int s = 0; s < 4; s++) SliverPadding(
+              padding: EdgeInsets.all(8),
               sliver: SliverOverlay(
-                sliver: SliverList(
+                bufferExtent: 32,
+                sliver: SliverPadding(sliver: SliverList(
                   delegate: SliverChildBuilderDelegate(
-                    (context, i) => Waveform(
-                      color: rainbow[i],
-                      x: i * 13.0,
-                      y: i * 5.0,
-                      z: i * 3.0,
+                    (context, i) => i >= 4 ? null : Waveform(
+                      color: rainbow[i + s * 4],
+                      x: i + s * 4 * 13.0,
+                      y: i + s * 4 * 5.0,
+                      z: i + s * 4 * 3.0,
                     ),
-                    childCount: rainbow.length,
                   ),
-                ),
-                background: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8.0),
-                    color: NiceColors.background,
-                  ),
+                ), padding: EdgeInsets.all(8)),
+                background: Card(
+                  color: NiceColors.background,
                 ),
               ),
             ),
@@ -90,21 +100,19 @@ class Waveform extends StatefulWidget {
   _WaveformState createState() => _WaveformState();
 }
 
-class _WaveformState extends State<Waveform> with TickerProviderStateMixin {
+class _WaveformState extends State<Waveform> with SingleTickerProviderStateMixin {
   AnimationController anim;
-  AnimationController anim2;
-  AnimationController anim3;
 
   initState() {
     super.initState();
     anim = AnimationController(vsync: this)
-      ..animateTo(1.0, duration: Duration(seconds: 10), curve: Curves.ease);
+      ..animateTo(1.0, duration: Duration(seconds: 3), curve: Curves.easeOutSine);
+  }
 
-    anim2 = AnimationController(vsync: this)
-      ..animateTo(1.0, duration: Duration(seconds: 2), curve: Curves.ease);
-
-    anim3 = AnimationController(vsync: this)
-      ..animateTo(1.0, duration: Duration(seconds: 5), curve: Curves.ease);
+  @override
+  dispose() {
+    anim.dispose();
+    super.dispose();
   }
 
   build(BuildContext context) => AnimatedBuilder(
@@ -112,15 +120,15 @@ class _WaveformState extends State<Waveform> with TickerProviderStateMixin {
     builder: (context, child) => Opacity(child: CustomPaint(
       foregroundPainter: WaveformPainter(
         color: widget.color,
-        x: widget.x * anim.value,
+        x: widget.x,
         y: widget.y,
         z: widget.z,
-        a: anim3.value,
+        a: anim.value,
       ),
       child: SizedBox(
         height: 64,
       ),
-    ), opacity: anim2.value),
+    ), opacity: anim.value),
   );
 }
 
