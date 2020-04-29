@@ -181,7 +181,7 @@ SliverContainer(
 
 It also provides `SliverCard` which gives the sliver a `Card` background and clips it according to the shape of the card: 
 
-```
+```dart
 SliverCard(
   color: Colors.transparent,
   clipBehavior: Clip.antiAlias,
