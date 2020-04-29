@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:boxy/utils.dart';
 
-class SliverOverlay extends StatelessWidget {
+class SliverContainer extends StatelessWidget {
   final Widget sliver;
   final Widget foreground;
   final Widget background;
@@ -15,7 +15,7 @@ class SliverOverlay extends StatelessWidget {
   final Clip clipBehavior;
   final bool clipSliverOnly;
 
-  SliverOverlay({
+  SliverContainer({
     Key key,
     @required this.sliver,
     this.foreground,
@@ -23,10 +23,16 @@ class SliverOverlay extends StatelessWidget {
     this.bufferExtent = 0.0,
     this.padding,
     this.margin,
-    this.clipper,
+    ShapeBorderClipper clipper,
     this.clipBehavior = Clip.antiAlias,
     this.clipSliverOnly = false,
-  }) : super(key: key);
+    BorderRadiusGeometry borderRadius,
+  }) :
+    assert(clipper == null || borderRadius == null, 'clipper cannot be used with borderRadius'),
+    clipper = borderRadius != null ?
+      ShapeBorderClipper(shape: RoundedRectangleBorder(borderRadius: borderRadius)) :
+      clipper,
+    super(key: key);
 
   build(context) {
     var current = sliver;
@@ -36,13 +42,14 @@ class SliverOverlay extends StatelessWidget {
         padding: padding,
       );
     }
-    current = _SliverOverlay(
+    current = _BaseSliverContainer(
       sliver: current,
       foreground: foreground,
       background: background,
       bufferExtent: bufferExtent,
       clipper: clipper,
       clipBehavior: clipBehavior,
+      clipSliverOnly: clipSliverOnly,
     );
     if (margin != null) {
       current = SliverPadding(
@@ -54,7 +61,7 @@ class SliverOverlay extends StatelessWidget {
   }
 }
 
-class _SliverOverlay extends RenderObjectWidget {
+class _BaseSliverContainer extends RenderObjectWidget {
   final Widget sliver;
   final Widget foreground;
   final Widget background;
@@ -63,7 +70,7 @@ class _SliverOverlay extends RenderObjectWidget {
   final Clip clipBehavior;
   final bool clipSliverOnly;
 
-  const _SliverOverlay({
+  const _BaseSliverContainer({
     Key key,
     @required this.sliver,
     this.foreground,
@@ -78,17 +85,17 @@ class _SliverOverlay extends RenderObjectWidget {
     assert(clipBehavior != null),
     super(key: key);
 
-  createElement() => _SliverOverlayElement(this);
+  createElement() => _SliverContainerElement(this);
 
   createRenderObject(context) =>
-    RenderSliverOverlay(
+    RenderSliverContainer(
       bufferExtent: bufferExtent,
       clipper: clipper,
       clipBehavior: clipBehavior,
       clipSliverOnly: clipSliverOnly,
     );
 
-  updateRenderObject(BuildContext context, RenderSliverOverlay renderObject) {
+  updateRenderObject(BuildContext context, RenderSliverContainer renderObject) {
     renderObject.bufferExtent = bufferExtent;
     renderObject.clipper = clipper;
     renderObject.clipBehavior = clipBehavior;
@@ -96,8 +103,8 @@ class _SliverOverlay extends RenderObjectWidget {
   }
 }
 
-class RenderSliverOverlay extends RenderSliver with RenderSliverHelpers {
-  RenderSliverOverlay({
+class RenderSliverContainer extends RenderSliver with RenderSliverHelpers {
+  RenderSliverContainer({
     this.foreground,
     this.sliver,
     this.background,
@@ -166,6 +173,8 @@ class RenderSliverOverlay extends RenderSliver with RenderSliverHelpers {
     if (_clipper == null || _clipPath != null) return;
     _clipPath = _clipper?.getClip(_bufferRect.size);
   }
+
+  bool get shouldClip => _clipper != null && _clipPath != null && _clipBehavior != Clip.none;
 
   double _bufferExtent;
   double get bufferExtent => _bufferExtent;
@@ -297,7 +306,7 @@ class RenderSliverOverlay extends RenderSliver with RenderSliverHelpers {
   @override
   void paint(PaintingContext context, Offset offset) {
     _updateClip();
-    if (_clipPath != null) {
+    if (shouldClip) {
       if (clipSliverOnly && background != null) context.paintChild(background, offset + _bufferRect.topLeft);
 
       var transform = Matrix4.translationValues(_bufferRect.left, _bufferRect.top, 0);
@@ -367,15 +376,15 @@ enum _SliverOverlaySlot {
   background,
 }
 
-class _SliverOverlayElement extends RenderObjectElement {
-  _SliverOverlayElement(_SliverOverlay widget) : super(widget);
+class _SliverContainerElement extends RenderObjectElement {
+  _SliverContainerElement(_BaseSliverContainer widget) : super(widget);
 
   Element foreground;
   Element sliver;
   Element background;
 
-  _SliverOverlay get widget => super.widget as _SliverOverlay;
-  RenderSliverOverlay get renderObject => super.renderObject as RenderSliverOverlay;
+  _BaseSliverContainer get widget => super.widget as _BaseSliverContainer;
+  RenderSliverContainer get renderObject => super.renderObject as RenderSliverContainer;
 
   visitChildren(ElementVisitor visitor) {
     if (foreground != null) visitor(foreground);
@@ -408,7 +417,7 @@ class _SliverOverlayElement extends RenderObjectElement {
   }
 
   @override
-  void update(_SliverOverlay newWidget) {
+  void update(_BaseSliverContainer newWidget) {
     super.update(newWidget);
     _updateChildren();
   }

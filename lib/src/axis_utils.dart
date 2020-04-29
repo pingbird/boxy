@@ -240,9 +240,6 @@ extension VerticalDirectionUtil on VerticalDirection {
   /// Gets the up or down [AxisDirection] of this direction.
   AxisDirection get direction => this == VerticalDirection.up ?
     AxisDirection.up : AxisDirection.down;
-
-  /// Gets the reverse of this direction.
-  VerticalDirection operator-() => reversed;
 }
 
 extension AxisDirectionUtil on AxisDirection {
@@ -285,9 +282,6 @@ extension AxisDirectionUtil on AxisDirection {
   /// Counter rotates this direction, where [AxisDirection.up] is the origin.
   AxisDirection operator-(AxisDirection direction) =>
     AxisDirection.values[(index - direction.index) % 4];
-
-  /// Gets the reverse of this direction.
-  AxisDirection operator-() => reversed;
 }
 
 extension RenderBoxAxisUtil on RenderBox {
@@ -519,17 +513,5 @@ class AxisSizedBox extends SizedBox {
     key: key,
     width: axis == Axis.vertical ? cross : main,
     height: axis == Axis.vertical ? main : cross,
-  );
-
-  /// Same as the default constructor but sizes based on the cross axis.
-  const AxisSizedBox.cross({
-    @required Key key,
-    @required Axis axis,
-    double cross,
-    double main,
-  }) : assert(axis != null), super(
-    key: key,
-    width: axis == Axis.vertical ? main : cross,
-    height: axis == Axis.vertical ? cross : main,
   );
 }

@@ -1,6 +1,6 @@
 import 'package:boxy_gallery/pages/blog_tile.dart';
 import 'package:boxy_gallery/pages/line_numbers.dart';
-import 'package:boxy_gallery/pages/sliver_overlay.dart';
+import 'package:boxy_gallery/pages/sliver_container.dart';
 import 'package:flutter/material.dart';
 import 'package:boxy_gallery/pages/product_tile.dart';
 import 'package:boxy_gallery/pages/tree_view.dart';
@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
       "product-tile": (_) => ProductTilePage(),
       "line-numbers": (_) => LineNumberPage(),
       "blog-tile": (_) => BlogTilePage(),
-      "sliver-overlay": (_) => SliverOverlayPage(),
+      "sliver-container": (_) => SliverContainerPage(),
     },
   );
 }
@@ -179,8 +179,8 @@ class MyHomePage extends StatelessWidget {
       ),
       DemoTile(
         icon: MdiIcons.arrowUp,
-        name: "Sliver Overlay",
-        route: "sliver-overlay",
+        name: "Sliver Container",
+        route: "sliver-container",
       ),
       Separator(),
     ], physics: BouncingScrollPhysics()), color: NiceColors.primary),

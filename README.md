@@ -1,6 +1,6 @@
 # Boxy - Advanced multi-child layouts in Flutter.
 
-This library provides several widgets and utilities that enable you to create advanced multi-child layouts without
+This library provides several widgets and utilities that enable you to create advanced layouts without
 in-depth knowledge of the framework and minimal boilerplate.
 
 ### Flex layouts
@@ -152,8 +152,105 @@ See the [Product Tile](https://me.tst.sh/git/flutter-boxy/gallery/#product-tile)
 layout, and the documentation of [CustomBoxy](https://pub.dev/documentation/boxy/latest/boxy/CustomBoxy-class.html) for
 more information.
 
+### Sliver container
+
+Ever want to give a SliverList a box decoration? The [sliver](https://pub.dev/documentation/boxy/latest/sliver) library
+provides `SliverContainer` which allows you to use a box widget as the foreground or background of any sliver widget:
+
+```dart
+SliverContainer(
+  // How far the background will extend off-screen, prevents the border
+  // from shrinking as the sliver is scrolled out of view
+  bufferExtent: 12.0,
+  
+  // The background and foreground are layed out to cover the visible
+  // space of the sliver
+  background: DecoratedBox(
+    border: Border.all(
+      color: Colors.blue,
+      width: 2,
+    ),
+    borderRadius: BorderRadius.circular(12),
+  ),
+
+  margin: EdgeInsets.all(8.0),
+  padding: EdgeInsets.all(8.0),
+  sliver: SliverList(...),
+)
+```
+
+It also provides `SliverCard` which gives the sliver a `Card` background and clips it according to the shape of the card: 
+
+```
+SliverCard(
+  color: Colors.transparent,
+  clipBehavior: Clip.antiAlias,
+  sliver: SliverList(...),
+)
+```
+
+
 ### Utilities
 
 The [utils](https://pub.dev/documentation/boxy/latest/utils) library provides extensions with axis dependant
 methods and constructors for `BoxConstraints`, `Offset`, `Size`, `RenderBox`, and `SizedBox`. These extensions make
-writing axis agnostic layouts significantly easier. 
+writing axis agnostic layouts significantly easier.
+
+Full list of methods:
+
+```dart
+BoxConstraintsAxisUtil.create
+BoxConstraintsAxisUtil.expand
+BoxConstraintsAxisUtil.tightFor
+BoxConstraintsAxisUtil.tightForFinite
+BoxConstraints.hasTightAxis
+BoxConstraints.hasTightCrossAxis
+BoxConstraints.hasBoundedAxis
+BoxConstraints.hasBoundedCrossAxis
+BoxConstraints.hasInfiniteAxis
+BoxConstraints.hasInfiniteCrossAxis
+BoxConstraints.maxAxis
+BoxConstraints.minAxis
+BoxConstraints.maxCrossAxis
+BoxConstraints.minCrossAxis
+BoxConstraints.tightenAxis
+BoxConstraints.constrainAxisDimensions
+BoxConstraints.constrainAxis
+BoxConstraints.constrainCrossAxis
+BoxConstraints.copyWithAxis
+BoxConstraints.axisConstraints
+BoxConstraints.crossAxisConstraints
+Axis.cross
+Axis.direction
+Axis.crossDirection
+VerticalDirection.reversed
+VerticalDirection.direction
+AxisDirection.axis
+AxisDirection.crossAxis
+AxisDirection.isReverse
+AxisDirection.isForward
+AxisDirection.reversed
+AxisDirection.ccw
+AxisDirection.cw
+AxisDirection.operator+
+AxisDirection.operator-
+RenderBox.getMinIntrinsicAxis
+RenderBox.getMinIntrinsicCrossAxis
+RenderBox.getMaxIntrinsicAxis
+RenderBox.getMaxIntrinsicCrossAxis
+OffsetAxisUtil.create
+OffsetAxisUtil.direction
+Offset.axisOffset
+Offset.crossAxisOffset
+Offset.directionExtent
+SizeAxisUtil.create
+SizeAxisUtil.from
+SizeAxisUtil.crossFrom
+Size.axisSize
+Size.crossAxisSize
+EdgeInsetsAxisUtil.create
+EdgeInsetsAxisUtil.symmetric
+EdgeInsetsAxisUtil.direction
+EdgeInsets.directionExtent
+AxisSizedBox
+```
