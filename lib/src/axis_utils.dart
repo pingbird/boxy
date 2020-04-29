@@ -413,6 +413,95 @@ extension SizeAxisUtil on Size {
   }
 }
 
+extension EdgeInsetsAxisUtil on EdgeInsets {
+  /// Creates edge insets given the begin and end extents on the given axis.
+  static EdgeInsets create(Axis axis, {
+    double mainBegin, double mainEnd,
+    double crossBegin, double crossEnd,
+  }) {
+    assert(axis != null);
+    if (axis == Axis.vertical) {
+      return EdgeInsets.only(
+        top: mainBegin,
+        bottom: mainEnd,
+        left: crossBegin,
+        right: crossEnd,
+      );
+    } else {
+      return EdgeInsets.only(
+        left: mainBegin,
+        right: mainEnd,
+        top: crossBegin,
+        bottom: crossEnd,
+      );
+    }
+  }
+
+  /// Creates symmetric edge insets on the given axis.
+  static EdgeInsets symmetric(Axis axis, {
+    double main = 0.0, double cross = 0.0,
+  }) {
+    assert(axis != null);
+    if (axis == Axis.vertical) {
+      return EdgeInsets.symmetric(
+        vertical: main,
+        horizontal: cross,
+      );
+    } else {
+      return EdgeInsets.symmetric(
+        horizontal: main,
+        vertical: cross,
+      );
+    }
+  }
+
+  /// Creates edge insets towards [direction].
+  static EdgeInsets direction(AxisDirection direction, {
+    double mainBegin = 0.0, double mainEnd = 0.0,
+    double crossBegin = 0.0, double crossEnd = 0.0,
+  }) {
+    assert(direction != null);
+    if (direction == AxisDirection.up) {
+      return EdgeInsets.only(
+        bottom: mainBegin,
+        top: mainEnd,
+        right: crossBegin,
+        left: crossEnd,
+      );
+    } else if (direction == AxisDirection.right) {
+      return EdgeInsets.only(
+        left: mainBegin,
+        right: mainEnd,
+        top: crossBegin,
+        bottom: crossEnd,
+      );
+    } else if (direction == AxisDirection.down) {
+      return EdgeInsets.only(
+        top: mainBegin,
+        bottom: mainEnd,
+        left: crossBegin,
+        right: crossEnd,
+      );
+    } else {
+      return EdgeInsets.only(
+        right: mainBegin,
+        left: mainEnd,
+        bottom: crossBegin,
+        top: crossEnd,
+      );
+    }
+  }
+
+  /// Gets the extent of the inset facing [direction].
+  double directionExtent(AxisDirection direction) {
+    assert(direction != null);
+    if (direction == AxisDirection.up) return top;
+    else if (direction == AxisDirection.right) return right;
+    else if (direction == AxisDirection.down) return bottom;
+    else return left;
+  }
+}
+
 /// A box with a specified size.
 ///
 /// Identical to [SizedBox] but sizes its child based on the cross and main
