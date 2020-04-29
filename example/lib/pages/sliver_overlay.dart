@@ -119,23 +119,33 @@ class SliverOverlayFrame extends StatelessWidget {
         ),
         for (int s = 0; s < rainbow.length; s++) SliverOverlay(
           bufferExtent: 32,
-          sliver: SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, i) => i >= shades.length ? null : ColorContainer(
-                color: rainbow[s][shades[i]],
-                size: 5 + s * 25.0,
+          sliver: SliverOverlay(
+            bufferExtent: 32 - 4.0,
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, i) => i >= shades.length ? null : ColorContainer(
+                  color: rainbow[s][shades[i]],
+                  size: 5 + s * 25.0,
+                ),
               ),
             ),
-          ),
-          background: Card(
-            color: Colors.transparent,
-            child: InkWell(
-              splashColor: NiceColors.background,
-              onTap: () {},
+            clipper: ShapeBorderClipper(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(4),
+              )
             ),
           ),
-          padding: EdgeInsets.all(16),
-          margin: EdgeInsets.all(8),
+          //padding: EdgeInsets.all(16),
+          background: Card(
+            color: Colors.transparent,
+          ),
+          padding: EdgeInsets.all(4),
+          margin: EdgeInsetsAxisUtil.direction(direction,
+            mainBegin: s != 0 ? 0.0 : 16.0,
+            mainEnd: 16.0,
+            crossBegin: 16.0,
+            crossEnd: 16.0,
+          ),
         ),
       ],
     ),
