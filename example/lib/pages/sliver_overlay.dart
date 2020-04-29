@@ -5,34 +5,52 @@ import 'package:boxy/slivers.dart';
 import 'package:flutter/material.dart';
 import 'package:boxy_gallery/main.dart';
 import 'package:tuple/tuple.dart';
+import 'package:boxy/utils.dart';
 
 class SliverOverlayPage extends StatefulWidget {
   createState() => SliverOverlayPageState();
 }
 
-final rainbow = <Color>[
+final rainbow = <MaterialColor>[
   Colors.red,
-  Colors.pink,
-  Colors.purple,
   Colors.deepPurple,
-
-  Colors.indigo,
-  Colors.blue,
   Colors.lightBlue,
-  Colors.cyan,
-
-  Colors.teal,
   Colors.green,
-  Colors.lightGreen,
-  Colors.lime,
-
   Colors.amber,
-  Colors.orange,
-  Colors.black,
-  Colors.white,
 ];
 
+const shades = [
+  400, 500, 600, 700, 800, 900
+];
+
+Color lerpGradient(List<Color> colors, List<double> stops, double t) {
+  for (var s = 0; s < stops.length - 1; s++) {
+    final leftStop = stops[s], rightStop = stops[s + 1];
+    final leftColor = colors[s], rightColor = colors[s + 1];
+    if (t <= leftStop) {
+      return leftColor;
+    } else if (t < rightStop) {
+      final sectionT = (t - leftStop) / (rightStop - leftStop);
+      return Color.lerp(leftColor, rightColor, sectionT);
+    }
+  }
+  return colors.last;
+}
+
+Color getRainbowColor(double delta) {
+  return lerpGradient(rainbow, [
+    for (int i = 0; i < rainbow.length; i++) i / (rainbow.length - 1),
+  ], delta);
+}
+
 class SliverOverlayPageState extends State<SliverOverlayPage> {
+  var direction = AxisDirection.down;
+
+  void setDir(AxisDirection dir) {
+    direction = dir;
+    setState(() {});
+  }
+
   build(BuildContext context) => Scaffold(
     appBar: GalleryAppBar(
       ["Boxy Gallery", "Sliver Overlay"],
@@ -42,45 +60,118 @@ class SliverOverlayPageState extends State<SliverOverlayPage> {
     body: Column(children: [
       Separator(),
       Expanded(child: Align(child: Container(
-        margin: EdgeInsets.all(256),
-        decoration: BoxDecoration(
-          border: Border.all(color: NiceColors.text.withOpacity(0.1), width: 1),
-        ),
-        child: CustomScrollView(
-          cacheExtent: 32,
-          slivers: [
-            SliverAppBar(
-              expandedHeight: 150.0,
-              title: Text("Sliver card test"),
-              flexibleSpace: FlexibleSpaceBar(
-                background: Container(color: Colors.blue),
-              ),
-              pinned: true,
+        width: 400,
+        height: 500,
+        child: Column(children: [
+          Flexible(child: SliverOverlayFrame(direction)),
+          Padding(child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            RaisedButton(
+              color: NiceColors.primary,
+              onPressed: () => setDir(AxisDirection.down),
+              child: Icon(Icons.keyboard_arrow_down),
             ),
-            for (int s = 0; s < 4; s++) SliverPadding(
-              padding: EdgeInsets.all(8),
-              sliver: SliverOverlay(
-                bufferExtent: 32,
-                sliver: SliverPadding(sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, i) => i >= 4 ? null : Waveform(
-                      color: rainbow[i + s * 4],
-                      x: i + s * 4 * 13.0,
-                      y: i + s * 4 * 5.0,
-                      z: i + s * 4 * 3.0,
-                    ),
-                  ),
-                ), padding: EdgeInsets.all(8)),
-                background: Card(
-                  color: NiceColors.background,
-                ),
-              ),
+            RaisedButton(
+              color: NiceColors.primary,
+              onPressed: () => setDir(AxisDirection.right),
+              child: Icon(Icons.keyboard_arrow_right),
             ),
-          ],
-        ),
+            RaisedButton(
+              color: NiceColors.primary,
+              onPressed: () => setDir(AxisDirection.up),
+              child: Icon(Icons.keyboard_arrow_up),
+            ),
+            RaisedButton(
+              color: NiceColors.primary,
+              onPressed: () => setDir(AxisDirection.left),
+              child: Icon(Icons.keyboard_arrow_left),
+            ),
+          ]), padding: EdgeInsets.only(
+            top: 64,
+          )),
+        ]),
       ))),
       Separator(),
     ]),
+  );
+}
+
+class SliverOverlayFrame extends StatelessWidget {
+  final AxisDirection direction;
+
+  SliverOverlayFrame(this.direction);
+
+  @override
+  Widget build(BuildContext context) => Container(
+    decoration: BoxDecoration(
+      border: Border.all(color: NiceColors.text.withOpacity(0.1), width: 1),
+    ),
+    child: CustomScrollView(
+      scrollDirection: direction.axis,
+      reverse: direction.isReverse,
+      cacheExtent: 32,
+      slivers: [
+        SliverAppBar(
+          expandedHeight: 150.0,
+          title: Text("App Bar"),
+          flexibleSpace: FlexibleSpaceBar(
+            background: Container(color: Colors.blue),
+          ),
+        ),
+        for (int s = 0; s < rainbow.length; s++) SliverOverlay(
+          bufferExtent: 32,
+          sliver: SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, i) => i >= shades.length ? null : ColorContainer(
+                color: rainbow[s][shades[i]],
+                size: 5 + s * 25.0,
+              ),
+            ),
+          ),
+          background: Card(
+            color: Colors.transparent,
+            child: InkWell(
+              splashColor: NiceColors.background,
+              onTap: () {},
+            ),
+          ),
+          padding: EdgeInsets.all(16),
+          margin: EdgeInsets.all(8),
+        ),
+      ],
+    ),
+  );
+}
+
+class ColorContainer extends StatefulWidget {
+  final Color color;
+  final double size;
+
+  ColorContainer({this.color, this.size});
+
+  createState() => _ColorContainerState();
+}
+
+class _ColorContainerState extends State<ColorContainer> with SingleTickerProviderStateMixin {
+  AnimationController anim;
+
+  initState() {
+    super.initState();
+    anim = AnimationController(vsync: this)
+      ..animateTo(1.0, duration: Duration(seconds: 1), curve: Curves.easeOutSine);
+  }
+
+  dispose() {
+    anim.dispose();
+    super.dispose();
+  }
+
+  build(context) => AnimatedBuilder(
+    animation: anim,
+    builder: (context, child) => Container(
+      color: widget.color.withOpacity(anim.value),
+      width: widget.size,
+      height: widget.size,
+    ),
   );
 }
 

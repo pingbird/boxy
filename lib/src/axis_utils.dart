@@ -254,6 +254,12 @@ extension AxisDirectionUtil on AxisDirection {
   Axis get crossAxis => this == AxisDirection.up || this == AxisDirection.down ?
     Axis.horizontal : Axis.vertical;
 
+  /// Whether this direction is opposite of the forward direction of [axis].
+  bool get isReverse => this == AxisDirection.up || this == AxisDirection.left;
+
+  /// Whether this direction is the forward direction of [axis].
+  bool get isForward => this == AxisDirection.down || this == AxisDirection.right;
+
   /// Gets the reverse of this direction.
   AxisDirection get reversed => const [
     AxisDirection.down, AxisDirection.left,

@@ -178,7 +178,7 @@ class MyHomePage extends StatelessWidget {
         route: "blog-tile",
       ),
       DemoTile(
-        icon: MdiIcons.viewSplitVertical,
+        icon: MdiIcons.arrowUp,
         name: "Sliver Overlay",
         route: "sliver-overlay",
       ),
