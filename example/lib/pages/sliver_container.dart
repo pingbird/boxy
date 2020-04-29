@@ -7,8 +7,8 @@ import 'package:boxy_gallery/main.dart';
 import 'package:tuple/tuple.dart';
 import 'package:boxy/utils.dart';
 
-class SliverOverlayPage extends StatefulWidget {
-  createState() => SliverOverlayPageState();
+class SliverContainerPage extends StatefulWidget {
+  createState() => SliverContainerPageState();
 }
 
 final rainbow = <MaterialColor>[
@@ -43,7 +43,7 @@ Color getRainbowColor(double delta) {
   ], delta);
 }
 
-class SliverOverlayPageState extends State<SliverOverlayPage> {
+class SliverContainerPageState extends State<SliverContainerPage> {
   var direction = AxisDirection.down;
 
   void setDir(AxisDirection dir) {
@@ -54,7 +54,7 @@ class SliverOverlayPageState extends State<SliverOverlayPage> {
   build(BuildContext context) => Scaffold(
     appBar: GalleryAppBar(
       ["Boxy Gallery", "Sliver Overlay"],
-      source: "https://github.com/PixelToast/flutter-boxy/blob/master/examples/gallery/lib/pages/sliver_overlay.dart",
+      source: "https://github.com/PixelToast/flutter-boxy/blob/master/examples/gallery/lib/pages/sliver_container.dart",
     ),
     backgroundColor: NiceColors.primary,
     body: Column(children: [
@@ -117,29 +117,17 @@ class SliverOverlayFrame extends StatelessWidget {
             background: Container(color: Colors.blue),
           ),
         ),
-        for (int s = 0; s < rainbow.length; s++) SliverOverlay(
-          bufferExtent: 32,
-          sliver: SliverOverlay(
-            bufferExtent: 32 - 4.0,
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, i) => i >= shades.length ? null : ColorContainer(
-                  color: rainbow[s][shades[i]],
-                  size: 5 + s * 25.0,
-                ),
+        for (int s = 0; s < rainbow.length; s++) SliverCard(
+          clipBehavior: Clip.antiAlias,
+          color: Colors.transparent,
+          sliver: SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, i) => i >= shades.length ? null : ColorContainer(
+                color: rainbow[s][shades[i]],
+                size: 5 + s * 25.0,
               ),
             ),
-            clipper: ShapeBorderClipper(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(4),
-              )
-            ),
           ),
-          //padding: EdgeInsets.all(16),
-          background: Card(
-            color: Colors.transparent,
-          ),
-          padding: EdgeInsets.all(4),
           margin: EdgeInsetsAxisUtil.direction(direction,
             mainBegin: s != 0 ? 0.0 : 16.0,
             mainEnd: 16.0,
