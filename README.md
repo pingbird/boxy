@@ -193,8 +193,8 @@ SliverCard(
 ### Utilities
 
 The [utils](https://pub.dev/documentation/boxy/latest/utils) library provides extensions with axis dependant
-methods and constructors for `BoxConstraints`, `Offset`, `Size`, `RenderBox`, and `SizedBox`. These extensions make
-writing axis agnostic layouts significantly easier.
+methods and constructors for several data types. These extensions make writing direction agnostic math significantly
+easier.
 
 Full list of methods:
 
