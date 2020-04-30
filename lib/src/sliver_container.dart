@@ -11,7 +11,7 @@ class SliverContainer extends StatelessWidget {
   final double bufferExtent;
   final EdgeInsetsGeometry padding;
   final EdgeInsetsGeometry margin;
-  final ShapeBorderClipper clipper;
+  final CustomClipper<Path> clipper;
   final Clip clipBehavior;
   final bool clipSliverOnly;
 
@@ -23,7 +23,7 @@ class SliverContainer extends StatelessWidget {
     this.bufferExtent = 0.0,
     this.padding,
     this.margin,
-    ShapeBorderClipper clipper,
+    CustomClipper<Path> clipper,
     this.clipBehavior = Clip.antiAlias,
     this.clipSliverOnly = false,
     BorderRadiusGeometry borderRadius,
@@ -66,7 +66,7 @@ class _BaseSliverContainer extends RenderObjectWidget {
   final Widget foreground;
   final Widget background;
   final double bufferExtent;
-  final ShapeBorderClipper clipper;
+  final CustomClipper<Path> clipper;
   final Clip clipBehavior;
   final bool clipSliverOnly;
 
@@ -110,7 +110,7 @@ class RenderSliverContainer extends RenderSliver with RenderSliverHelpers {
     this.background,
     bufferExtent = 0.0,
     Clip clipBehavior,
-    ShapeBorderClipper clipper,
+    CustomClipper<Path> clipper,
     bool clipSliverOnly,
   }) :
     assert(bufferExtent != null),
