@@ -53,7 +53,7 @@ class SliverContainerPageState extends State<SliverContainerPage> {
 
   build(BuildContext context) => Scaffold(
     appBar: GalleryAppBar(
-      ["Boxy Gallery", "Sliver Overlay"],
+      ["Boxy Gallery", "Sliver Container"],
       source: "https://github.com/PixelToast/flutter-boxy/blob/master/examples/gallery/lib/pages/sliver_container.dart",
     ),
     backgroundColor: NiceColors.primary,

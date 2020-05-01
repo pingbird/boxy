@@ -1,4 +1,5 @@
 import 'package:boxy_gallery/pages/blog_tile.dart';
+import 'package:boxy_gallery/pages/flex_dominant.dart';
 import 'package:boxy_gallery/pages/line_numbers.dart';
 import 'package:boxy_gallery/pages/sliver_container.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +28,7 @@ class MyApp extends StatelessWidget {
     routes: {
       "tree-view": (_) => TreeViewPage(),
       "product-tile": (_) => ProductTilePage(),
+      "flex-dominant": (_) => FlexDominantPage(),
       "line-numbers": (_) => LineNumberPage(),
       "blog-tile": (_) => BlogTilePage(),
       "sliver-container": (_) => SliverContainerPage(),
@@ -163,6 +165,11 @@ class MyHomePage extends StatelessWidget {
         route: "tree-view",
       ),
       DemoTile(
+        icon: MdiIcons.collage,
+        name: "Flex Dominant",
+        route: "flex-dominant",
+      ),
+      DemoTile(
         icon: MdiIcons.dockBottom,
         name: "Product Tile",
         route: "product-tile",
@@ -178,7 +185,7 @@ class MyHomePage extends StatelessWidget {
         route: "blog-tile",
       ),
       DemoTile(
-        icon: MdiIcons.arrowUp,
+        icon: MdiIcons.pageLayoutBody,
         name: "Sliver Container",
         route: "sliver-container",
       ),

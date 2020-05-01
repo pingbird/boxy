@@ -387,7 +387,7 @@ class TreeViewDelegate extends BoxyDelegate {
 
     var ch = layoutNode(root, constraints);
     ch.item3(Offset.zero);
-    return ch.item1;
+    return constraints.constrain(ch.item1);
   }
 
   @override
