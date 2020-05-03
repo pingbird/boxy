@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:boxy_gallery/pages/blog_tile.dart';
 import 'package:boxy_gallery/pages/flex_dominant.dart';
 import 'package:boxy_gallery/pages/line_numbers.dart';

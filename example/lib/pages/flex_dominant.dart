@@ -1,91 +1,119 @@
 import 'dart:math';
+import 'dart:ui';
 
-import 'package:boxy/boxy.dart';
-import 'package:boxy/padding.dart';
+import 'package:boxy/flex.dart';
+import 'package:boxy/slivers.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:boxy_gallery/main.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:tuple/tuple.dart';
+import 'package:boxy/utils.dart';
 
 class FlexDominantPage extends StatefulWidget {
   createState() => FlexDominantPageState();
+}
+
+final rainbow = <MaterialColor>[
+  Colors.red,
+  Colors.deepPurple,
+  Colors.lightBlue,
+  Colors.green,
+  Colors.amber,
+];
+
+const shades = [
+  400, 500, 600, 700, 800, 900
+];
+
+Color lerpGradient(List<Color> colors, List<double> stops, double t) {
+  for (var s = 0; s < stops.length - 1; s++) {
+    final leftStop = stops[s], rightStop = stops[s + 1];
+    final leftColor = colors[s], rightColor = colors[s + 1];
+    if (t <= leftStop) {
+      return leftColor;
+    } else if (t < rightStop) {
+      final sectionT = (t - leftStop) / (rightStop - leftStop);
+      return Color.lerp(leftColor, rightColor, sectionT);
+    }
+  }
+  return colors.last;
+}
+
+Color getRainbowColor(double delta) {
+  return lerpGradient(rainbow, [
+    for (int i = 0; i < rainbow.length; i++) i / (rainbow.length - 1),
+  ], delta);
 }
 
 class FlexDominantPageState extends State<FlexDominantPage> {
   build(BuildContext context) => Scaffold(
     appBar: GalleryAppBar(
       ["Boxy Gallery", "Flex Dominant"],
-      source: "https://github.com/PixelToast/flutter-boxy/blob/master/examples/gallery/lib/pages/flex_dominant.dart",
+      source: "https://github.com/PixelToast/flutter-boxy/blob/master/examples/gallery/lib/pages/tree_view.dart",
     ),
     backgroundColor: NiceColors.primary,
-    body: Column(children: [
+    body: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       Separator(),
-      Expanded(child: Container(child: ListView(children: [
-        Padding(padding: EdgeInsets.only(top: 64)),
-
-        Padding(padding: EdgeInsets.only(top: 64)),
-      ], physics: BouncingScrollPhysics()), color: NiceColors.background)),
+      Expanded(child: Align(
+        child: BoxyFlex(
+          direction: Axis.horizontal,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ChildCard(text: "Child 1", color: Colors.red),
+            Dominant(child: Column(mainAxisSize: MainAxisSize.min, children: [
+              ChildCard(text: "Child 2", color: Colors.lightGreen),
+              ChildCard(text: "Child 3", color: Colors.blue),
+            ])),
+          ],
+        ),
+        widthFactor: 1,
+        heightFactor: 1,
+      )),
       Separator(),
     ]),
   );
 }
 
-class ExpandButton extends StatefulWidget {
-  final bool expanded;
-  final VoidCallback onPressed;
+class ChildCard extends StatefulWidget {
+  final String text;
+  final Color color;
 
-  ExpandButton({
-    @required this.expanded,
-    @required this.onPressed,
+  ChildCard({
+    @required this.text,
+    @required this.color,
   });
 
-  createState() => _ExpandButtonState();
+  createState() => ChildCardState();
 }
 
-class _ExpandButtonState extends State<ExpandButton> with SingleTickerProviderStateMixin {
-  AnimationController controller;
+class ChildCardState extends State<ChildCard> with SingleTickerProviderStateMixin {
+  int state = 0;
 
-  @override
+  AnimationController anim;
+
   initState() {
     super.initState();
-    controller = AnimationController(vsync: this, value: widget.expanded ? 1 : 0);
-    controller.addListener(() => setState(() {}));
+    anim = AnimationController(duration: Duration(milliseconds: 300), vsync: this, upperBound: 2);
+    anim.addListener(() => setState(() {}));
   }
 
-  @override
-  didUpdateWidget(old) {
-    super.didUpdateWidget(old);
-    controller.animateTo(
-      widget.expanded ? 1 : 0,
-      duration: Duration(milliseconds: 500),
-      curve: Curves.ease,
-    );
-  }
-
-  @override
   dispose() {
     super.dispose();
-    controller.dispose();
+    anim.dispose();
   }
 
-  static const size = 42.0;
-
-  build(context) => SizedBox(child: Material(
-    borderRadius: BorderRadius.circular(size / 2),
-    color: Colors.transparent,
-    child: InkWell(child: Center(
-      child: Transform.rotate(child: Icon(
-        Icons.arrow_drop_down,
-        size: 24,
-        color: NiceColors.text,
-      ), angle: pi * controller.value),
+  build(context) => Card(
+    color: widget.color,
+    child: InkWell(
+      onTap: () => setState(() {
+        state = (state + 1) % 3;
+        anim.animateTo(state.toDouble(), curve: Curves.ease);
+      }),
+      child: Container(
+        width: 100 + anim.value * 50,
+        height: 100 + anim.value * 50,
+        child: Center(child: Text(widget.text)),
+      ),
     ),
-      onTap: widget.onPressed,
-      hoverColor: Colors.blueGrey.withOpacity(0.1),
-      focusColor: Colors.blueGrey.withOpacity(0.2),
-      highlightColor: Colors.blueGrey.withOpacity(0.3),
-      splashColor: Colors.blueGrey.shade200.withOpacity(0.3),
-    ),
-  ), width: size, height: size);
+  );
 }
