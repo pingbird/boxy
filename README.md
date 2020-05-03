@@ -71,6 +71,8 @@ the border of two others:
 +-------------------------+
 ```
 
+![](https://i.tst.sh/CJJkV.gif)
+
 ```dart
 class MyLayout extends StatelessWidget {
   final Widget top;
@@ -155,7 +157,9 @@ more information.
 ### Sliver container
 
 Ever want to give a SliverList a box decoration? The [sliver](https://pub.dev/documentation/boxy/latest/sliver) library
-provides `SliverContainer` which allows you to use a box widget as the foreground or background of any sliver widget:
+provides `SliverContainer` which allows you to use a box widget as the foreground or background of a sliver:
+
+![](https://i.tst.sh/AD4NH.gif)
 
 ```dart
 SliverContainer(
