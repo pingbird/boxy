@@ -71,7 +71,7 @@ the border of two others:
 +-------------------------+
 ```
 
-![](https://i.tst.sh/CJJkV.gif)
+![](https://i.tst.sh/sPNdv.gif)
 
 ```dart
 class MyLayout extends StatelessWidget {
