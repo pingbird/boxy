@@ -1,9 +1,29 @@
 import 'dart:math';
 
+import 'package:boxy/src/sliver_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:boxy/utils.dart';
 
+/// A sliver container that gives its sliver a foreground or background
+/// consisting of box widgets, this is useful if you want a sliver to look and
+/// feel like the child of a regular widget.
+///
+/// The [foreground] and [background] widgets are positioned out so that they
+/// cover the visible space of [sliver], it also applies [clipper] with these
+/// dimensions.
+///
+/// [bufferExtent] is the amount of space the foreground and background will
+/// extend off-screen in each direction if portions of [sliver] are out of view.
+/// To maintain consistent decorations, this should be greater or equal to the
+/// size of any features drawn at the border.
+///
+/// The total main axis size of box widgets will never be smaller than
+/// [bufferExtent] * 2 or the main axis size of [sliver], whichever is lowest.
+///
+/// See also:
+///
+///   * [SliverCard], which gives the sliver a card look.
 class SliverContainer extends StatelessWidget {
   final Widget sliver;
   final Widget foreground;

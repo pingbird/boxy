@@ -3,6 +3,13 @@ import 'dart:math';
 import 'package:boxy/src/sliver_container.dart';
 import 'package:flutter/material.dart';
 
+/// A sliver container that makes its child look like its inside of a [Card].
+///
+/// To clip the child, add `clipBehavior: Clip.antiAlias`.
+///
+/// See also:
+///
+///   [SliverContainer], the sliver this is based on.
 class SliverCard extends StatelessWidget {
   final Color color;
   final Color shadowColor;
