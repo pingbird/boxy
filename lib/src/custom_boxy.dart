@@ -107,10 +107,7 @@ class _RenderBoxyElement extends RenderObjectElement {
 
     Set<Object> inflatedIds;
 
-    assert(() {
-      inflatedIds = <Object>{};
-      return true;
-    }());
+    inflatedIds = <Object>{};
 
     int index = 0;
     _RenderBoxyElementEntry lastEntry;
@@ -118,10 +115,7 @@ class _RenderBoxyElement extends RenderObjectElement {
     RenderBox inflateChild(Object id, Widget widget) {
       var slotIndex = index++;
 
-      assert(() {
-        inflatedIds.add(id);
-        return true;
-      }());
+      inflatedIds.add(id);
 
       var entry = _delegateCache[id];
 

@@ -1,10 +1,11 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:boxy_gallery/pages/blog_tile.dart';
 import 'package:boxy_gallery/pages/flex_dominant.dart';
 import 'package:boxy_gallery/pages/line_numbers.dart';
+import 'package:boxy_gallery/pages/product_tile_simple.dart';
 import 'package:boxy_gallery/pages/sliver_container.dart';
-import 'package:flutter/material.dart';
 import 'package:boxy_gallery/pages/product_tile.dart';
 import 'package:boxy_gallery/pages/tree_view.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -30,6 +31,7 @@ class MyApp extends StatelessWidget {
     routes: {
       "tree-view": (_) => TreeViewPage(),
       "product-tile": (_) => ProductTilePage(),
+      "product-tile-simple": (_) => ProductTileSimplePage(),
       "flex-dominant": (_) => FlexDominantPage(),
       "line-numbers": (_) => LineNumberPage(),
       "blog-tile": (_) => BlogTilePage(),
@@ -119,8 +121,9 @@ class GalleryAppBarButton extends StatelessWidget {
 class GalleryAppBar extends StatelessWidget implements PreferredSizeWidget {
   final List<String> title;
   final String source;
+  final List<Widget> actions;
   
-  GalleryAppBar(this.title, {this.source});
+  GalleryAppBar(this.title, {this.source, this.actions});
   
   build(context) => AppBar(
     leading: title.length == 1 ? null : GalleryAppBarButton(
@@ -144,6 +147,7 @@ class GalleryAppBar extends StatelessWidget implements PreferredSizeWidget {
     ]),
     elevation: 0,
     actions: [
+      if (actions != null) ...actions,
       if (source != null) GalleryAppBarButton(
         Icons.description, () {
           launch(source);
@@ -175,6 +179,11 @@ class MyHomePage extends StatelessWidget {
         icon: MdiIcons.dockBottom,
         name: "Product Tile",
         route: "product-tile",
+      ),
+      DemoTile(
+        icon: MdiIcons.dockBottom,
+        name: "Simple Product Tile",
+        route: "product-tile-simple",
       ),
       DemoTile(
         icon: MdiIcons.formatListNumbered,
