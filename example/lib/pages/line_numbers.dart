@@ -76,7 +76,7 @@ class LineNumberPageState extends State<LineNumberPage> {
     return Scaffold(
       appBar: GalleryAppBar(
         ["Boxy Gallery", "Line Numbers"],
-        source: "https://github.com/PixelToast/flutter-boxy/blob/master/examples/gallery/lib/pages/line_numbers.dart",
+        source: "https://github.com/PixelToast/flutter-boxy/blob/master/example/lib/pages/line_numbers.dart",
       ),
       backgroundColor: NiceColors.primary,
       body: Column(children: [
