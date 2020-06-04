@@ -21,8 +21,8 @@ class ProductTileSimplePage extends StatefulWidget {
 class ProductTileSimplePageState extends State<ProductTileSimplePage> {
   build(BuildContext context) => Scaffold(
     appBar: GalleryAppBar(
-      ["Boxy Gallery", "Flex Dominant"],
-      source: "https://github.com/PixelToast/flutter-boxy/blob/master/examples/gallery/lib/pages/tree_view.dart",
+      ["Boxy Gallery", "Simple Product Tile"],
+      source: "https://github.com/PixelToast/flutter-boxy/blob/master/example/lib/pages/product_tile_simple.dart",
     ),
     backgroundColor: NiceColors.primary,
     body: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -42,24 +42,13 @@ class ProductTileSimplePageState extends State<ProductTileSimplePage> {
 }
 
 class SeebSeller extends StatefulWidget {
-  final String image;
-
-  SeebSeller({@required this.image});
-
   createState() => _SeebSellerState();
 }
 
 class _SeebSellerState extends State<SeebSeller> {
   bool expanded = false;
-  build(context) => ClipOval(child: Stack(children: [
-    Positioned.fill(child: Container(
-      color: NiceColors.background,
-      child: ClipOval(child:
-        Image.network(widget.image, fit: BoxFit.cover),
-      ),
-      padding: EdgeInsets.all(8),
-    )),
-    Material(child: InkWell(onTap: () {
+  build(context) => ClipOval(
+    child: Material(child: InkWell(onTap: () {
       setState(() {
         expanded = !expanded;
       });
@@ -69,8 +58,14 @@ class _SeebSellerState extends State<SeebSeller> {
       height: expanded ? 84 : 48,
       curve: Curves.ease,
       margin: EdgeInsets.all(8),
-    )), color: Colors.transparent),
-  ]));
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(256),
+          color: Color(0xFFE2F0CB),
+        ),
+      ),
+    )), color: NiceColors.primary),
+  );
 }
 
 class SeebTitle extends StatefulWidget {
@@ -82,7 +77,7 @@ class SeebTitleState extends State<SeebTitle> {
   bool expanded = false;
 
   build(context) => ClipRRect(child: Stack(children: [
-    Positioned.fill(child: Container(color: Colors.redAccent)),
+    Positioned.fill(child: Container(color: Color(0xFFC7CEEA))),
     AnimatedContainer(
       child: Material(
         color: Colors.transparent,
@@ -122,36 +117,23 @@ class SeebInfoState extends State<SeebInfo> with TickerProviderStateMixin {
     anim.addListener(() => setState(() {}));
   }
 
-  build(context) => ClipRRect(child: Stack(children: [
-    Positioned.fill(child: Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.blueGrey.shade900,
-            Colors.blueGrey.shade700,
-          ],
-        ),
-      ),
-    )),
-    Material(
-      color: Colors.transparent,
+  build(context) => ClipRRect(
+    child: Material(
+      borderRadius: BorderRadius.circular(8),
+      color: Color(0xFFB5EAD7),
       child: InkWell(child: AnimatedContainer(
         alignment: Alignment.topCenter,
-        child: Container(
-          height: expanded * 25.0,
-        ),
-        duration: Duration(milliseconds: 250),
+        height: (expanded + 1) * 56.0,
+        duration: Duration(milliseconds: 500),
         curve: Curves.ease,
       ), onTap: () {
         setState(() {
-          expanded = (expanded + 1) % 4;
+          expanded = (expanded + 1) % 3;
           anim.animateTo(expanded.toDouble(), curve: Curves.ease);
         });
       }),
     ),
-  ]), borderRadius: BorderRadius.circular(8));
+  );
 }
 
 class ProductTileStyle {

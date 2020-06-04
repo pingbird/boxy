@@ -17,7 +17,7 @@ class BlogTilePageState extends State<BlogTilePage> {
   build(BuildContext context) => Scaffold(
     appBar: GalleryAppBar(
       ["Boxy Gallery", "Blog Tile"],
-      source: "https://github.com/PixelToast/flutter-boxy/blob/master/examples/gallery/lib/pages/blog_tile.dart",
+      source: "https://github.com/PixelToast/flutter-boxy/blob/master/example/lib/pages/blog_tile.dart",
     ),
     backgroundColor: NiceColors.primary,
     body: Column(children: [
