@@ -125,13 +125,12 @@ class SliverOverlayFrame extends StatelessWidget {
           sliver: SliverList(
             delegate: SliverChildListDelegate([
               Container(
-                width: double.infinity,
-                height: 16,
+                width: direction.axis == Axis.horizontal ? 16 : double.infinity,
+                height: direction.axis == Axis.horizontal ? double.infinity : 16,
                 color: rainbow[s][shades[0]],
               ),
-
               for (var i = 0; i <= s && i < shades.length; i++)
-                ColorTile(color: rainbow[s][shades[i]])
+                ColorTile(color: rainbow[s][shades[i]], direction: direction)
             ]),
           ),
           margin: EdgeInsetsAxisUtil.direction(direction,
@@ -148,8 +147,9 @@ class SliverOverlayFrame extends StatelessWidget {
 
 class ColorTile extends StatefulWidget {
   final Color color;
+  final AxisDirection direction;
 
-  ColorTile({this.color});
+  ColorTile({this.color, this.direction});
 
   createState() => _ColorTileState();
 }
@@ -170,7 +170,7 @@ class _ColorTileState extends State<ColorTile> with SingleTickerProviderStateMix
     super.dispose();
   }
 
-  build(context) => Container(
+  build(context) => RotatedBox(quarterTurns: widget.direction.reversed.index, child: Container(
     padding: EdgeInsets.all(8),
     child: AnimatedBuilder(
       animation: anim,
@@ -216,6 +216,6 @@ class _ColorTileState extends State<ColorTile> with SingleTickerProviderStateMix
           ],
         );
       },
-    ),
-  );
+    )
+  ));
 }
