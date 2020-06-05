@@ -6,13 +6,12 @@ in-depth knowledge of the framework and minimal boilerplate.
 ### Flex layouts
 
 A common pattern is when you need one or more widgets in a `Row` or `Column` to have the same cross axis size
-as another child in the list, you can achieve this layout using `BoxyRow` and `Dominant` for example:
+as another child in the list, you can achieve this layout using `BoxyRow` and `Dominant`, for example:
 
 ![](https://i.tst.sh/fwkd8.gif)
 
 ```dart
 BoxyRow(
-  crossAxisAlignment: CrossAxisAlignment.strech,
   mainAxisSize: MainAxisSize.min,
   children: [
     Child1(),
@@ -120,7 +119,7 @@ more information.
 
 ### Sliver container
 
-Ever want to give a SliverList a box decoration? The [sliver](https://pub.dev/documentation/boxy/latest/sliver) library
+Ever want to give SliverList a box decoration? The [sliver](https://pub.dev/documentation/boxy/latest/sliver) library
 provides `SliverContainer` which allows you to use a box widget as the foreground or background of a sliver:
 
 ![](https://i.tst.sh/ua72L.gif)
@@ -135,7 +134,7 @@ SliverCard(
 )
 ```
 
-Example `SliverContainer` usage:
+The following example uses `SliverContainer` to give `SliverList` a rounded blue border:
 
 ```dart
 SliverContainer(
