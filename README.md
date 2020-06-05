@@ -123,7 +123,19 @@ more information.
 Ever want to give a SliverList a box decoration? The [sliver](https://pub.dev/documentation/boxy/latest/sliver) library
 provides `SliverContainer` which allows you to use a box widget as the foreground or background of a sliver:
 
-![](https://i.tst.sh/AD4NH.gif)
+![](https://i.tst.sh/ua72L.gif)
+
+This card effect can be achieved with `SliverCard`, which is based on `SliverContainer`:
+
+```dart
+SliverCard(
+  color: Colors.white,
+  clipBehavior: Clip.antiAlias,
+  sliver: SliverList(...),
+)
+```
+
+Example `SliverContainer` usage:
 
 ```dart
 SliverContainer(
@@ -143,16 +155,6 @@ SliverContainer(
 
   margin: EdgeInsets.all(8.0),
   padding: EdgeInsets.all(8.0),
-  sliver: SliverList(...),
-)
-```
-
-It also provides `SliverCard` which gives the sliver a `Card` background and can clip it according to the shape of the card: 
-
-```dart
-SliverCard(
-  color: Colors.transparent,
-  clipBehavior: Clip.antiAlias,
   sliver: SliverList(...),
 )
 ```

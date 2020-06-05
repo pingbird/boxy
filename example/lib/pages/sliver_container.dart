@@ -13,10 +13,12 @@ class SliverContainerPage extends StatefulWidget {
 
 final rainbow = <MaterialColor>[
   Colors.red,
+  Colors.pink,
   Colors.deepPurple,
   Colors.lightBlue,
   Colors.green,
   Colors.amber,
+  Colors.orange,
 ];
 
 const shades = [
@@ -114,19 +116,23 @@ class SliverOverlayFrame extends StatelessWidget {
           expandedHeight: 150.0,
           title: Text("App Bar"),
           flexibleSpace: FlexibleSpaceBar(
-            background: Container(color: Colors.blue),
+            background: Container(color: Colors.red[400]),
           ),
         ),
         for (int s = 0; s < rainbow.length; s++) SliverCard(
           clipBehavior: Clip.antiAlias,
-          color: Colors.transparent,
+          color: Colors.white,
           sliver: SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, i) => i >= shades.length ? null : ColorContainer(
-                color: rainbow[s][shades[i]],
-                size: 5 + s * 25.0,
+            delegate: SliverChildListDelegate([
+              Container(
+                width: double.infinity,
+                height: 16,
+                color: rainbow[s][shades[0]],
               ),
-            ),
+
+              for (var i = 0; i <= s && i < shades.length; i++)
+                ColorTile(color: rainbow[s][shades[i]])
+            ]),
           ),
           margin: EdgeInsetsAxisUtil.direction(direction,
             mainBegin: s != 0 ? 0.0 : 16.0,
@@ -140,22 +146,23 @@ class SliverOverlayFrame extends StatelessWidget {
   );
 }
 
-class ColorContainer extends StatefulWidget {
+class ColorTile extends StatefulWidget {
   final Color color;
-  final double size;
 
-  ColorContainer({this.color, this.size});
+  ColorTile({this.color});
 
-  createState() => _ColorContainerState();
+  createState() => _ColorTileState();
 }
 
-class _ColorContainerState extends State<ColorContainer> with SingleTickerProviderStateMixin {
+class _ColorTileState extends State<ColorTile> with SingleTickerProviderStateMixin {
   AnimationController anim;
+  double descWidth;
 
   initState() {
+    descWidth = Random().nextInt(100).toDouble();
     super.initState();
     anim = AnimationController(vsync: this)
-      ..animateTo(1.0, duration: Duration(seconds: 1), curve: Curves.easeOutSine);
+      ..animateTo(1.0, duration: Duration(seconds: 1), curve: Curves.ease);
   }
 
   dispose() {
@@ -163,99 +170,52 @@ class _ColorContainerState extends State<ColorContainer> with SingleTickerProvid
     super.dispose();
   }
 
-  build(context) => AnimatedBuilder(
-    animation: anim,
-    builder: (context, child) => Container(
-      color: widget.color.withOpacity(anim.value),
-      width: widget.size,
-      height: widget.size,
+  build(context) => Container(
+    padding: EdgeInsets.all(8),
+    child: AnimatedBuilder(
+      animation: anim,
+      builder: (context, child) {
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: 60,
+              height: 60,
+              child: Align(
+                child: Container(
+                  width: 30 + 30 * anim.value,
+                  height: 30 + 30 * anim.value,
+                  decoration: BoxDecoration(
+                    color: widget.color.withOpacity(anim.value),
+                    borderRadius: BorderRadius.circular(16 - 12 * anim.value)
+                  ),
+                ),
+              ),
+            ),
+            Padding(padding: EdgeInsets.only(right: 8)),
+            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(anim.value * 0.54),
+                  borderRadius: BorderRadius.circular(7),
+                ),
+                height: 15,
+                width: 90,
+                margin: EdgeInsets.only(top: 8, bottom: 8),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(anim.value * 0.38),
+                  borderRadius: BorderRadius.circular(7),
+                ),
+                height: 15,
+                width: (descWidth * anim.value) + 50,
+                margin: EdgeInsets.only(top: 8, bottom: 8),
+              ),
+            ])
+          ],
+        );
+      },
     ),
   );
-}
-
-class Waveform extends StatefulWidget {
-  final Color color;
-  final double x;
-  final double y;
-  final double z;
-
-  Waveform({
-    @required this.color,
-    @required this.x,
-    @required this.y,
-    @required this.z,
-  });
-
-  _WaveformState createState() => _WaveformState();
-}
-
-class _WaveformState extends State<Waveform> with SingleTickerProviderStateMixin {
-  AnimationController anim;
-
-  initState() {
-    super.initState();
-    anim = AnimationController(vsync: this)
-      ..animateTo(1.0, duration: Duration(seconds: 3), curve: Curves.easeOutSine);
-  }
-
-  @override
-  dispose() {
-    anim.dispose();
-    super.dispose();
-  }
-
-  build(BuildContext context) => AnimatedBuilder(
-    animation: anim,
-    builder: (context, child) => Opacity(child: CustomPaint(
-      foregroundPainter: WaveformPainter(
-        color: widget.color,
-        x: widget.x,
-        y: widget.y,
-        z: widget.z,
-        a: anim.value,
-      ),
-      child: SizedBox(
-        height: 64,
-      ),
-    ), opacity: anim.value),
-  );
-}
-
-
-class WaveformPainter extends CustomPainter {
-  final Color color;
-  final double x;
-  final double y;
-  final double z;
-  final double a;
-
-  WaveformPainter({
-    @required this.color,
-    @required this.x,
-    @required this.y,
-    @required this.z,
-    @required this.a,
-  });
-
-  paint(Canvas canvas, Size size) {
-    canvas.save();
-    canvas.translate(-size.width / 2, size.height / 2);
-    var path = Path();
-    for (int i = 0; i <= 500; i++) {
-      var dt = (i / 500) + 0.5;
-      (i == 0 ? path.moveTo : path.lineTo)(
-        dt * size.width,
-        (sin(dt * x) + sin(dt * y) * sin(dt * z)) * (size.height / 6) * a,
-      );
-    }
-    canvas.drawPath(path, Paint()
-      ..color = color
-      ..strokeWidth = 2
-      ..style = PaintingStyle.stroke
-    );
-    canvas.restore();
-  }
-
-  shouldRepaint(WaveformPainter old) =>
-    old.color != color || old.x != x || old.y != y || old.y != z || old.a != a;
 }
