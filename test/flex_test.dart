@@ -177,4 +177,53 @@ void main() {
       ));
     }
   });
+
+  testWidgets('Centered cross axis', (tester) async {
+    for (var direction in Axis.values) {
+      await tester.pumpWidget(TestFrame(child: BoxyFlex(
+        key: GlobalObjectKey(#flex),
+        direction: direction,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          BoxyFlexible(
+            flex: 0,
+            child: SizedBox(
+              key: GlobalObjectKey(#first),
+              width: 100,
+              height: 100,
+            ),
+          ),
+          BoxyFlexible(
+            dominant: true,
+            flex: 0,
+            child: AxisSizedBox(
+              axis: direction,
+              key: GlobalObjectKey(#second),
+              cross: 300,
+              main: 100,
+            ),
+          ),
+        ],
+      )));
+
+      var flexBox = keyBox(#flex);
+
+      var flex = boxRect(flexBox);
+      var first = boxRect(keyBox(#first));
+      var second = boxRect(keyBox(#second));
+
+      expect(flex, equals(
+        Offset.zero & SizeAxisUtil.create(direction, 300, 200),
+      ));
+
+      expect(first, equals(
+        OffsetAxisUtil.create(direction, 100, 0) & Size(100, 100),
+      ));
+
+      expect(second, equals(
+        OffsetAxisUtil.create(direction, 0, 100) &
+        SizeAxisUtil.create(direction, 300, 100),
+      ));
+    }
+  });
 }

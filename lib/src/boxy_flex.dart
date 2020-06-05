@@ -950,21 +950,24 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
             childConstraints,
             parentUsesSize: true,
           );
-          maxCrossSize = _getCrossSize(dominantChild);
+          maxCrossSize = crossSize = _getCrossSize(dominantChild);
         }
       } else {
         dominantChild.layout(
           constraints.crossAxisConstraints(_direction),
           parentUsesSize: true,
         );
-        maxCrossSize = dominantChild.size.crossAxisSize(_direction);
+        maxCrossSize = crossSize = dominantChild.size.crossAxisSize(_direction);
         allocatedSize += _getMainSize(dominantChild);
       }
     }
 
     if (hasInflexible) {
-      BoxConstraints innerConstraints = BoxConstraintsAxisUtil.tightFor(
-          _direction, cross: maxCrossSize
+      BoxConstraints innerConstraints = BoxConstraintsAxisUtil.create(
+        _direction,
+        minCross: crossAxisAlignment == CrossAxisAlignment.stretch ?
+          maxCrossSize : 0.0,
+        maxCross: maxCrossSize,
       );// Sum of the sizes of the non-flexible children.
       child = firstChild;
       while (child != null) {
