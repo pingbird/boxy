@@ -34,13 +34,14 @@ class TestFrame extends StatelessWidget {
   });
 
   build(BuildContext context) => Directionality(
-    child: Stack(children: [
-      Positioned(
-        top: 0,
-        left: 0,
-        child: ConstrainedBox(child: child, constraints: constraints),
-      ),
-    ]),
+    child: OverflowBox(
+      alignment: Alignment.topLeft,
+      minWidth: 0,
+      maxWidth: double.infinity,
+      minHeight: 0,
+      maxHeight: double.infinity,
+      child: ConstrainedBox(child: child, constraints: constraints),
+    ),
     textDirection: TextDirection.ltr,
   );
 }
