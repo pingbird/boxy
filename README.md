@@ -118,14 +118,14 @@ See the [Product Tile](https://me.tst.sh/git/flutter-boxy/gallery/#product-tile)
 layout, and the documentation of [CustomBoxy](https://pub.dev/documentation/boxy/latest/boxy/CustomBoxy-class.html) for
 more information.
 
-### Sliver container
+### Sliver containers
 
 Ever want to give SliverList a box decoration? The [sliver](https://pub.dev/documentation/boxy/latest/sliver) library
 provides `SliverContainer` which allows you to use a box widget as the foreground or background of a sliver:
 
 ![](https://i.tst.sh/ua72L.gif)
 
-This card effect can be achieved with `SliverCard`, which is based on `SliverContainer`:
+This card effect can be achieved with `SliverCard`:
 
 ```dart
 SliverCard(
