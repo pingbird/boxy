@@ -56,7 +56,6 @@ class BoxyRowPageState extends State<BoxyRowPage> {
       Expanded(child: Align(
         child: LabelBox(label: "BoxyRow", child: BoxyRow(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             ChildCard(text: "Child 1", color: Colors.red),
             Dominant(child: LabelBox(
@@ -135,8 +134,8 @@ class LabelBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Stack(children: [
     Container(
-      margin: EdgeInsets.all(6),
-      padding: EdgeInsets.all(6),
+      margin: EdgeInsets.all(7),
+      padding: EdgeInsets.all(7),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: Colors.white.withOpacity(0.2)),
