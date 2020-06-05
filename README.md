@@ -52,7 +52,8 @@ class MyLayout extends StatelessWidget {
     @required this.inset,
   });
 
-  build(context) => CustomBoxy(
+  @override
+  Widget build(context) => CustomBoxy(
     delegate: MyDelegate(inset: inset),
     children: [
       // Use LayoutId to give each child an id
@@ -71,7 +72,7 @@ class MyDelegate extends BoxyDelegate {
   MyDelegate({@required this.inset});
   
   @override
-  layout() {
+  Size layout() {
     // Get each child handle by a Symbol id
     var top = getChild(#top);
     var middle = getChild(#middle);
@@ -109,7 +110,7 @@ class MyDelegate extends BoxyDelegate {
   
   // Check if any properties have changed
   @override
-  shouldRelayout(MyDelegate old) => old.inset != inset;
+  bool shouldRelayout(MyDelegate old) => old.inset != inset;
 }
 ```
 
