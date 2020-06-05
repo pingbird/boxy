@@ -6,44 +6,25 @@ in-depth knowledge of the framework and minimal boilerplate.
 ### Flex layouts
 
 A common pattern is when you need one or more widgets in a `Row` or `Column` to have the same cross axis size
-as another child in the list, you can achieve this layout using `BoxyColumn` and `Dominant` for example:
+as another child in the list, you can achieve this layout using `BoxyRow` and `Dominant` for example:
 
-```
-+---------------------------+
-|         BoxyColumn        |
-|  * Loose constraints      |
-|  +---------------------+  |
-|  |       Child 1       |  |
-|  | * Dominant          |  |
-|  | * Dynamic size      |  |
-|  +---------------------+  |
-|  +---------------------+  |
-|  |       Child 2       |  |
-|  | * Dynamic height    |  |
-|  | * Width of Child 1  |  |
-|  +---------------------+  |
-|                           |
-+---------------------------+
-```
+![](https://i.tst.sh/fwkd8.gif)
 
 ```dart
-BoxyColumn(children: [
- Dominant(child: Child1()),
- Child2(),
-]);
-
-// Alternatively,
-BoxyFlex(
-  direction: Axis.vertical,
+BoxyRow(
+  crossAxisAlignment: CrossAxisAlignment.strech,
+  mainAxisSize: MainAxisSize.min,
   children: [
-    BoxyFlexible(
-      flex: 0,
-      dominant: true,
-      child: Child1(),
-    ),
-    Child2(),
+    Child1(),
+    Dominant(child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Child2(),
+        Child3(),
+      ],
+    )),
   ],
-);
+]);
 ```
 
 ### Complex custom layouts
@@ -54,22 +35,7 @@ constrain, lay out, and paint each child manually similar to a `CustomMultiChild
 This is useful if you need layouts that no other widget can provide, for example one where one child is positioned above
 the border of two others:
 
-```
-+-------------------------+
-|       CustomBoxy        |
-|  +-------------------+  |
-|  |                   |  |
-|  |        Top        |  |
-|  |       +---------+ |  |
-|  +-------| Middle  |-+  |
-|  +-------|         |-+  |
-|  |       +---------+ |  |
-|  |      Bottom       |  |
-|  |                   |  |
-|  +-------------------+  |
-|                         |
-+-------------------------+
-```
+![](https://i.tst.sh/1gV8Y.png)
 
 ```dart
 class MyLayout extends StatelessWidget {

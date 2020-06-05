@@ -73,7 +73,6 @@ class SeebTitle extends StatefulWidget {
 }
 
 class SeebTitleState extends State<SeebTitle> {
-  StreamSubscription subscription;
   bool expanded = false;
 
   build(context) => ClipRRect(child: Stack(children: [
@@ -96,7 +95,6 @@ class SeebTitleState extends State<SeebTitle> {
 
   dispose() {
     super.dispose();
-    subscription.cancel();
   }
 }
 
@@ -134,6 +132,12 @@ class SeebInfoState extends State<SeebInfo> with TickerProviderStateMixin {
       }),
     ),
   );
+
+  @override
+  void dispose() {
+    anim.dispose();
+    super.dispose();
+  }
 }
 
 class ProductTileStyle {

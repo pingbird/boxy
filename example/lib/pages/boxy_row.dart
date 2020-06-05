@@ -8,8 +8,8 @@ import 'package:boxy_gallery/main.dart';
 import 'package:tuple/tuple.dart';
 import 'package:boxy/utils.dart';
 
-class FlexDominantPage extends StatefulWidget {
-  createState() => FlexDominantPageState();
+class BoxyRowPage extends StatefulWidget {
+  createState() => BoxyRowPageState();
 }
 
 final rainbow = <MaterialColor>[
@@ -44,28 +44,36 @@ Color getRainbowColor(double delta) {
   ], delta);
 }
 
-class FlexDominantPageState extends State<FlexDominantPage> {
+class BoxyRowPageState extends State<BoxyRowPage> {
   build(BuildContext context) => Scaffold(
     appBar: GalleryAppBar(
-      ["Boxy Gallery", "Flex Dominant"],
-      source: "https://github.com/PixelToast/flutter-boxy/blob/master/example/lib/pages/tree_view.dart",
+      ["Boxy Gallery", "BoxyRow"],
+      source: "https://github.com/PixelToast/flutter-boxy/blob/master/example/lib/pages/boxy_row.dart",
     ),
     backgroundColor: NiceColors.primary,
     body: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       Separator(),
       Expanded(child: Align(
-        child: BoxyFlex(
-          direction: Axis.horizontal,
-          crossAxisAlignment: CrossAxisAlignment.center,
+        child: LabelBox(label: "BoxyRow", child: BoxyRow(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             ChildCard(text: "Child 1", color: Colors.red),
-            Dominant(child: Column(mainAxisSize: MainAxisSize.min, children: [
-              ChildCard(text: "Child 2", color: Colors.lightGreen),
-              ChildCard(text: "Child 3", color: Colors.blue),
-            ])),
+            Dominant(child: LabelBox(
+              label: "Dominant",
+              child: LabelBox(
+                label: "Column",
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ChildCard(text: "Child 2", color: Colors.lightGreen),
+                    ChildCard(text: "Child 3", color: Colors.blue),
+                  ],
+                ),
+              ),
+            )),
           ],
-        ),
+        )),
         widthFactor: 1,
         heightFactor: 1,
       )),
@@ -106,14 +114,44 @@ class ChildCardState extends State<ChildCard> with SingleTickerProviderStateMixi
     color: widget.color,
     child: InkWell(
       onTap: () => setState(() {
-        state = (state + 1) % 3;
+        state = (state + 1) % 2;
         anim.animateTo(state.toDouble(), curve: Curves.ease);
       }),
       child: Container(
-        width: 100 + anim.value * 50,
-        height: 100 + anim.value * 50,
+        width: 80 + anim.value * 45,
+        height: 80 + anim.value * 45,
         child: Center(child: Text(widget.text)),
       ),
     ),
   );
+}
+
+class LabelBox extends StatelessWidget {
+  final String label;
+  final Widget child;
+
+  LabelBox({@required this.label, @required this.child});
+
+  @override
+  Widget build(BuildContext context) => Stack(children: [
+    Container(
+      margin: EdgeInsets.all(6),
+      padding: EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.white.withOpacity(0.2)),
+      ),
+      child: child,
+    ),
+    Positioned(
+      left: 0,
+      right: 0,
+      top: 0,
+      child: Align(child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 8),
+        color: NiceColors.primary,
+        child: Text('$label'),
+      )),
+    ),
+  ]);
 }

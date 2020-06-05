@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:boxy_gallery/pages/blog_tile.dart';
-import 'package:boxy_gallery/pages/flex_dominant.dart';
+import 'package:boxy_gallery/pages/boxy_row.dart';
 import 'package:boxy_gallery/pages/line_numbers.dart';
 import 'package:boxy_gallery/pages/product_tile_simple.dart';
 import 'package:boxy_gallery/pages/sliver_container.dart';
@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
       "tree-view": (_) => TreeViewPage(),
       "product-tile": (_) => ProductTilePage(),
       "product-tile-simple": (_) => ProductTileSimplePage(),
-      "flex-dominant": (_) => FlexDominantPage(),
+      "boxy-row": (_) => BoxyRowPage(),
       "line-numbers": (_) => LineNumberPage(),
       "blog-tile": (_) => BlogTilePage(),
       "sliver-container": (_) => SliverContainerPage(),
@@ -131,20 +131,24 @@ class GalleryAppBar extends StatelessWidget implements PreferredSizeWidget {
         Navigator.pop(context);
       }
     ),
-    title: Row(children: [
-      for (var i = 0; i < title.length; i++) ...[
-        if (i != 0) Padding(
-          child: Icon(Icons.arrow_right, color: NiceColors.text.withOpacity(0.5)),
-          padding: EdgeInsets.all(8),
-        ),
-        Text(
-          title[i],
-          style: TextStyle(
-            color: NiceColors.text,
+    title: SizedBox(height: kToolbarHeight, child: OverflowBox(
+      child: Row(children: [
+        for (var i = 0; i < title.length; i++) ...[
+          if (i != 0) Padding(
+            child: Icon(Icons.arrow_right, color: NiceColors.text.withOpacity(0.5)),
+            padding: EdgeInsets.all(8),
           ),
-        ),
-      ]
-    ]),
+          Text(
+            title[i],
+            style: TextStyle(
+              color: NiceColors.text,
+            ),
+          ),
+        ]
+      ]),
+      alignment: Alignment.centerLeft,
+      maxWidth: double.infinity,
+    )),
     elevation: 0,
     actions: [
       if (actions != null) ...actions,
@@ -172,8 +176,8 @@ class MyHomePage extends StatelessWidget {
       ),
       DemoTile(
         icon: MdiIcons.collage,
-        name: "Flex Dominant",
-        route: "flex-dominant",
+        name: "BoxyRow",
+        route: "boxy-row",
       ),
       DemoTile(
         icon: MdiIcons.dockBottom,
