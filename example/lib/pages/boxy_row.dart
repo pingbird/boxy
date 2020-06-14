@@ -42,27 +42,27 @@ Color getRainbowColor(double delta) {
 
 class BoxyRowPageState extends State<BoxyRowPage> {
   build(BuildContext context) => Scaffold(
-    appBar: GalleryAppBar(
-      ["Boxy Gallery", "BoxyRow"],
-      source: "https://github.com/PixelToast/flutter-boxy/blob/master/example/lib/pages/boxy_row.dart",
+    appBar: const GalleryAppBar(
+      ['Boxy Gallery', 'BoxyRow'],
+      source: 'https://github.com/PixelToast/flutter-boxy/blob/master/example/lib/pages/boxy_row.dart',
     ),
     backgroundColor: NiceColors.primary,
     body: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       Separator(),
       Expanded(child: Align(
-        child: LabelBox(label: "BoxyRow", child: BoxyRow(
+        child: LabelBox(label: 'BoxyRow', child: BoxyRow(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ChildCard(text: "Child 1", color: Colors.red),
+            const ChildCard(text: 'Child 1', color: Colors.red),
             Dominant(child: LabelBox(
-              label: "Dominant",
+              label: 'Dominant',
               child: LabelBox(
-                label: "Column",
+                label: 'Column',
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ChildCard(text: "Child 2", color: Colors.lightGreen),
-                    ChildCard(text: "Child 3", color: Colors.blue),
+                  children: const [
+                    ChildCard(text: 'Child 2', color: Colors.lightGreen),
+                    ChildCard(text: 'Child 3', color: Colors.blue),
                   ],
                 ),
               ),
@@ -81,7 +81,7 @@ class ChildCard extends StatefulWidget {
   final String text;
   final Color color;
 
-  ChildCard({
+  const ChildCard({
     @required this.text,
     @required this.color,
   });
@@ -96,7 +96,7 @@ class ChildCardState extends State<ChildCard> with SingleTickerProviderStateMixi
 
   initState() {
     super.initState();
-    anim = AnimationController(duration: Duration(milliseconds: 300), vsync: this, upperBound: 2);
+    anim = AnimationController(duration: const Duration(milliseconds: 300), vsync: this, upperBound: 2);
     anim.addListener(() => setState(() {}));
   }
 
@@ -125,13 +125,13 @@ class LabelBox extends StatelessWidget {
   final String label;
   final Widget child;
 
-  LabelBox({@required this.label, @required this.child});
+  const LabelBox({@required this.label, @required this.child});
 
   @override
   Widget build(BuildContext context) => Stack(children: [
     Container(
-      margin: EdgeInsets.all(7),
-      padding: EdgeInsets.all(7),
+      margin: const EdgeInsets.all(7),
+      padding: const EdgeInsets.all(7),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: Colors.white.withOpacity(0.2)),
@@ -143,7 +143,7 @@ class LabelBox extends StatelessWidget {
       right: 0,
       top: 0,
       child: Align(child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 8),
         color: NiceColors.primary,
         child: Text('$label'),
       )),

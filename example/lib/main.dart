@@ -27,19 +27,19 @@ class MyApp extends StatelessWidget {
     ),
     home: MyHomePage(),
     routes: {
-      "tree-view": (_) => TreeViewPage(),
-      "product-tile": (_) => ProductTilePage(),
-      "product-tile-simple": (_) => ProductTileSimplePage(),
-      "boxy-row": (_) => BoxyRowPage(),
-      "line-numbers": (_) => LineNumberPage(),
-      "blog-tile": (_) => BlogTilePage(),
-      "sliver-container": (_) => SliverContainerPage(),
+      'tree-view': (_) => TreeViewPage(),
+      'product-tile': (_) => ProductTilePage(),
+      'product-tile-simple': (_) => ProductTileSimplePage(),
+      'boxy-row': (_) => BoxyRowPage(),
+      'line-numbers': (_) => LineNumberPage(),
+      'blog-tile': (_) => BlogTilePage(),
+      'sliver-container': (_) => SliverContainerPage(),
     },
   );
 }
 
 class DemoTile extends StatelessWidget {
-  DemoTile({
+  const DemoTile({
     @required this.icon,
     @required this.name,
     @required this.route,
@@ -55,7 +55,7 @@ class DemoTile extends StatelessWidget {
         icon,
         color: NiceColors.text,
       ),
-      padding: EdgeInsets.only(
+      padding: const EdgeInsets.only(
         left: 20,
         top: 8,
         bottom: 8,
@@ -64,7 +64,7 @@ class DemoTile extends StatelessWidget {
     ),
     Text(
       name,
-      style: TextStyle(
+      style: const TextStyle(
         color: NiceColors.text,
         fontSize: 16,
       ),
@@ -86,7 +86,7 @@ class GalleryAppBarButton extends StatelessWidget {
   final VoidCallback onTap;
   final String tooltip;
 
-  GalleryAppBarButton(this.icon, this.onTap, {this.tooltip});
+  const GalleryAppBarButton(this.icon, this.onTap, {this.tooltip});
 
   build(context) {
     Widget result = ConstrainedBox(child: Padding(child: Material(child: InkWell(
@@ -99,11 +99,11 @@ class GalleryAppBarButton extends StatelessWidget {
     ),
       color: NiceColors.primary,
       borderRadius: BorderRadius.circular(2),
-    ), padding: EdgeInsets.only(
+    ), padding: const EdgeInsets.only(
       top: 8,
       bottom: 8,
       left: 8,
-    )), constraints: BoxConstraints(minWidth: 56));
+    )), constraints: const BoxConstraints(minWidth: 56));
 
     if (tooltip != null) {
       result = Tooltip(
@@ -121,7 +121,7 @@ class GalleryAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String source;
   final List<Widget> actions;
   
-  GalleryAppBar(this.title, {this.source, this.actions});
+  const GalleryAppBar(this.title, {this.source, this.actions});
   
   build(context) => AppBar(
     leading: title.length == 1 ? null : GalleryAppBarButton(
@@ -134,11 +134,11 @@ class GalleryAppBar extends StatelessWidget implements PreferredSizeWidget {
         for (var i = 0; i < title.length; i++) ...[
           if (i != 0) Padding(
             child: Icon(Icons.arrow_right, color: NiceColors.text.withOpacity(0.5)),
-            padding: EdgeInsets.all(8),
+            padding: const EdgeInsets.all(8),
           ),
           Text(
             title[i],
-            style: TextStyle(
+            style: const TextStyle(
               color: NiceColors.text,
             ),
           ),
@@ -153,56 +153,56 @@ class GalleryAppBar extends StatelessWidget implements PreferredSizeWidget {
       if (source != null) GalleryAppBarButton(
         Icons.description, () {
           launch(source);
-        }, tooltip: "Source code",
+        }, tooltip: 'Source code',
       ),
-      Padding(padding: EdgeInsets.only(right: 8)),
+      const Padding(padding: EdgeInsets.only(right: 8)),
     ],
   );
 
-  get preferredSize => Size.fromHeight(kToolbarHeight);
+  get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
 
 class MyHomePage extends StatelessWidget {
   build(BuildContext context) => Scaffold(
-    appBar: GalleryAppBar(["Boxy Gallery"]),
+    appBar: const GalleryAppBar(['Boxy Gallery']),
     body: Container(child: ListView(children: [
       Separator(),
-      DemoTile(
+      const DemoTile(
         icon: MdiIcons.fileTree,
-        name: "Tree View",
-        route: "tree-view",
+        name: 'Tree View',
+        route: 'tree-view',
       ),
-      DemoTile(
+      const DemoTile(
         icon: MdiIcons.collage,
-        name: "BoxyRow",
-        route: "boxy-row",
+        name: 'BoxyRow',
+        route: 'boxy-row',
       ),
-      DemoTile(
+      const DemoTile(
         icon: MdiIcons.dockBottom,
-        name: "Product Tile",
-        route: "product-tile",
+        name: 'Product Tile',
+        route: 'product-tile',
       ),
-      DemoTile(
+      const DemoTile(
         icon: MdiIcons.dockBottom,
-        name: "Simple Product Tile",
-        route: "product-tile-simple",
+        name: 'Simple Product Tile',
+        route: 'product-tile-simple',
       ),
-      DemoTile(
+      const DemoTile(
         icon: MdiIcons.formatListNumbered,
-        name: "Line Numbers",
-        route: "line-numbers",
+        name: 'Line Numbers',
+        route: 'line-numbers',
       ),
-      DemoTile(
+      const DemoTile(
         icon: MdiIcons.viewSplitVertical,
-        name: "Blog Tile",
-        route: "blog-tile",
+        name: 'Blog Tile',
+        route: 'blog-tile',
       ),
-      DemoTile(
+      const DemoTile(
         icon: MdiIcons.pageLayoutBody,
-        name: "Sliver Container",
-        route: "sliver-container",
+        name: 'Sliver Container',
+        route: 'sliver-container',
       ),
       Separator(),
-    ], physics: BouncingScrollPhysics()), color: NiceColors.primary),
+    ], physics: const BouncingScrollPhysics()), color: NiceColors.primary),
   );
 }

@@ -22,7 +22,7 @@ class LineNumberPageState extends State<LineNumberPage> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [ConstrainedBox(
         child: child,
-        constraints: BoxConstraints.tightFor(width: settingsWidth),
+        constraints: const BoxConstraints.tightFor(width: settingsWidth),
       )],
     ),
   );
@@ -30,11 +30,11 @@ class LineNumberPageState extends State<LineNumberPage> {
   Widget buildTitle(String name) => Padding(
     child: Text(
       name,
-      style: TextStyle(
+      style: const TextStyle(
         color: NiceColors.text,
       ),
     ),
-    padding: EdgeInsets.only(
+    padding: const EdgeInsets.only(
       left: 24,
       top: 8,
     ),
@@ -44,17 +44,17 @@ class LineNumberPageState extends State<LineNumberPage> {
     Widget view = LineNumberView(
       lineCount: 15,
       buildLine: (context, i) => Padding(
-        child: Text((String.fromCharCode(i + "a".codeUnitAt(0))) * (1 + i * 2)),
-        padding: EdgeInsets.all(2),
+        child: Text((String.fromCharCode(i + 'a'.codeUnitAt(0))) * (1 + i * 2)),
+        padding: const EdgeInsets.all(2),
       ),
       buildNumber: (context, i) => Padding(
         child: Text(
-          "${exponent == 1 ? i + 1 : pow(exponent, i).round()}",
+          '${exponent == 1 ? i + 1 : pow(exponent, i).round()}',
           style: TextStyle(
             color: NiceColors.text.withOpacity(0.7),
           ),
         ),
-        padding: EdgeInsets.symmetric(vertical: 2, horizontal: 8),
+        padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
       ),
       numberBg: Container(
         color: NiceColors.primary,
@@ -62,41 +62,41 @@ class LineNumberPageState extends State<LineNumberPage> {
       numberAlignment: numberAlignment,
     );
 
-    var width = constrainWidth ? maxWidth : MediaQuery.of(context).size.width;
+    final width = constrainWidth ? maxWidth : MediaQuery.of(context).size.width;
     view = AnimatedContainer(
       child: view,
       constraints: BoxConstraints(
         maxWidth: width,
         minWidth: constrainWidth ? width : 0,
       ),
-      duration: Duration(milliseconds: 250),
+      duration: const Duration(milliseconds: 250),
       curve: Curves.ease,
     );
 
     return Scaffold(
-      appBar: GalleryAppBar(
-        ["Boxy Gallery", "Line Numbers"],
-        source: "https://github.com/PixelToast/flutter-boxy/blob/master/example/lib/pages/line_numbers.dart",
+      appBar: const GalleryAppBar(
+        ['Boxy Gallery', 'Line Numbers'],
+        source: 'https://github.com/PixelToast/flutter-boxy/blob/master/example/lib/pages/line_numbers.dart',
       ),
       backgroundColor: NiceColors.primary,
       body: Column(children: [
         Separator(),
         Expanded(child: Container(child: ListView(children: [
-          Padding(padding: EdgeInsets.only(top: 64)),
+          const Padding(padding: EdgeInsets.only(top: 64)),
           Center(child: DecoratedBox(
             child: ClipRect(child: view),
             decoration: BoxDecoration(
               border: Border.all(color: NiceColors.divider, width: 1),
             ),
           )),
-          Padding(padding: EdgeInsets.only(top: 64)),
-        ], physics: BouncingScrollPhysics()), color: NiceColors.background)),
+          const Padding(padding: EdgeInsets.only(top: 64)),
+        ], physics: const BouncingScrollPhysics()), color: NiceColors.background)),
         Separator(),
         buildSettings(Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Padding(padding: EdgeInsets.only(top: 8)),
-          buildTitle("Constrain width"),
+          const Padding(padding: EdgeInsets.only(top: 8)),
+          buildTitle('Constrain width'),
           Row(children: [
-            Padding(padding: EdgeInsets.only(right: 4)),
+            const Padding(padding: EdgeInsets.only(right: 4)),
             Switch(
               value: constrainWidth,
               onChanged: (b) => setState(() {
@@ -104,7 +104,7 @@ class LineNumberPageState extends State<LineNumberPage> {
               }),
             ),
             Expanded(child: Slider(
-              label: "${maxWidth}px",
+              label: '${maxWidth}px',
               value: maxWidth,
               min: 50,
               max: 600,
@@ -113,11 +113,11 @@ class LineNumberPageState extends State<LineNumberPage> {
               }) : null,
             )),
           ]),
-          Padding(padding: EdgeInsets.only(top: 8)),
-          buildTitle("Align number"),
+          const Padding(padding: EdgeInsets.only(top: 8)),
+          buildTitle('Align number'),
           Row(children: [
             Expanded(child: Slider(
-              label: "x: ${numberAlignment.x.toStringAsFixed(1)}",
+              label: 'x: ${numberAlignment.x.toStringAsFixed(1)}',
               value: numberAlignment.x,
               min: -1,
               max: 1,
@@ -127,7 +127,7 @@ class LineNumberPageState extends State<LineNumberPage> {
               }),
             )),
             Expanded(child: Slider(
-              label: "y: ${numberAlignment.y.toStringAsFixed(1)}",
+              label: 'y: ${numberAlignment.y.toStringAsFixed(1)}',
               value: numberAlignment.y,
               min: -1,
               max: 1,
@@ -137,10 +137,10 @@ class LineNumberPageState extends State<LineNumberPage> {
               }),
             )),
           ]),
-          Padding(padding: EdgeInsets.only(top: 8)),
-          buildTitle("Number exponent"),
+          const Padding(padding: EdgeInsets.only(top: 8)),
+          buildTitle('Number exponent'),
           Slider(
-            label: "${exponent.toStringAsFixed(1)}",
+            label: '${exponent.toStringAsFixed(1)}',
             value: exponent,
             min: 1,
             max: 10,
@@ -165,7 +165,7 @@ class LineNumberView extends StatelessWidget {
   final Alignment numberAlignment;
   final double lineAlignment;
 
-  LineNumberView({
+  const LineNumberView({
     @required this.lineCount,
     @required this.buildNumber,
     @required this.buildLine,
@@ -206,17 +206,17 @@ class LineNumberDelegate extends BoxyDelegate {
   @override
   layout() {
     var numWidth = 0.0;
-    var numConstraints = constraints.loosen();
+    final numConstraints = constraints.loosen();
 
     for (int i = 0; i < lineCount; i++) {
-      var size = getChild(Tuple2(#num, i)).layout(numConstraints);
+      final size = getChild(Tuple2(#num, i)).layout(numConstraints);
       numWidth = max(numWidth, size.width);
     }
 
     var offset = 0.0;
     var lineWidth = 0.0;
 
-    var lineConstraints = BoxConstraints(
+    final lineConstraints = BoxConstraints(
       minWidth: max(0.0, constraints.minWidth - numWidth),
       maxWidth: max(0.0, constraints.maxWidth - numWidth),
       minHeight: 0.0,
@@ -224,17 +224,17 @@ class LineNumberDelegate extends BoxyDelegate {
     );
 
     for (int i = 0; i < lineCount; i++) {
-      var lineChild = getChild(i);
-      var numChild = getChild(Tuple2(#num, i));
-      var numHeight = numChild.render.size.height;
+      final lineChild = getChild(i);
+      final numChild = getChild(Tuple2(#num, i));
+      final numHeight = numChild.render.size.height;
 
-      var size = lineChild.layout(lineConstraints.copyWith(
+      final size = lineChild.layout(lineConstraints.copyWith(
         minHeight: numHeight,
       ));
 
-      var height = max(size.height, numHeight);
-      var halfHeightDelta = (height - size.height) / 2.0;
-      var lineOffset = offset + halfHeightDelta + lineAlignment * halfHeightDelta;
+      final height = max(size.height, numHeight);
+      final halfHeightDelta = (height - size.height) / 2.0;
+      final lineOffset = offset + halfHeightDelta + lineAlignment * halfHeightDelta;
 
       lineChild.position(Offset(numWidth, lineOffset));
       numChild.position(numberAlignment.inscribe(

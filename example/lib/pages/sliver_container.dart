@@ -53,9 +53,9 @@ class SliverContainerPageState extends State<SliverContainerPage> {
   }
 
   build(BuildContext context) => Scaffold(
-    appBar: GalleryAppBar(
-      ["Boxy Gallery", "Sliver Container"],
-      source: "https://github.com/PixelToast/flutter-boxy/blob/master/example/lib/pages/sliver_container.dart",
+    appBar: const GalleryAppBar(
+      ['Boxy Gallery', 'Sliver Container'],
+      source: 'https://github.com/PixelToast/flutter-boxy/blob/master/example/lib/pages/sliver_container.dart',
     ),
     backgroundColor: NiceColors.primary,
     body: Column(children: [
@@ -69,24 +69,24 @@ class SliverContainerPageState extends State<SliverContainerPage> {
             RaisedButton(
               color: NiceColors.primary,
               onPressed: () => setDir(AxisDirection.down),
-              child: Icon(Icons.keyboard_arrow_down),
+              child: const Icon(Icons.keyboard_arrow_down),
             ),
             RaisedButton(
               color: NiceColors.primary,
               onPressed: () => setDir(AxisDirection.right),
-              child: Icon(Icons.keyboard_arrow_right),
+              child: const Icon(Icons.keyboard_arrow_right),
             ),
             RaisedButton(
               color: NiceColors.primary,
               onPressed: () => setDir(AxisDirection.up),
-              child: Icon(Icons.keyboard_arrow_up),
+              child: const Icon(Icons.keyboard_arrow_up),
             ),
             RaisedButton(
               color: NiceColors.primary,
               onPressed: () => setDir(AxisDirection.left),
-              child: Icon(Icons.keyboard_arrow_left),
+              child: const Icon(Icons.keyboard_arrow_left),
             ),
-          ]), padding: EdgeInsets.only(
+          ]), padding: const EdgeInsets.only(
             top: 64,
           )),
         ]),
@@ -99,7 +99,7 @@ class SliverContainerPageState extends State<SliverContainerPage> {
 class SliverOverlayFrame extends StatelessWidget {
   final AxisDirection direction;
 
-  SliverOverlayFrame(this.direction);
+  const SliverOverlayFrame(this.direction);
 
   @override
   Widget build(BuildContext context) => Container(
@@ -113,7 +113,7 @@ class SliverOverlayFrame extends StatelessWidget {
       slivers: [
         SliverAppBar(
           expandedHeight: 150.0,
-          title: Text("App Bar"),
+          title: const Text('App Bar'),
           flexibleSpace: FlexibleSpaceBar(
             background: Container(color: Colors.red[400]),
           ),
@@ -148,7 +148,7 @@ class ColorTile extends StatefulWidget {
   final Color color;
   final AxisDirection direction;
 
-  ColorTile({this.color, this.direction});
+  const ColorTile({this.color, this.direction});
 
   createState() => _ColorTileState();
 }
@@ -161,7 +161,7 @@ class _ColorTileState extends State<ColorTile> with SingleTickerProviderStateMix
     descWidth = Random().nextInt(100).toDouble();
     super.initState();
     anim = AnimationController(vsync: this)
-      ..animateTo(1.0, duration: Duration(seconds: 1), curve: Curves.ease);
+      ..animateTo(1.0, duration: const Duration(seconds: 1), curve: Curves.ease);
   }
 
   dispose() {
@@ -170,7 +170,7 @@ class _ColorTileState extends State<ColorTile> with SingleTickerProviderStateMix
   }
 
   build(context) => RotatedBox(quarterTurns: widget.direction.reversed.index, child: Container(
-    padding: EdgeInsets.all(8),
+    padding: const EdgeInsets.all(8),
     child: AnimatedBuilder(
       animation: anim,
       builder: (context, child) {
@@ -191,7 +191,7 @@ class _ColorTileState extends State<ColorTile> with SingleTickerProviderStateMix
                 ),
               ),
             ),
-            Padding(padding: EdgeInsets.only(right: 8)),
+            const Padding(padding: EdgeInsets.only(right: 8)),
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Container(
                 decoration: BoxDecoration(
@@ -200,7 +200,7 @@ class _ColorTileState extends State<ColorTile> with SingleTickerProviderStateMix
                 ),
                 height: 15,
                 width: 90,
-                margin: EdgeInsets.only(top: 8, bottom: 8),
+                margin: const EdgeInsets.only(top: 8, bottom: 8),
               ),
               Container(
                 decoration: BoxDecoration(
@@ -209,7 +209,7 @@ class _ColorTileState extends State<ColorTile> with SingleTickerProviderStateMix
                 ),
                 height: 15,
                 width: (descWidth * anim.value) + 50,
-                margin: EdgeInsets.only(top: 8, bottom: 8),
+                margin: const EdgeInsets.only(top: 8, bottom: 8),
               ),
             ])
           ],
