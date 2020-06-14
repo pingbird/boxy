@@ -1344,7 +1344,7 @@ abstract class BoxyDelegate<T> {
 
   /// Override this method to return true if the [paint] method will push one or
   /// more layers to [paintingContext].
-  bool get needsCompositing() => false;
+  bool get needsCompositing => false;
 
   /// Override this method to include additional information in the
   /// debugging data printed by [debugDumpRenderTree] and friends.
