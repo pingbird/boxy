@@ -632,20 +632,32 @@ class _RenderBoxy extends RenderBox with
       child.parentData = MultiChildLayoutParentData();
   }
 
-  // The delegate that controls the layout of the children.
+  /// The delegate that controls the layout of a set of children.
   BoxyDelegate _delegate;
 
   set delegate(BoxyDelegate newDelegate) {
     assert(newDelegate != null);
     if (_delegate == newDelegate)
       return;
+
     final BoxyDelegate oldDelegate = _delegate;
-    if (newDelegate.runtimeType != oldDelegate.runtimeType || newDelegate.shouldRelayout(oldDelegate)) {
+    final neededCompositing = oldDelegate.needsCompositing;
+
+    if (
+      newDelegate.runtimeType != oldDelegate.runtimeType ||
+      newDelegate.shouldRelayout(oldDelegate)
+    ) {
       markNeedsLayout();
     } else if (newDelegate.shouldRepaint(oldDelegate)) {
       markNeedsPaint();
     }
+
     _delegate = newDelegate;
+
+    if (neededCompositing != _delegate.needsCompositing) {
+      markNeedsCompositingBitsUpdate();
+    }
+
     if (attached) {
       oldDelegate?._relayout?.removeListener(markNeedsLayout);
       oldDelegate?._repaint?.removeListener(markNeedsPaint);
@@ -703,6 +715,9 @@ class _RenderBoxy extends RenderBox with
       _delegateContext.offset = null;
     }
   }
+
+  @override
+  bool get alwaysNeedsCompositing => _delegate.needsCompositing;
 }
 
 enum _BoxyDelegateState {
@@ -1015,6 +1030,10 @@ class BoxyChild {
 ///   }
 /// ```
 ///
+/// If any paint method could potentially push a layer to [paintingContext],
+/// you must override [needsCompositing] to return true. This getter may check
+/// the fields of the boxy to determine if compositing will be necessary.
+///
 /// ### Widget inflation
 ///
 /// In [layout] you can inflate arbitrary widgets using the [inflate] method,
@@ -1322,6 +1341,10 @@ abstract class BoxyDelegate<T> {
   /// This is only called if [shouldRelayout] returns false so it doesn't need
   /// to check fields that have already been checked by your [shouldRelayout].
   bool shouldRepaint(covariant BoxyDelegate oldDelegate) => false;
+
+  /// Override this method to return true if the [paint] method will push one or
+  /// more layers to [paintingContext].
+  bool get needsCompositing() => false;
 
   /// Override this method to include additional information in the
   /// debugging data printed by [debugDumpRenderTree] and friends.
