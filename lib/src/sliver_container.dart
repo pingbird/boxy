@@ -382,32 +382,36 @@ class RenderSliverContainer extends RenderSliver with RenderSliverHelpers {
   @override
   bool get needsCompositing => shouldClip;
 
-  void _paintClippedChildren(PaintingContext context, Offset offset) {
-    context.pushClipPath(
-      needsCompositing, offset, Offset.zero & _bufferRect.size, _clipPath,
-      (context, offset) {
-        offset -= _bufferRect.topLeft;
-        if (!clipSliverOnly && background != null) context.paintChild(background, offset + _bufferRect.topLeft);
-        if (sliver != null) context.paintChild(sliver, offset);
-        if (!clipSliverOnly && foreground != null) context.paintChild(foreground, offset + _bufferRect.topLeft);
-      },
-      clipBehavior: clipBehavior,
-      oldLayer: layer as ClipPathLayer,
-    );
-  }
-
   @override
   void paint(PaintingContext context, Offset offset) {
     _updateClip();
     if (shouldClip) {
       if (clipSliverOnly && background != null) context.paintChild(background, offset + _bufferRect.topLeft);
 
-      final transform = Matrix4.translationValues(_bufferRect.left, _bufferRect.top, 0);
-
       if (_bufferRect.left == 0.0 && _bufferRect.top == 0.0) {
-        _paintClippedChildren(context, offset);
+        context.pushClipPath(
+          needsCompositing, offset, Offset.zero & _bufferRect.size, _clipPath,
+          (context, offset) {
+            if (!clipSliverOnly && background != null) context.paintChild(background, offset);
+            if (sliver != null) context.paintChild(sliver, offset);
+            if (!clipSliverOnly && foreground != null) context.paintChild(foreground, offset);
+          }
+        );
       } else {
-        context.pushTransform(needsCompositing, Offset.zero, transform, _paintClippedChildren);
+        final transform = Matrix4.translationValues(_bufferRect.left, _bufferRect.top, 0);
+        context.pushTransform(needsCompositing, Offset.zero, transform, (context, newOffset) {
+          context.pushClipPath(
+            needsCompositing, offset, Offset.zero & _bufferRect.size, _clipPath,
+            (context, offset) {
+              offset -= _bufferRect.topLeft;
+              if (!clipSliverOnly && background != null) context.paintChild(background, offset + _bufferRect.topLeft);
+              if (sliver != null) context.paintChild(sliver, offset);
+              if (!clipSliverOnly && foreground != null) context.paintChild(foreground, offset + _bufferRect.topLeft);
+            },
+            clipBehavior: clipBehavior,
+            oldLayer: layer as ClipPathLayer,
+          );
+        });
       }
 
       if (clipSliverOnly && foreground != null) context.paintChild(foreground, offset + _bufferRect.topLeft);
