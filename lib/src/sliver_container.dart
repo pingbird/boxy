@@ -25,16 +25,38 @@ import 'package:boxy/utils.dart';
 ///
 ///   * [SliverCard], which gives the sliver a card look.
 class SliverContainer extends StatelessWidget {
+  /// The child sliver that this container will wrap.
   final Widget sliver;
+
+  /// The child box widget that is layed out so that it covers the visual space
+  /// of [sliver], and painted above it.
   final Widget foreground;
+
+  /// The child box widget that is layed out so that it covers the visual space
+  /// of [sliver], and painted below it.
   final Widget background;
+
+  /// The amount of space [foreground] and [background] will extend off-screen
+  /// in each direction if portions of [sliver] are out of view.
   final double bufferExtent;
+
+  /// How much padding to apply to [sliver].
   final EdgeInsetsGeometry padding;
+
+  /// How much padding to apply to the container itself.
   final EdgeInsetsGeometry margin;
+
+  /// A custom clipper that defines the path to clip [sliver], [foreground], and
+  /// [background.
   final CustomClipper<Path> clipper;
+
+  /// The clip behavior of [clipper], defaults to none.
   final Clip clipBehavior;
+
+  /// Whether or not to ignore clipping on [foreground] and [background].
   final bool clipSliverOnly;
 
+  /// Constructs a SliverContainer with the specified arguments.
   SliverContainer({
     Key key,
     @required this.sliver,
@@ -54,7 +76,8 @@ class SliverContainer extends StatelessWidget {
       clipper,
     super(key: key);
 
-  build(context) {
+  @override
+  Widget build(context) {
     var current = sliver;
     if (padding != null) {
       current = SliverPadding(
@@ -105,9 +128,11 @@ class _BaseSliverContainer extends RenderObjectWidget {
     assert(clipBehavior != null),
     super(key: key);
 
-  createElement() => _SliverContainerElement(this);
+  @override
+  RenderObjectElement createElement() => _SliverContainerElement(this);
 
-  createRenderObject(context) =>
+  @override
+  RenderObject createRenderObject(context) =>
     RenderSliverContainer(
       bufferExtent: bufferExtent,
       clipper: clipper,
@@ -115,7 +140,8 @@ class _BaseSliverContainer extends RenderObjectWidget {
       clipSliverOnly: clipSliverOnly,
     );
 
-  updateRenderObject(BuildContext context, RenderSliverContainer renderObject) {
+  @override
+  void updateRenderObject(BuildContext context, RenderSliverContainer renderObject) {
     renderObject.bufferExtent = bufferExtent;
     renderObject.clipper = clipper;
     renderObject.clipBehavior = clipBehavior;
@@ -123,12 +149,19 @@ class _BaseSliverContainer extends RenderObjectWidget {
   }
 }
 
+/// A sliver container that gives its sliver a foreground or background
+/// consisting of boxes.
+///
+/// See also:
+///
+///   * [SliverContainer], the widget equivalent.
 class RenderSliverContainer extends RenderSliver with RenderSliverHelpers {
+  /// Constructs a RenderSliverContainer with the specified arguments.
   RenderSliverContainer({
     this.foreground,
     this.sliver,
     this.background,
-    bufferExtent = 0.0,
+    double bufferExtent = 0.0,
     Clip clipBehavior,
     CustomClipper<Path> clipper,
     bool clipSliverOnly,
@@ -143,11 +176,13 @@ class RenderSliverContainer extends RenderSliver with RenderSliverHelpers {
     if (background != null) adoptChild(background);
   }
 
+  /// A custom clipper that defines the path to clip [sliver], [foreground], and
+  /// [background.
   CustomClipper<Path> get clipper => _clipper;
   CustomClipper<Path> _clipper;
   set clipper(CustomClipper<Path> newClipper) {
     if (_clipper == newClipper) return;
-    var oldClipper = _clipper;
+    final oldClipper = _clipper;
     _clipper = newClipper;
 
     assert(newClipper != null || oldClipper != null);
@@ -177,6 +212,7 @@ class RenderSliverContainer extends RenderSliver with RenderSliverHelpers {
     if (background != null) redepthChild(background);
   }
 
+  /// Adopts a new child, drops the previous one.
   void updateChild(RenderObject oldChild, RenderObject newChild) {
     if (oldChild != null) dropChild(oldChild);
     if (newChild != null) adoptChild(newChild);
@@ -194,9 +230,13 @@ class RenderSliverContainer extends RenderSliver with RenderSliverHelpers {
     _clipPath = _clipper?.getClip(_bufferRect.size);
   }
 
+  /// Whether or not we need to clip the child.
   bool get shouldClip => _clipper != null && _clipPath != null && _clipBehavior != Clip.none;
 
   double _bufferExtent;
+
+  /// The amount of space [foreground] and [background] will extend off-screen
+  /// in each direction if portions of [sliver] are out of view.
   double get bufferExtent => _bufferExtent;
   set bufferExtent(double value) {
     if (value == _bufferExtent) return;
@@ -205,6 +245,8 @@ class RenderSliverContainer extends RenderSliver with RenderSliverHelpers {
   }
 
   Clip _clipBehavior;
+
+  /// The clip behavior of [clipper], defaults to none.
   Clip get clipBehavior => _clipBehavior;
   set clipBehavior(Clip value) {
     if (value != _clipBehavior) {
@@ -214,6 +256,8 @@ class RenderSliverContainer extends RenderSliver with RenderSliverHelpers {
   }
 
   bool _clipSliverOnly;
+
+  /// Whether or not to ignore clipping on [foreground] and [background].
   bool get clipSliverOnly => _clipSliverOnly;
   set clipSliverOnly(bool value) {
     if (value != clipSliverOnly) {
@@ -222,8 +266,15 @@ class RenderSliverContainer extends RenderSliver with RenderSliverHelpers {
     }
   }
 
+  /// The child box widget that is layed out so that it covers the visual space
+  /// of [sliver], and painted above it.
   RenderBox foreground;
+
+  /// The child sliver that this container will wrap.
   RenderSliver sliver;
+
+  /// The child box widget that is layed out so that it covers the visual space
+  /// of [sliver], and painted below it.
   RenderBox background;
 
   @override
@@ -259,9 +310,9 @@ class RenderSliverContainer extends RenderSliver with RenderSliverHelpers {
   void performLayout() {
     assert(sliver != null);
     sliver.layout(constraints, parentUsesSize: true);
-    var geometry = this.geometry = sliver.geometry;
+    final geometry = this.geometry = sliver.geometry;
 
-    var maxBufferExtent = min(
+    final maxBufferExtent = min(
       bufferExtent,
       geometry.maxPaintExtent / 2,
     );
@@ -305,7 +356,7 @@ class RenderSliverContainer extends RenderSliver with RenderSliverHelpers {
       main: _bufferMainSize,
     );
 
-    var newRect = _getBufferOffset(start, _bufferMainSize) & boxConstraints.biggest;
+    final newRect = _getBufferOffset(start, _bufferMainSize) & boxConstraints.biggest;
     if (_bufferRect == null || newRect.size != _bufferRect.size) _markNeedsClip();
     _bufferRect = newRect;
 
@@ -329,7 +380,7 @@ class RenderSliverContainer extends RenderSliver with RenderSliverHelpers {
     if (shouldClip) {
       if (clipSliverOnly && background != null) context.paintChild(background, offset + _bufferRect.topLeft);
 
-      var transform = Matrix4.translationValues(_bufferRect.left, _bufferRect.top, 0);
+      final transform = Matrix4.translationValues(_bufferRect.left, _bufferRect.top, 0);
       context.pushTransform(needsCompositing, Offset.zero, transform, (context, newOffset) {
         context.pushClipPath(
           needsCompositing, offset, Offset.zero & _bufferRect.size, _clipPath,
@@ -355,7 +406,7 @@ class RenderSliverContainer extends RenderSliver with RenderSliverHelpers {
   bool _hitTestBoxChild(BoxHitTestResult result, RenderBox child, {
     double mainAxisPosition, double crossAxisPosition,
   }) {
-    var transformedPosition = OffsetAxisUtil.create(constraints.axis, crossAxisPosition, mainAxisPosition);
+    final transformedPosition = OffsetAxisUtil.create(constraints.axis, crossAxisPosition, mainAxisPosition);
     return result.addWithPaintOffset(
       offset: _bufferRect.topLeft,
       position: transformedPosition,
@@ -403,10 +454,14 @@ class _SliverContainerElement extends RenderObjectElement {
   Element sliver;
   Element background;
 
+  @override
   _BaseSliverContainer get widget => super.widget as _BaseSliverContainer;
+
+  @override
   RenderSliverContainer get renderObject => super.renderObject as RenderSliverContainer;
 
-  visitChildren(ElementVisitor visitor) {
+  @override
+  void visitChildren(ElementVisitor visitor) {
     if (foreground != null) visitor(foreground);
     if (sliver != null) visitor(sliver);
     if (background != null) visitor(background);
@@ -446,15 +501,15 @@ class _SliverContainerElement extends RenderObjectElement {
     switch (slot) {
       case _SliverOverlaySlot.foreground:
         renderObject.updateChild(renderObject.foreground, child);
-        renderObject.foreground = child;
+        renderObject.foreground = child as RenderBox;
         break;
       case _SliverOverlaySlot.sliver:
         renderObject.updateChild(renderObject.sliver, child);
-        renderObject.sliver = child;
+        renderObject.sliver = child as RenderSliver;
         break;
       case _SliverOverlaySlot.background:
         renderObject.updateChild(renderObject.background, child);
-        renderObject.background = child;
+        renderObject.background = child as RenderBox;
         break;
     }
   }
