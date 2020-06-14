@@ -8,8 +8,10 @@ import 'package:boxy/boxy.dart';
 import 'common.dart';
 
 class StateTestChild extends StatefulWidget {
-  StateTestChild({Key key}) : super(key: key);
-  createState() => StateTestChildState();
+  const StateTestChild({Key key}) : super(key: key);
+
+  @override
+  State createState() => StateTestChildState();
 }
 
 class StateTestChildState extends State<StateTestChild> {
@@ -17,19 +19,20 @@ class StateTestChildState extends State<StateTestChild> {
   bool checkDisposed;
 
   @override
-  initState() {
+  void initState() {
     super.initState();
     isNew = true;
   }
 
   @override
-  dispose() {
+  void dispose() {
     super.dispose();
     expect(checkDisposed, isNull);
     checkDisposed = true;
   }
 
-  build(context) => Container(width: 10, height: 10);
+  @override
+  Widget build(context) => Container(width: 10, height: 10);
 }
 
 class StateTestDelegate extends BoxyDelegate {
@@ -42,7 +45,7 @@ class StateTestDelegate extends BoxyDelegate {
   });
 
   @override
-  layout() {
+  Size layout() {
     var offset = 0.0;
     var maxWidth = 0.0;
     final childConstraints = constraints.copyWith(
@@ -51,13 +54,13 @@ class StateTestDelegate extends BoxyDelegate {
 
     expect(children, hasLength(numChildren));
 
-    for (var id in inflatedNames) inflate(
+    for (final id in inflatedNames) inflate(
       StateTestChild(key: GlobalObjectKey(id)), id: id,
     );
 
     expect(children, hasLength(numChildren + inflatedNames.length));
 
-    for (var child in children) {
+    for (final child in children) {
       final size = child.layout(childConstraints);
       child.position(Offset(0, offset));
       offset += size.height;
@@ -68,17 +71,17 @@ class StateTestDelegate extends BoxyDelegate {
   }
 
   @override
-  shouldRelayout(StateTestDelegate old) => true;
+  bool shouldRelayout(StateTestDelegate old) => true;
 }
 
 void main() {
   testWidgets('State preservation', (tester) => tester.runAsync(() async {
-    var states = <String, StateTestChildState>{};
+    final states = <String, StateTestChildState>{};
 
     Future<void> testMutate(Set<String> children, Set<String> inflated, Set<String> outside) async {
       await tester.pumpWidget(TestFrame(child: Column(children: [
         CustomBoxy(
-          key: GlobalObjectKey(#boxy),
+          key: const GlobalObjectKey(#boxy),
           delegate: StateTestDelegate(
             numChildren: children.length,
             inflatedNames: inflated.toList(),
@@ -90,15 +93,15 @@ void main() {
         for (var nm in outside) StateTestChild(key: GlobalObjectKey(nm)),
       ])));
 
-      var allNames = children.union(inflated).union(outside);
+      final allNames = children.union(inflated).union(outside);
 
-      var boxyElement = keyElement(#boxy);
+      final boxyElement = keyElement(#boxy);
 
-      var childElements = <Element>[];
+      final childElements = <Element>[];
       boxyElement.visitChildren(childElements.add);
       expect(childElements, hasLength(allNames.length - outside.length));
 
-      var childRenderObjects = <RenderBox>[];
+      final childRenderObjects = <RenderObject>[];
       boxyElement.renderObject.visitChildren(childRenderObjects.add);
 
       // Make sure Element tree is in the correct order
@@ -124,10 +127,10 @@ void main() {
         expect(parent, equals(boxyElement));
       }
 
-      for (var nm in allNames) {
-        var element = keyElement(nm) as StatefulElement;
+      for (final nm in allNames) {
+        final element = keyElement(nm) as StatefulElement;
         expect(element.widget, isA<StateTestChild>());
-        var state = element.state as StateTestChildState;
+        final state = element.state as StateTestChildState;
 
         if (!states.containsKey(nm)) {
           // Make sure new children have new states
@@ -141,8 +144,8 @@ void main() {
       }
 
       // Make sure old children have been disposed
-      for (var nm in states.keys.where((nm) => !allNames.contains(nm)).toList()) {
-        var state = states[nm];
+      for (final nm in states.keys.where((nm) => !allNames.contains(nm)).toList()) {
+        final state = states[nm];
         expect(state.checkDisposed, isTrue);
         state.checkDisposed = false;
         states.remove(nm);
@@ -151,13 +154,13 @@ void main() {
 
     // Test arbitrary ordering of explicit children / inflated children
     Future<void> mutateIter(int n) => testMutate({
-      if (n & 1 != 0) "c0",
-      if ((n >> 1) & 1 != 0) "c1",
-      if ((n >> 2) & 1 != 0) "c2",
+      if (n & 1 != 0) 'c0',
+      if ((n >> 1) & 1 != 0) 'c1',
+      if ((n >> 2) & 1 != 0) 'c2',
     }, {
-      if ((n >> 3) & 1 != 0) "c3",
-      if ((n >> 4) & 1 != 0) "c4",
-      if ((n >> 5) & 1 != 0) "c5",
+      if ((n >> 3) & 1 != 0) 'c3',
+      if ((n >> 4) & 1 != 0) 'c4',
+      if ((n >> 5) & 1 != 0) 'c5',
     }, {});
 
     for (int i = 0; i < 64; i++) {
@@ -169,13 +172,13 @@ void main() {
 
     // Test moving children in and out of the boxy element with GlobalKeys
     Future<void> mutateIter2(int n) => testMutate({}, {
-      if (n % 3 == 1) "c0",
-      if ((n ~/ 3) % 3 == 1) "c1",
-      if ((n ~/ 9) % 3 == 1) "c2",
+      if (n % 3 == 1) 'c0',
+      if ((n ~/ 3) % 3 == 1) 'c1',
+      if ((n ~/ 9) % 3 == 1) 'c2',
     }, {
-      if (n % 3 == 2) "c0",
-      if ((n ~/ 3) % 3 == 2) "c1",
-      if ((n ~/ 9) % 3 == 2) "c2",
+      if (n % 3 == 2) 'c0',
+      if ((n ~/ 3) % 3 == 2) 'c1',
+      if ((n ~/ 9) % 3 == 2) 'c2',
     });
 
     for (int i = 0; i < 27; i++) {
