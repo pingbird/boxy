@@ -1,13 +1,14 @@
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
+/// Extension on [BoxConstraints] that provides various axis-dependant utilities.
 extension BoxConstraintsAxisUtil on BoxConstraints {
   /// Creates box constraints with the given constraints.
   static BoxConstraints create(Axis axis, {
-    double minCross: 0.0,
-    double maxCross: double.infinity,
-    double minMain: 0.0,
-    double maxMain: double.infinity,
+    double minCross = 0.0,
+    double maxCross = double.infinity,
+    double minMain = 0.0,
+    double maxMain = double.infinity,
   }) {
     assert(axis != null);
     return axis == Axis.vertical ?
@@ -218,20 +219,22 @@ extension BoxConstraintsAxisUtil on BoxConstraints {
   }
 }
 
+/// Extension on [Axis] that provides various directional utilities.
 extension AxisUtil on Axis {
   /// Gets the axis that this one crosses.
   Axis get cross => this == Axis.vertical ?
     Axis.horizontal : Axis.vertical;
 
   /// Gets the down or right [AxisDirection] of this axis.
-  get direction => this == Axis.vertical ?
+  AxisDirection get direction => this == Axis.vertical ?
     AxisDirection.down : AxisDirection.right;
 
   /// Gets the down or right [AxisDirection] of the cross axis.
-  get crossDirection => this == Axis.vertical ?
+  AxisDirection get crossDirection => this == Axis.vertical ?
     AxisDirection.right : AxisDirection.down;
 }
 
+/// Extension on [VerticalDirection] that provides various directional utilities.
 extension VerticalDirectionUtil on VerticalDirection {
   /// Gets the reverse of this direction.
   VerticalDirection get reversed => this == VerticalDirection.up ?
@@ -242,6 +245,7 @@ extension VerticalDirectionUtil on VerticalDirection {
     AxisDirection.up : AxisDirection.down;
 }
 
+/// Extension on [AxisDirection] that provides various directional utilities.
 extension AxisDirectionUtil on AxisDirection {
   /// Gets the vertical or horizontal [Axis] of this direction.
   Axis get axis => this == AxisDirection.up || this == AxisDirection.down ?
@@ -284,6 +288,7 @@ extension AxisDirectionUtil on AxisDirection {
     AxisDirection.values[(index - direction.index) % 4];
 }
 
+/// Extension on [RenderBox] that provides various directional utilities.
 extension RenderBoxAxisUtil on RenderBox {
   /// Returns the minimum extent on [axis] that this box could be without
   /// failing to correctly paint its contents within itself, without clipping.
@@ -326,6 +331,7 @@ extension RenderBoxAxisUtil on RenderBox {
   }
 }
 
+/// Extension on [Offset] that provides various directional utilities.
 extension OffsetAxisUtil on Offset {
   /// Creates an offset with the specified [cross] and [main] components.
   static Offset create(Axis axis, double cross, double main) {
@@ -367,6 +373,7 @@ extension OffsetAxisUtil on Offset {
   }
 }
 
+/// Extension on [Size] that provides various directional utilities.
 extension SizeAxisUtil on Size {
   /// Creates a [Size] with the given [cross] and [main] extents.
   static Size create(Axis axis, double cross, double main) {
@@ -407,6 +414,7 @@ extension SizeAxisUtil on Size {
   }
 }
 
+/// Extension on [EdgeInsets] that provides various directional utilities.
 extension EdgeInsetsAxisUtil on EdgeInsets {
   /// Creates edge insets given the begin and end extents on the given axis.
   static EdgeInsets create(Axis axis, {
