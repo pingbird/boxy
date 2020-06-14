@@ -17,9 +17,9 @@ class ProductTileSimplePage extends StatefulWidget {
 
 class ProductTileSimplePageState extends State<ProductTileSimplePage> {
   build(BuildContext context) => Scaffold(
-    appBar: GalleryAppBar(
-      ["Boxy Gallery", "Simple Product Tile"],
-      source: "https://github.com/PixelToast/flutter-boxy/blob/master/example/lib/pages/product_tile_simple.dart",
+    appBar: const GalleryAppBar(
+      ['Boxy Gallery', 'Simple Product Tile'],
+      source: 'https://github.com/PixelToast/flutter-boxy/blob/master/example/lib/pages/product_tile_simple.dart',
     ),
     backgroundColor: NiceColors.primary,
     body: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -50,15 +50,15 @@ class _SeebSellerState extends State<SeebSeller> {
         expanded = !expanded;
       });
     }, child: AnimatedContainer(
-      duration: Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 500),
       width: expanded ? 84 : 48,
       height: expanded ? 84 : 48,
       curve: Curves.ease,
-      margin: EdgeInsets.all(8),
+      margin: const EdgeInsets.all(8),
       child: DecoratedBox(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(256),
-          color: Color(0xFFE2F0CB),
+          color: const Color(0xFFE2F0CB),
         ),
       ),
     )), color: NiceColors.primary),
@@ -73,7 +73,7 @@ class SeebTitleState extends State<SeebTitle> {
   bool expanded = false;
 
   build(context) => ClipRRect(child: Stack(children: [
-    Positioned.fill(child: Container(color: Color(0xFFC7CEEA))),
+    Positioned.fill(child: Container(color: const Color(0xFFC7CEEA))),
     AnimatedContainer(
       child: Material(
         color: Colors.transparent,
@@ -83,7 +83,7 @@ class SeebTitleState extends State<SeebTitle> {
           });
         }),
       ),
-      duration: Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 500),
       width: expanded ? 450 : 350,
       height: expanded ? 350 : 200,
       curve: Curves.ease,
@@ -106,7 +106,7 @@ class SeebInfoState extends State<SeebInfo> with TickerProviderStateMixin {
   initState() {
     super.initState();
     anim = AnimationController.unbounded(
-      duration: Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
     anim.addListener(() => setState(() {}));
@@ -115,11 +115,11 @@ class SeebInfoState extends State<SeebInfo> with TickerProviderStateMixin {
   build(context) => ClipRRect(
     child: Material(
       borderRadius: BorderRadius.circular(8),
-      color: Color(0xFFB5EAD7),
+      color: const Color(0xFFB5EAD7),
       child: InkWell(child: AnimatedContainer(
         alignment: Alignment.topCenter,
         height: (expanded + 1) * 56.0,
-        duration: Duration(milliseconds: 500),
+        duration: const Duration(milliseconds: 500),
         curve: Curves.ease,
       ), onTap: () {
         setState(() {
@@ -157,7 +157,7 @@ class ProductTile extends StatelessWidget {
   final Widget seller;
   final ProductTileStyle style;
 
-  ProductTile({
+  const ProductTile({
     @required this.title,
     @required this.info,
     @required this.seller,
@@ -183,15 +183,15 @@ class ProductTileDelegate extends BoxyDelegate {
 
   @override
   layout() {
-    var title = getChild(#title);
-    var seller = getChild(#seller);
-    var info = getChild(#info);
+    final title = getChild(#title);
+    final seller = getChild(#seller);
+    final info = getChild(#info);
 
-    var sellerSize = seller.layout(constraints.deflate(
+    final sellerSize = seller.layout(constraints.deflate(
       EdgeInsets.only(right: style.sellerInset),
     ));
 
-    var titleSize = title.layout(constraints.copyWith(
+    final titleSize = title.layout(constraints.copyWith(
       minHeight: sellerSize.height / 2 + style.gapHeight / 2,
     ));
 
@@ -201,7 +201,7 @@ class ProductTileDelegate extends BoxyDelegate {
       (titleSize.height - sellerSize.height / 2) + style.gapHeight / 2,
     ));
 
-    var infoSize = info.layout(constraints.copyWith(
+    final infoSize = info.layout(constraints.copyWith(
       minHeight: sellerSize.height / 2,
       minWidth: titleSize.width,
       maxWidth: titleSize.width,
