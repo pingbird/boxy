@@ -1,7 +1,7 @@
+import 'dart:math' as math;
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter/rendering.dart';
-
-import 'dart:math' as math;
 
 /// A padding widget which allows the child to overflow when given negative
 /// edge insets.

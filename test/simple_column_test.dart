@@ -10,15 +10,15 @@ class SimpleColumnDelegate extends BoxyDelegate {
   @override
   Size layout() {
     // Get both children by a Symbol id.
-    var firstChild = getChild(#first);
-    var secondChild = getChild(#second);
+    final firstChild = getChild(#first);
+    final secondChild = getChild(#second);
 
     // Lay out the first child with the incoming constraints
-    var firstSize = firstChild.layout(constraints);
+    final firstSize = firstChild.layout(constraints);
     firstChild.position(Offset.zero);
 
     // Lay out the second child
-    var secondSize = secondChild.layout(
+    final secondSize = secondChild.layout(
       constraints.deflate(
         // Subtract height consumed by the first child from the constraints
         EdgeInsets.only(top: firstSize.height)
@@ -42,54 +42,54 @@ class SimpleColumnDelegate extends BoxyDelegate {
 void main() {
   testWidgets('Consistent dimensions', (tester) async {
     await tester.pumpWidget(TestFrame(child: CustomBoxy(
-      key: GlobalObjectKey(#boxy),
+      key: const GlobalObjectKey(#boxy),
       delegate: SimpleColumnDelegate(),
       children: [
         LayoutId(id: #first, child: Container(
-          key: GlobalObjectKey(#first),
+          key: const GlobalObjectKey(#first),
           width: 128,
           height: 64,
         )),
         LayoutId(id: #second, child: Container(
-          key: GlobalObjectKey(#second),
+          key: const GlobalObjectKey(#second),
           height: 32,
         )),
       ],
     )));
 
-    var boxyRect = boxRect(keyBox(#boxy));
-    var firstRect = boxRect(keyBox(#first));
-    var secondRect = boxRect(keyBox(#second));
+    final boxyRect = boxRect(keyBox(#boxy));
+    final firstRect = boxRect(keyBox(#first));
+    final secondRect = boxRect(keyBox(#second));
 
-    expect(boxyRect, Rect.fromLTWH(0, 0, 128, 96));
-    expect(firstRect, Rect.fromLTWH(0, 0, 128, 64));
-    expect(secondRect, Rect.fromLTWH(0, 64, 128, 32));
+    expect(boxyRect, const Rect.fromLTWH(0, 0, 128, 96));
+    expect(firstRect, const Rect.fromLTWH(0, 0, 128, 64));
+    expect(secondRect, const Rect.fromLTWH(0, 64, 128, 32));
   });
 
   testWidgets('Height constraints', (tester) async {
     await tester.pumpWidget(TestFrame(child: CustomBoxy(
-      key: GlobalObjectKey(#boxy),
+      key: const GlobalObjectKey(#boxy),
       delegate: SimpleColumnDelegate(),
       children: [
         LayoutId(id: #first, child: Container(
-          key: GlobalObjectKey(#first),
+          key: const GlobalObjectKey(#first),
           width: 128,
           height: 64,
         )),
         LayoutId(id: #second, child: Column(children: [
           Expanded(child: Container(
-            key: GlobalObjectKey(#second),
+            key: const GlobalObjectKey(#second),
           )),
         ])),
       ],
-    ), constraints: BoxConstraints(maxHeight: 128)));
+    ), constraints: const BoxConstraints(maxHeight: 128)));
 
-    var boxyRect = boxRect(keyBox(#boxy));
-    var firstRect = boxRect(keyBox(#first));
-    var secondRect = boxRect(keyBox(#second));
+    final boxyRect = boxRect(keyBox(#boxy));
+    final firstRect = boxRect(keyBox(#first));
+    final secondRect = boxRect(keyBox(#second));
 
-    expect(boxyRect, Rect.fromLTWH(0, 0, 128, 128));
-    expect(firstRect, Rect.fromLTWH(0, 0, 128, 64));
-    expect(secondRect, Rect.fromLTWH(0, 64, 128, 64));
+    expect(boxyRect, const Rect.fromLTWH(0, 0, 128, 128));
+    expect(firstRect, const Rect.fromLTWH(0, 0, 128, 64));
+    expect(secondRect, const Rect.fromLTWH(0, 64, 128, 64));
   });
 }

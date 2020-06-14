@@ -1,9 +1,9 @@
+import 'dart:math' as math;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:boxy/src/axis_utils.dart';
-
-import 'dart:math' as math;
 
 /// A widget that displays its children in a one-dimensional array.
 ///
@@ -686,7 +686,7 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
       RenderBox child = firstChild;
       RenderBox dominantChild;
       while (child != null) {
-        var flex = _getFlex(child);
+        final flex = _getFlex(child);
         if (_getDominant(child)) {
           assert(() {
             if (dominantChild != null) {
@@ -695,7 +695,7 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
             return true;
           }());
           if (flex == 0) {
-            var mainSize = child.getMaxIntrinsicAxis(_direction, double.infinity);
+            final mainSize = child.getMaxIntrinsicAxis(_direction, double.infinity);
             return childSize(child, mainSize);
           }
           dominantChild = child;
@@ -714,7 +714,7 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
         final int flex = _getFlex(child);
         totalFlex += flex;
         if (flex == 0) {
-          double mainSize = child.getMaxIntrinsicAxis(_direction, double.infinity);
+          final mainSize = child.getMaxIntrinsicAxis(_direction, double.infinity);
           inflexibleSpace += mainSize;
           if (dominantChild == null) {
             maxCrossSize = math.max(maxCrossSize, childSize(child, mainSize));
@@ -963,7 +963,7 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
     }
 
     if (hasInflexible) {
-      BoxConstraints innerConstraints = BoxConstraintsAxisUtil.create(
+      final innerConstraints = BoxConstraintsAxisUtil.create(
         _direction,
         minCross: crossAxisAlignment == CrossAxisAlignment.stretch ?
           maxCrossSize : 0.0,
