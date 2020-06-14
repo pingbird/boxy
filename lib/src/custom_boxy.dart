@@ -32,6 +32,7 @@ import 'package:flutter/rendering.dart';
 ///
 ///  * [BoxyDelegate], the base class of a delegate.
 class CustomBoxy extends RenderObjectWidget {
+  /// Constructs a CustomBoxy with a delegate and optional set of children.
   CustomBoxy({
     Key key,
     @required this.delegate,
@@ -50,6 +51,7 @@ class CustomBoxy extends RenderObjectWidget {
     }()),
     super(key: key);
 
+  /// The list of children this boxy is a parent of.
   final List<Widget> children;
 
   /// The delegate that controls the layout of the children.
@@ -113,14 +115,14 @@ class _RenderBoxyElement extends RenderObjectElement {
     _RenderBoxyElementEntry lastEntry;
 
     RenderBox inflateChild(Object id, Widget widget) {
-      var slotIndex = index++;
+      final slotIndex = index++;
 
       inflatedIds.add(id);
 
       var entry = _delegateCache[id];
 
       void pushChild(Widget widget) {
-        var newSlot = _IndexedSlot(
+        final newSlot = _IndexedSlot(
           slotIndex, lastEntry == null ?
             (_children.isEmpty ? null : _children.last) : lastEntry.element,
         );
@@ -135,10 +137,10 @@ class _RenderBoxyElement extends RenderObjectElement {
 
       try {
         if (entry != null) {
-          bool movedTop = lastEntry == null && entry.previous != null;
-          bool moved = movedTop || (lastEntry != null && entry.previous?.id != lastEntry.id);
+          final movedTop = lastEntry == null && entry.previous != null;
+          final moved = movedTop || (lastEntry != null && entry.previous?.id != lastEntry.id);
 
-          var newSlot = _IndexedSlot(slotIndex, moved ?
+          final newSlot = _IndexedSlot(slotIndex, moved ?
             (movedTop ?
               (_children.isEmpty ? null : _children.last) :
               lastEntry.element) :
@@ -155,16 +157,16 @@ class _RenderBoxyElement extends RenderObjectElement {
             } else {
               lastEntry.insertAfter(entry);
             }
-            moveChildRenderObject(entry.element.renderObject, newSlot);
+            moveChildRenderObject(entry.element.renderObject as RenderBox, newSlot);
           }
         } else {
           pushChild(widget);
         }
       } catch (e, stack) {
-        var details = FlutterErrorDetails(
+        final details = FlutterErrorDetails(
           context: ErrorDescription('building $widget'),
           exception: e,
-          library: "boxy library",
+          library: 'boxy library',
           stack: stack,
           informationCollector: () sync* {
             yield DiagnosticsDebugCreator(DebugCreator(this));
@@ -192,7 +194,7 @@ class _RenderBoxyElement extends RenderObjectElement {
       assert(inflatedIds.length < _delegateCache.length);
       lastEntry = lastEntry == null ? _delegateChildren.first : lastEntry.next;
       while (lastEntry != null) {
-        var next = lastEntry.next;
+        final next = lastEntry.next;
         assert(!inflatedIds.contains(lastEntry.id));
         deactivateChild(lastEntry.element);
         lastEntry.unlink();
@@ -207,24 +209,24 @@ class _RenderBoxyElement extends RenderObjectElement {
   final Set<Element> _forgottenChildren = HashSet<Element>();
 
   @override
-  void insertChildRenderObject(RenderObject child, _IndexedSlot<Element> slot) {
-    var renderObject = this.renderObject;
+  void insertChildRenderObject(RenderBox child, _IndexedSlot<Element> slot) {
+    final renderObject = this.renderObject;
     assert(renderObject.debugValidateChild(child));
-    renderObject.insert(child, after: slot?.value?.renderObject);
+    renderObject.insert(child, after: slot?.value?.renderObject as RenderBox);
     assert(renderObject == this.renderObject);
   }
 
   @override
-  void moveChildRenderObject(RenderObject child, _IndexedSlot<Element> slot) {
-    var renderObject = this.renderObject;
+  void moveChildRenderObject(RenderBox child, _IndexedSlot<Element> slot) {
+    final renderObject = this.renderObject;
     assert(child.parent == renderObject);
-    renderObject.move(child, after: slot?.value?.renderObject);
+    renderObject.move(child, after: slot?.value?.renderObject as RenderBox);
     assert(renderObject == this.renderObject);
   }
 
   @override
-  void removeChildRenderObject(RenderObject child) {
-    var renderObject = this.renderObject;
+  void removeChildRenderObject(RenderBox child) {
+    final renderObject = this.renderObject;
     assert(child.parent == renderObject);
     renderObject.remove(child);
     assert(renderObject == this.renderObject);
@@ -245,7 +247,7 @@ class _RenderBoxyElement extends RenderObjectElement {
   @override
   void forgetChild(Element child) {
     bool inflated = false;
-    for (var entry in _delegateChildren) {
+    for (final entry in _delegateChildren) {
       if (entry.element == child) {
         entry.unlink();
         _delegateCache.remove(entry.id);
@@ -268,8 +270,8 @@ class _RenderBoxyElement extends RenderObjectElement {
 
     Element previousChild;
     for (int i = 0; i < _children.length; i += 1) {
-      var slot = _IndexedSlot(i, previousChild);
-      var newChild = inflateWidget(widget.children[i], slot);
+      final slot = _IndexedSlot(i, previousChild);
+      final newChild = inflateWidget(widget.children[i], slot);
       _children[i] = newChild;
       previousChild = newChild;
     }
@@ -413,10 +415,10 @@ class _RenderBoxyElement extends RenderObjectElement {
     _forgottenChildren.clear();
 
     if (_delegateChildren.isNotEmpty) {
-      _IndexedSlot<Element> newSlot = _children.isEmpty ?
-        _IndexedSlot(0, null) :
+      final newSlot = _children.isEmpty ?
+        const _IndexedSlot(0, null) :
         _IndexedSlot(_children.length, _children.last);
-      var childElement = _delegateChildren.first.element;
+      final childElement = _delegateChildren.first.element;
       if (childElement.slot != newSlot) {
         updateSlotForChild(childElement, newSlot);
       }
@@ -460,22 +462,21 @@ class _IndexedSlot<T> {
 }
 
 class _RenderBoxy extends RenderBox with
-  ContainerRenderObjectMixin<RenderBox, MultiChildLayoutParentData>,
-  RenderBoxContainerDefaultsMixin<RenderBox, MultiChildLayoutParentData> {
+  ContainerRenderObjectMixin<RenderBox, MultiChildLayoutParentData> {
 
   _RenderBoxy({@required BoxyDelegate delegate}) : assert(delegate != null),
     _delegate = delegate;
 
   BoxyDelegate get delegate => _delegate;
-  var _delegateContext = _BoxyDelegateContext();
+  final _delegateContext = _BoxyDelegateContext();
 
   _RenderBoxyElement _element;
 
   BoxyChild inflateChild(Object id, Widget widget) {
-    var childObject = _delegateContext.inflater(id, widget);
+    final childObject = _delegateContext.inflater(id, widget);
     assert(childObject != null);
 
-    var child = BoxyChild._(
+    final child = BoxyChild._(
       context: _delegateContext,
       id: id,
       render: childObject,
@@ -501,18 +502,16 @@ class _RenderBoxy extends RenderBox with
     RenderBox child = firstChild;
 
     // Attempt to recycle existing child handles
-    var top = min(_element._children.length, _delegateContext.children.length);
+    final top = min(_element._children.length, _delegateContext.children.length);
     while (index < top && child != null) {
-      final MultiChildLayoutParentData parentData = child.parentData;
+      final parentData = child.parentData as MultiChildLayoutParentData;
       var id = parentData.id;
 
-      var oldChild = _delegateContext.children[index];
+      final oldChild = _delegateContext.children[index];
       if (oldChild.id != (id ?? movingIndex) || oldChild.render != child) break;
 
       // Assign the child an incrementing index if it does not already have one.
-      if (id == null) {
-        id = movingIndex++;
-      }
+      id ??= movingIndex++;
 
       assert(() {
         _delegateContext.debugChildrenNeedingLayout.add(id);
@@ -532,13 +531,11 @@ class _RenderBoxy extends RenderBox with
 
     // Create new child handles
     while (child != null && index < _element._children.length) {
-      final MultiChildLayoutParentData parentData = child.parentData;
+      final parentData = child.parentData as MultiChildLayoutParentData;
       var id = parentData.id;
 
       // Assign the child an incrementing index if it does not already have one.
-      if (id == null) {
-        id = movingIndex++;
-      }
+      id ??= movingIndex++;
 
       assert(() {
         if (_delegateContext.childrenMap.containsKey(id)) {
@@ -550,7 +547,7 @@ class _RenderBoxy extends RenderBox with
         return true;
       }());
 
-      var handle = BoxyChild._(
+      final handle = BoxyChild._(
         context: _delegateContext,
         id: id,
         render: child,
@@ -571,7 +568,7 @@ class _RenderBoxy extends RenderBox with
 
     _delegateContext.indexedChildCount = movingIndex;
 
-    invokeLayoutCallback((_) {
+    invokeLayoutCallback((BoxConstraints constraints) {
       _element.wrapInflaterCallback((inflater) {
         _delegateContext.inflater = inflater;
         delegate._callWithContext(_delegateContext, _BoxyDelegateState.Layout, () {
@@ -586,13 +583,13 @@ class _RenderBoxy extends RenderBox with
     assert(() {
       if (_delegateContext.debugChildrenNeedingLayout.isNotEmpty) {
         if (_delegateContext.debugChildrenNeedingLayout.length > 1) {
-          throw new FlutterError(
+          throw FlutterError(
             'The $_delegate boxy delegate forgot to lay out the following children:\n'
             '  ${_delegateContext.debugChildrenNeedingLayout.map(_debugDescribeChild).join("\n  ")}\n'
             'Each child must be laid out exactly once.'
           );
         } else {
-          throw new FlutterError(
+          throw FlutterError(
             'The $_delegate boxy delegate forgot to lay out the following child:\n'
             '  ${_debugDescribeChild(_delegateContext.debugChildrenNeedingLayout.single)}\n'
             'Each child must be laid out exactly once.'
@@ -701,6 +698,7 @@ class _RenderBoxy extends RenderBox with
     _delegateContext.offset = null;
   }
 
+  @override
   bool hitTest(BoxHitTestResult result, {@required Offset position}) {
     _delegateContext.hitTestResult = result;
     _delegateContext.offset = position;
@@ -790,8 +788,8 @@ class BoxyChild {
   /// The rect of this child relative to the parent, this is only valid after
   /// [layout] and [position] have been called.
   Rect get rect {
-    var offset = _parentData.offset;
-    var size = render.size;
+    final offset = _parentData.offset;
+    final size = render.size;
     return Rect.fromLTWH(
       offset.dx, offset.dy,
       size.width, size.height,
@@ -803,7 +801,7 @@ class BoxyChild {
   void position(Offset offset) {
     assert(() {
       if (_context.debugState != _BoxyDelegateState.Layout) {
-        throw new FlutterError(
+        throw FlutterError(
           'The $this boxy delegate tried to position a child outside of the layout method.\n'
         );
       }
@@ -825,13 +823,13 @@ class BoxyChild {
     useSize ??= !constraints.isTight;
     assert(() {
       if (_context.debugState != _BoxyDelegateState.Layout) {
-        throw new FlutterError(
+        throw FlutterError(
           'The $this boxy delegate tried to lay out a child outside of the layout method.\n'
         );
       }
 
       if (!_context.debugChildrenNeedingLayout.remove(id)) {
-        throw new FlutterError(
+        throw FlutterError(
           'The $this boxy delegate tried to lay out the child with id "$id" more than once.\n'
           'Each child must be laid out exactly once.'
         );
@@ -840,7 +838,7 @@ class BoxyChild {
       try {
         assert(constraints.debugAssertIsValid(isAppliedConstraint: true));
       } on AssertionError catch (exception) {
-        throw new FlutterError(
+        throw FlutterError(
           'The $this boxy delegate provided invalid box constraints for the child with id "$id".\n'
           '$exception\n'
           'The minimum width and height must be greater than or equal to zero.\n'
@@ -858,7 +856,7 @@ class BoxyChild {
   }
 
   /// Tightly lays out and positions the child so that it fits in [rect].
-  layoutRect(Rect rect) {
+  void layoutRect(Rect rect) {
     layout(BoxConstraints.tight(rect.size));
     position(rect.topLeft);
   }
@@ -872,7 +870,7 @@ class BoxyChild {
     if (_ignore) return;
     assert(() {
       if (_context.debugState != _BoxyDelegateState.Painting) {
-        throw new FlutterError(
+        throw FlutterError(
           'The $this boxy delegate tried to paint a child outside of the paint method.'
         );
       }
@@ -914,7 +912,7 @@ class BoxyChild {
   }
 
   @override
-  toString() => "BoxyChild(id: $id)";
+  String toString() => 'BoxyChild(id: $id)';
 }
 
 /// A delegate that controls the layout of multiple children.
@@ -1084,6 +1082,7 @@ class BoxyChild {
 ///   }
 /// ```
 abstract class BoxyDelegate<T> {
+  /// Constructs a BoxyDelegate with optional relayout and repaint listenables.
   BoxyDelegate({
     Listenable relayout,
     Listenable repaint,
@@ -1097,7 +1096,7 @@ abstract class BoxyDelegate<T> {
   _BoxyDelegateContext _getContext() {
     assert(() {
       if (_context == null || _context.debugState == _BoxyDelegateState.None) {
-        throw new FlutterError(
+        throw FlutterError(
           'The $this boxy delegate attempted to get the context outside of its normal lifecycle.\n'
           'You should only access the BoxyDelegate from its overriden methods.'
         );
@@ -1114,7 +1113,7 @@ abstract class BoxyDelegate<T> {
   set layoutData(T data) {
     assert(() {
       if (_context == null || _context.debugState != _BoxyDelegateState.Layout) {
-        throw new FlutterError(
+        throw FlutterError(
           'The $this boxy delegate attempted to set layout data outside of the layout method.\n'
         );
       }
@@ -1134,10 +1133,10 @@ abstract class BoxyDelegate<T> {
 
   /// Gets the child handle with the specified [id].
   BoxyChild getChild(Object id) {
-    var child = _getContext().childrenMap[id];
+    final child = _getContext().childrenMap[id];
     assert(() {
       if (child == null) {
-        throw new FlutterError(
+        throw FlutterError(
           'The $this boxy delegate attempted to get a nonexistent child.\n'
           'There is no child with the id "$id".'
         );
@@ -1162,7 +1161,7 @@ abstract class BoxyDelegate<T> {
   Canvas get canvas {
     assert(() {
       if (_context == null || _context.debugState != _BoxyDelegateState.Painting) {
-        throw new FlutterError(
+        throw FlutterError(
           'The $this boxy delegate attempted to access the canvas outside of a paint method.'
         );
       }
@@ -1176,7 +1175,7 @@ abstract class BoxyDelegate<T> {
   Offset get paintOffset {
     assert(() {
       if (_context == null || _context.debugState != _BoxyDelegateState.Painting) {
-        throw new FlutterError(
+        throw FlutterError(
           'The $this boxy delegate attempted to access the paint offset outside of a paint method.'
         );
       }
@@ -1189,7 +1188,7 @@ abstract class BoxyDelegate<T> {
   PaintingContext get paintingContext {
     assert(() {
       if (_context == null || _context.debugState != _BoxyDelegateState.Painting) {
-        throw new FlutterError(
+        throw FlutterError(
           'The $this boxy delegate attempted to access the paint context outside of a paint method.'
         );
       }
@@ -1216,8 +1215,8 @@ abstract class BoxyDelegate<T> {
     assert(layer != null);
 
     paintingContext.pushLayer(layer, (context, offset) {
-      var lastContext = _context.paintingContext;
-      var lastOffset = _context.offset;
+      final lastContext = _context.paintingContext;
+      final lastOffset = _context.offset;
       _context.paintingContext = context;
       _context.offset = lastOffset;
       if (painter != null) painter();
@@ -1230,7 +1229,7 @@ abstract class BoxyDelegate<T> {
   BoxHitTestResult get hitTestResult {
     assert(() {
       if (_context == null || _context.debugState != _BoxyDelegateState.HitTest) {
-        throw new FlutterError(
+        throw FlutterError(
           'The $this boxy attempted to get the hit test result outside of the hitTest method.'
         );
       }
@@ -1244,7 +1243,7 @@ abstract class BoxyDelegate<T> {
     // by both a parent and a child. So, we must restore the context when
     // we return.
 
-    var prevContext = _context;
+    final prevContext = _context;
     _context = context;
     context.setState(state);
 
@@ -1274,7 +1273,7 @@ abstract class BoxyDelegate<T> {
   BoxyChild inflate(Widget child, {Object id}) {
     assert(() {
       if (_context == null || _context.inflater == null) {
-        throw new FlutterError(
+        throw FlutterError(
           'The $this boxy attempted to inflate a widget outside of the layout method.\n'
           'You should only call `inflate` from its overriden methods.'
         );
@@ -1282,13 +1281,11 @@ abstract class BoxyDelegate<T> {
       return true;
     }());
 
-    if (id == null) {
-      id = _context.indexedChildCount++;
-    }
+    id ??= _context.indexedChildCount++;
 
     assert(() {
       if (hasChild(id)) {
-        throw new FlutterError(
+        throw FlutterError(
           'The $this boxy delegate attempted to inflate a widget with a duplicate id.\n'
           'There is already a child with the id "$id"'
         );
@@ -1314,7 +1311,7 @@ abstract class BoxyDelegate<T> {
   Size layout() {
     Size biggest = constraints.smallest;
     for (final child in children) {
-      var size = child.layout(constraints);
+      final size = child.layout(constraints);
       biggest = Size(
         max(biggest.width, size.width),
         max(biggest.height, size.height)
