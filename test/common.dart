@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Element keyElement(Object value) {
@@ -9,6 +10,9 @@ Element keyElement(Object value) {
 
 RenderBox keyBox(Object value) =>
   keyElement(value).renderObject as RenderBox;
+
+RenderSliver keySliver(Object value) =>
+  keyElement(value).renderObject as RenderSliver;
 
 T keyWidget<T>(Object value) {
   final widget = keyElement(value).widget;
