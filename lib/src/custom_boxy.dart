@@ -1081,7 +1081,7 @@ class BoxyChild {
 ///     );
 ///   }
 /// ```
-abstract class BoxyDelegate<T> {
+abstract class BoxyDelegate<T extends Object> {
   /// Constructs a BoxyDelegate with optional relayout and repaint listenables.
   BoxyDelegate({
     Listenable relayout,
