@@ -540,7 +540,18 @@ class _SliverContainerElement extends RenderObjectElement {
 
   @override
   void removeChildRenderObject(RenderObject child) {
-    _updateRenderObject(null, renderObject.parentData as _SliverOverlaySlot);
+    if (identical(foreground, child)) {
+      renderObject.updateChild(renderObject.foreground, null);
+      renderObject.foreground = null;
+    } else if (identical(sliver, child)) {
+      renderObject.updateChild(renderObject.sliver, null);
+      renderObject.foreground = null;
+    } else if (identical(background, child)) {
+      renderObject.updateChild(renderObject.background, null);
+      renderObject.foreground = null;
+    } else {
+      assert(false, 'Unreachable');
+    }
   }
 
   @override
