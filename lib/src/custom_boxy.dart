@@ -737,11 +737,12 @@ class _BoxyDelegateContext {
   _RenderBoxyInflater inflater;
 
   final Set<Object> debugChildrenNeedingLayout = {};
-  _BoxyDelegateState debugState = _BoxyDelegateState.None;
 
-  void setState(_BoxyDelegateState state) {
+  _BoxyDelegateState _debugState = _BoxyDelegateState.None;
+  _BoxyDelegateState get debugState => _debugState;
+  set debugState(_BoxyDelegateState state) {
     assert(() {
-      debugState = state;
+      _debugState = state;
       return true;
     }());
   }
@@ -1245,12 +1246,12 @@ abstract class BoxyDelegate<T extends Object> {
 
     final prevContext = _context;
     _context = context;
-    context.setState(state);
+    context.debugState = state;
 
     try {
       return func();
     } finally {
-      context.setState(_BoxyDelegateState.None);
+      context.debugState = _BoxyDelegateState.None;
       _context = prevContext;
     }
   }
