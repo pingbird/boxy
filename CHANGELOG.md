@@ -1,3 +1,8 @@
+## [1.2.0]
+
+* Bug fixes
+* BoxyChild.layout no longer sets a default hasSize
+
 ## [1.1.1]
 
 * Bug fixes
