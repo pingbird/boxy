@@ -185,9 +185,7 @@ class _RenderBoxyElement extends RenderObjectElement {
       return entry.element.renderObject as RenderBox;
     }
 
-    owner.buildScope(this, () {
-      callback(inflateChild);
-    });
+    callback(inflateChild);
 
     // One or more cached children were not inflated, deactivate them.
     if (inflatedIds.length != _delegateCache.length) {
@@ -472,19 +470,16 @@ class _RenderBoxy extends RenderBox with
 
   _RenderBoxyElement _element;
 
-  BoxyChild inflateChild(Object id, Widget widget) {
-    final childObject = _delegateContext.inflater(id, widget);
-    assert(childObject != null);
-
-    final child = BoxyChild._(
-      context: _delegateContext,
-      id: id,
-      render: childObject,
-    );
-
-    _delegateContext.children.add(child);
-    _delegateContext.childrenMap[id] = child;
-    return child;
+  void flushInflateQueue() {
+    _element.owner.buildScope(_element, () {
+      for (final child in _delegateContext.inflateQueue) {
+        assert(child._widget != null);
+        final childObject = _delegateContext.inflater(child.id, child._widget);
+        assert(childObject != null);
+        child._render = childObject;
+      }
+      _delegateContext.inflateQueue.clear();
+    });
   }
 
   @override
@@ -573,6 +568,7 @@ class _RenderBoxy extends RenderBox with
         _delegateContext.inflater = inflater;
         delegate._callWithContext(_delegateContext, _BoxyDelegateState.Layout, () {
           size = delegate.layout();
+          _delegateContext.render.flushInflateQueue();
           assert(size != null);
           size = constraints.constrain(size);
         });
@@ -727,6 +723,7 @@ enum _BoxyDelegateState {
 
 class _BoxyDelegateContext {
   _RenderBoxy render;
+  List<BoxyChild> inflateQueue = [];
   List<BoxyChild> children = [];
   Map<Object, BoxyChild> childrenMap = HashMap();
   int indexedChildCount = 0;
@@ -762,14 +759,17 @@ class BoxyChild {
   BoxyChild._({
     @required _BoxyDelegateContext context,
     @required this.id,
-    @required this.render,
+    RenderBox render,
+    Widget widget,
   }) :
+    _render = render,
+    _widget = widget,
     _context = context,
-    assert(render != null),
-    assert(render.parentData != null);
+    assert(render == null || render.parentData != null);
 
   final _BoxyDelegateContext _context;
   bool _ignore = false;
+  final Widget _widget;
 
   /// The id of the child, will either be the id given by [LayoutId] or an
   /// incrementing int in the order provided to [CustomBoxy].
@@ -777,7 +777,13 @@ class BoxyChild {
 
   /// The RenderBox for this child in case you need to access intrinsic
   /// dimensions, size, constraints, etc.
-  final RenderBox render;
+  RenderBox get render {
+    if (_render != null) return _render;
+    _context.render.flushInflateQueue();
+    assert(_render != null);
+    return _render;
+  }
+  RenderBox _render;
 
   MultiChildLayoutParentData get _parentData =>
     render.parentData as MultiChildLayoutParentData;
@@ -817,11 +823,10 @@ class BoxyChild {
   /// fits in those constraints.
   ///
   /// If [useSize] is true, the boxy will re-layout when the child changes size,
-  /// this defaults to false if [constraints] are tight.
+  /// which is on by default.
   ///
   /// This should only be called in [BoxyDelegate.layout].
-  Size layout(BoxConstraints constraints, {bool useSize}) {
-    useSize ??= !constraints.isTight;
+  Size layout(BoxConstraints constraints, {bool useSize = true}) {
     assert(() {
       if (_context.debugState != _BoxyDelegateState.Layout) {
         throw FlutterError(
@@ -853,7 +858,7 @@ class BoxyChild {
 
     render.layout(constraints, parentUsesSize: useSize);
 
-    return useSize ? render.size : null;
+    return render.size;
   }
 
   /// Tightly lays out and positions the child so that it fits in [rect].
@@ -1271,7 +1276,7 @@ abstract class BoxyDelegate<T extends Object> {
   /// Unlike children passed to the widget, [Key]s cannot be used to move state
   /// from one child id to another. You may hit duplicate [GlobalKey] assertions
   /// from children inflated during the previous layout.
-  BoxyChild inflate(Widget child, {Object id}) {
+  BoxyChild inflate(Widget widget, {Object id}) {
     assert(() {
       if (_context == null || _context.inflater == null) {
         throw FlutterError(
@@ -1295,7 +1300,17 @@ abstract class BoxyDelegate<T extends Object> {
       return true;
     }());
 
-    return render.inflateChild(id, child);
+    final child = BoxyChild._(
+      context: _context,
+      id: id,
+      widget: widget,
+    );
+
+    _context.inflateQueue.add(child);
+    _context.children.add(child);
+    _context.childrenMap[id] = child;
+
+    return child;
   }
 
   /// Override this method to lay out children and return the final size of the
