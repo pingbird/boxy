@@ -8,6 +8,15 @@ import 'package:flutter/rendering.dart';
 ///
 /// This widget will consume the size of the child plus padding, allowing the
 /// child to paint past the amount of space the [OverflowPadding] consumes.
+///
+/// The following example removes 16 units of padding from a child on the right:
+///
+/// ```dart
+/// OverflowPadding(
+///   padding: EdgeInsets.only(right: -16),
+///   child: ...
+/// )
+/// ```
 class OverflowPadding extends SingleChildRenderObjectWidget {
   /// Creates a widget that insets its child.
   ///
