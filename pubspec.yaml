@@ -1,11 +1,10 @@
 name: boxy
 description: Provides widgets and utilities that enable you to create custom layouts with minimal boilerplate.
-version: 1.2.0
+version: 1.2.0+1
 homepage: https://github.com/PixelToast/flutter-boxy
 
 environment:
   sdk: '>=2.7.0 <3.0.0'
-  flutter: '>=1.15.17'
 
 dependencies:
   flutter:
