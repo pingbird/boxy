@@ -9,14 +9,13 @@ environment:
 
 dependencies:
   boxy: ^1.0.0
-  tuple: ^1.0.3
-  material_design_icons_flutter: ^3.4.4995
-  rxdart: ^0.23.1
-  url_launcher: ^5.4.2
+  cupertino_icons: ^0.1.2
   flutter:
     sdk: flutter
-
-  cupertino_icons: ^0.1.2
+  material_design_icons_flutter: ^3.4.4995
+  rxdart: ^0.23.1
+  tuple: ^1.0.3
+  url_launcher: ^5.4.2
 
 dev_dependencies:
   flutter_test:

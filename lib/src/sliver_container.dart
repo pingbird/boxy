@@ -534,12 +534,12 @@ class _SliverContainerElement extends RenderObjectElement {
   }
 
   @override
-  void insertChildRenderObject(RenderObject child, dynamic slotValue) {
-    _updateRenderObject(child, slotValue as _SliverOverlaySlot);
+  void insertRenderObjectChild(RenderObject child, dynamic slot) {
+    _updateRenderObject(child, slot as _SliverOverlaySlot);
   }
 
   @override
-  void removeChildRenderObject(RenderObject child) {
+  void removeRenderObjectChild(RenderObject child, dynamic slot) {
     if (identical(foreground, child)) {
       renderObject.updateChild(renderObject.foreground, null);
       renderObject.foreground = null;
@@ -555,7 +555,7 @@ class _SliverContainerElement extends RenderObjectElement {
   }
 
   @override
-  void moveChildRenderObject(RenderObject child, dynamic slotValue) {
+  void moveRenderObjectChild(RenderObject child, dynamic oldSlot, dynamic slot) {
     assert(false, 'Unreachable');
   }
 }
