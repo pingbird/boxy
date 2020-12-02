@@ -43,7 +43,7 @@ class CustomBoxy extends RenderObjectWidget {
       final int index = children.indexOf(null);
       if (index >= 0) {
         throw FlutterError(
-          "$runtimeType's children must not contain any null values, "
+          "CustomBoxy's children must not contain any null values, "
           'but a null value was found at index $index'
         );
       }
@@ -157,7 +157,8 @@ class _RenderBoxyElement extends RenderObjectElement {
             } else {
               lastEntry.insertAfter(entry);
             }
-            moveChildRenderObject(entry.element.renderObject as RenderBox, newSlot);
+            // oldSlot can be null because we don't use it
+            moveRenderObjectChild(entry.element.renderObject as RenderBox, null, newSlot);
           }
         } else {
           pushChild(widget);
@@ -207,7 +208,7 @@ class _RenderBoxyElement extends RenderObjectElement {
   final Set<Element> _forgottenChildren = HashSet<Element>();
 
   @override
-  void insertChildRenderObject(RenderBox child, _IndexedSlot<Element> slot) {
+  void insertRenderObjectChild(RenderBox child, _IndexedSlot<Element> slot) {
     final renderObject = this.renderObject;
     assert(renderObject.debugValidateChild(child));
     renderObject.insert(child, after: slot?.value?.renderObject as RenderBox);
@@ -215,7 +216,7 @@ class _RenderBoxyElement extends RenderObjectElement {
   }
 
   @override
-  void moveChildRenderObject(RenderBox child, _IndexedSlot<Element> slot) {
+  void moveRenderObjectChild(RenderBox child, _IndexedSlot<Element> oldSlot, _IndexedSlot<Element> slot) {
     final renderObject = this.renderObject;
     assert(child.parent == renderObject);
     renderObject.move(child, after: slot?.value?.renderObject as RenderBox);
@@ -223,7 +224,7 @@ class _RenderBoxyElement extends RenderObjectElement {
   }
 
   @override
-  void removeChildRenderObject(RenderBox child) {
+  void removeRenderObjectChild(RenderBox child, _IndexedSlot<Element> slot) {
     final renderObject = this.renderObject;
     assert(child.parent == renderObject);
     renderObject.remove(child);

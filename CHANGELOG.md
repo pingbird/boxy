@@ -1,3 +1,7 @@
+## [1.2.0+1]
+
+* Transition deprecated RenderObjectElement methods (flutter/#63269)
+
 ## [1.2.0]
 
 * Bug fixes
