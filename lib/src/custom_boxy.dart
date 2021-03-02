@@ -122,7 +122,7 @@ class _RenderBoxyElement extends RenderObjectElement {
       var entry = _delegateCache[id];
 
       void pushChild(Widget widget) {
-        final newSlot = _IndexedSlot(
+        final newSlot = IndexedSlot(
           slotIndex, lastEntry == null ?
             (_children.isEmpty ? null : _children.last) : lastEntry.element,
         );
@@ -140,7 +140,7 @@ class _RenderBoxyElement extends RenderObjectElement {
           final movedTop = lastEntry == null && entry.previous != null;
           final moved = movedTop || (lastEntry != null && entry.previous?.id != lastEntry.id);
 
-          final newSlot = _IndexedSlot(slotIndex, moved ?
+          final newSlot = IndexedSlot(slotIndex, moved ?
             (movedTop ?
               (_children.isEmpty ? null : _children.last) :
               lastEntry.element) :
@@ -208,7 +208,7 @@ class _RenderBoxyElement extends RenderObjectElement {
   final Set<Element> _forgottenChildren = HashSet<Element>();
 
   @override
-  void insertRenderObjectChild(RenderBox child, _IndexedSlot<Element> slot) {
+  void insertRenderObjectChild(RenderBox child, IndexedSlot<Element> slot) {
     final renderObject = this.renderObject;
     assert(renderObject.debugValidateChild(child));
     renderObject.insert(child, after: slot?.value?.renderObject as RenderBox);
@@ -216,7 +216,7 @@ class _RenderBoxyElement extends RenderObjectElement {
   }
 
   @override
-  void moveRenderObjectChild(RenderBox child, _IndexedSlot<Element> oldSlot, _IndexedSlot<Element> slot) {
+  void moveRenderObjectChild(RenderBox child, IndexedSlot<Element> oldSlot, IndexedSlot<Element> slot) {
     final renderObject = this.renderObject;
     assert(child.parent == renderObject);
     renderObject.move(child, after: slot?.value?.renderObject as RenderBox);
@@ -224,7 +224,7 @@ class _RenderBoxyElement extends RenderObjectElement {
   }
 
   @override
-  void removeRenderObjectChild(RenderBox child, _IndexedSlot<Element> slot) {
+  void removeRenderObjectChild(RenderBox child, IndexedSlot<Element> slot) {
     final renderObject = this.renderObject;
     assert(child.parent == renderObject);
     renderObject.remove(child);
@@ -265,11 +265,11 @@ class _RenderBoxyElement extends RenderObjectElement {
   @override
   void mount(Element parent, dynamic newSlot) {
     super.mount(parent, newSlot);
-    _children = List<Element>(widget.children.length);
+    _children = List<Element>.filled(widget.children.length, null);
 
     Element previousChild;
     for (int i = 0; i < _children.length; i += 1) {
-      final slot = _IndexedSlot(i, previousChild);
+      final slot = IndexedSlot(i, previousChild);
       final newChild = inflateWidget(widget.children[i], slot);
       _children[i] = newChild;
       previousChild = newChild;
@@ -303,7 +303,7 @@ class _RenderBoxyElement extends RenderObjectElement {
     int oldChildrenBottom = oldChildren.length - 1;
 
     final List<Element> newChildren = oldChildren.length == newWidgets.length ?
-    oldChildren : List<Element>(newWidgets.length);
+    oldChildren : List<Element>.filled(newWidgets.length, null);
 
     Element previousChild;
 
@@ -313,7 +313,7 @@ class _RenderBoxyElement extends RenderObjectElement {
       final Widget newWidget = newWidgets[newChildrenTop];
       if (oldChild == null || !Widget.canUpdate(oldChild.widget, newWidget))
         break;
-      final Element newChild = updateChild(oldChild, newWidget, _IndexedSlot<Element>(newChildrenTop, previousChild));
+      final Element newChild = updateChild(oldChild, newWidget, IndexedSlot<Element>(newChildrenTop, previousChild));
       newChildren[newChildrenTop] = newChild;
       previousChild = newChild;
       newChildrenTop += 1;
@@ -368,7 +368,7 @@ class _RenderBoxyElement extends RenderObjectElement {
         }
       }
       assert(oldChild == null || Widget.canUpdate(oldChild.widget, newWidget));
-      final Element newChild = updateChild(oldChild, newWidget, _IndexedSlot<Element>(newChildrenTop, previousChild));
+      final Element newChild = updateChild(oldChild, newWidget, IndexedSlot<Element>(newChildrenTop, previousChild));
       newChildren[newChildrenTop] = newChild;
       previousChild = newChild;
       newChildrenTop += 1;
@@ -387,7 +387,7 @@ class _RenderBoxyElement extends RenderObjectElement {
       assert(replaceWithNullIfForgotten(oldChild) != null);
       final Widget newWidget = newWidgets[newChildrenTop];
       assert(Widget.canUpdate(oldChild.widget, newWidget));
-      final Element newChild = updateChild(oldChild, newWidget, _IndexedSlot<Element>(newChildrenTop, previousChild));
+      final Element newChild = updateChild(oldChild, newWidget, IndexedSlot<Element>(newChildrenTop, previousChild));
       newChildren[newChildrenTop] = newChild;
       previousChild = newChild;
       newChildrenTop += 1;
@@ -415,8 +415,8 @@ class _RenderBoxyElement extends RenderObjectElement {
 
     if (_delegateChildren.isNotEmpty) {
       final newSlot = _children.isEmpty ?
-        const _IndexedSlot(0, null) :
-        _IndexedSlot(_children.length, _children.last);
+        const IndexedSlot(0, null) :
+        IndexedSlot(_children.length, _children.last);
       final childElement = _delegateChildren.first.element;
       if (childElement.slot != newSlot) {
         updateSlotForChild(childElement, newSlot);
@@ -431,33 +431,6 @@ class _RenderBoxyElement extends RenderObjectElement {
     renderObject.markNeedsLayout();
     super.performRebuild(); // Calls widget.updateRenderObject (a no-op in this case).
   }
-}
-
-/// Copy of [IndexedSlot] to maintain compatibility with Flutter versions older
-/// than v1.15.19.
-@immutable
-class _IndexedSlot<T> {
-  /// Creates an [_IndexedSlot] with the provided [index] and slot [value].
-  const _IndexedSlot(this.index, this.value);
-
-  /// Information to define where the child occupying this slot fits in its
-  /// parent's child list.
-  final T value;
-
-  /// The index of this slot in the parent's child list.
-  final int index;
-
-  @override
-  bool operator ==(Object other) {
-    if (other.runtimeType != runtimeType)
-      return false;
-    return other is _IndexedSlot
-      && index == other.index
-      && value == other.value;
-  }
-
-  @override
-  int get hashCode => hashValues(index, value);
 }
 
 class _RenderBoxy extends RenderBox with
