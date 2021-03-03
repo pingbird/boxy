@@ -427,7 +427,7 @@ class _RenderBoxyElement extends RenderObjectElement {
   @override
   void performRebuild() {
     // This gets called if markNeedsBuild() is called on us.
-    // That might happen if, e.g., our delegate inflates Inherited widgets.
+    // That might happen if, e.g., our delegate inflates InheritedWidgets.
     renderObject.markNeedsLayout();
     super.performRebuild(); // Calls widget.updateRenderObject (a no-op in this case).
   }
@@ -470,7 +470,7 @@ class _RenderBoxy extends RenderBox with
     int movingIndex = 0;
     RenderBox child = firstChild;
 
-    // Attempt to recycle existing child handles
+    // Attempt to recycle existing child handles.
     final top = min(_element._children.length, _delegateContext.children.length);
     while (index < top && child != null) {
       final parentData = child.parentData as MultiChildLayoutParentData;
@@ -541,8 +541,11 @@ class _RenderBoxy extends RenderBox with
       _element.wrapInflaterCallback((inflater) {
         _delegateContext.inflater = inflater;
         delegate._callWithContext(_delegateContext, _BoxyDelegateState.Layout, () {
-          size = delegate.layout();
-          _delegateContext.render.flushInflateQueue();
+          try {
+            size = delegate.layout();
+          } finally {
+            _delegateContext.render.flushInflateQueue();
+          }
           assert(size != null);
           size = constraints.constrain(size);
         });
@@ -570,27 +573,45 @@ class _RenderBoxy extends RenderBox with
     }());
   }
 
+  @override
+  Size computeDryLayout(BoxConstraints dryConstraints) {
+    _delegateContext._dryConstraints = dryConstraints;
+    Size resultSize;
+    try {
+      delegate._callWithContext(_delegateContext, _BoxyDelegateState.DryLayout, () {
+        resultSize = delegate.layout();
+        assert(resultSize != null);
+        resultSize = dryConstraints.constrain(resultSize);
+      });
+    } on _CannotInflateError {
+      return Size.zero;
+    } finally {
+      _delegateContext._dryConstraints = null;
+    }
+    return resultSize;
+  }
+
   String _debugDescribeChild(Object id) =>
     '$id: ${_delegateContext.childrenMap[id].render}';
 
   @override
   double computeMinIntrinsicWidth(double height) => _delegate._callWithContext(
-    _delegateContext, _BoxyDelegateState.Layout, () => _delegate.minIntrinsicWidth(height)
+    _delegateContext, _BoxyDelegateState.Intrinsics, () => _delegate.minIntrinsicWidth(height)
   );
 
   @override
   double computeMaxIntrinsicWidth(double height) => _delegate._callWithContext(
-    _delegateContext, _BoxyDelegateState.Layout, () => _delegate.maxIntrinsicWidth(height)
+    _delegateContext, _BoxyDelegateState.Intrinsics, () => _delegate.maxIntrinsicWidth(height)
   );
 
   @override
   double computeMinIntrinsicHeight(double width) => _delegate._callWithContext(
-    _delegateContext, _BoxyDelegateState.Layout, () => _delegate.minIntrinsicHeight(width)
+    _delegateContext, _BoxyDelegateState.Intrinsics, () => _delegate.minIntrinsicHeight(width)
   );
 
   @override
   double computeMaxIntrinsicHeight(double width) => _delegate._callWithContext(
-    _delegateContext, _BoxyDelegateState.Layout, () => _delegate.maxIntrinsicHeight(width)
+    _delegateContext, _BoxyDelegateState.Intrinsics, () => _delegate.maxIntrinsicHeight(width)
   );
 
   @override
@@ -691,6 +712,8 @@ class _RenderBoxy extends RenderBox with
 enum _BoxyDelegateState {
   None,
   Layout,
+  Intrinsics,
+  DryLayout,
   Painting,
   HitTest,
 }
@@ -706,6 +729,7 @@ class _BoxyDelegateContext {
   Offset offset;
   Object layoutData;
   _RenderBoxyInflater inflater;
+  BoxConstraints _dryConstraints;
 
   final Set<Object> debugChildrenNeedingLayout = {};
 
@@ -744,6 +768,8 @@ class BoxyChild {
   final _BoxyDelegateContext _context;
   bool _ignore = false;
   final Widget _widget;
+  Offset _dryOffset;
+  Size _drySize;
 
   /// The id of the child, will either be the id given by [LayoutId] or an
   /// incrementing int in the order provided to [CustomBoxy].
@@ -764,13 +790,16 @@ class BoxyChild {
 
   /// The offset to this child relative to the parent, this can be set by
   /// calling [position] from [BoxyDelegate.layout].
-  Offset get offset => _parentData.offset;
+  Offset get offset => _dryOffset ?? _parentData.offset;
+
+  /// The size of this child, should only be called after [layout].
+  Size get size => _drySize ?? render.size;
 
   /// The rect of this child relative to the parent, this is only valid after
   /// [layout] and [position] have been called.
   Rect get rect {
-    final offset = _parentData.offset;
-    final size = render.size;
+    final offset = this.offset;
+    final size = this.size;
     return Rect.fromLTWH(
       offset.dx, offset.dy,
       size.width, size.height,
@@ -780,6 +809,11 @@ class BoxyChild {
   /// Sets the position of this child relative to the parent, this should only be
   /// called from [BoxyDelegate.layout].
   void position(Offset offset) {
+    if (_context.debugState == _BoxyDelegateState.DryLayout) {
+      _dryOffset = offset;
+      return;
+    }
+
     assert(() {
       if (_context.debugState != _BoxyDelegateState.Layout) {
         throw FlutterError(
@@ -793,14 +827,18 @@ class BoxyChild {
     _parentData.offset = offset;
   }
 
-  /// Lays out the child given constraints and returns the size the child that
-  /// fits in those constraints.
+  /// Lays out the child with the specified constraints and returns its size.
   ///
-  /// If [useSize] is true, the boxy will re-layout when the child changes size,
-  /// which is on by default.
+  /// If [useSize] is true, this boxy will re-layout when the child changes
+  /// size.
   ///
   /// This should only be called in [BoxyDelegate.layout].
   Size layout(BoxConstraints constraints, {bool useSize = true}) {
+    if (_context.debugState == _BoxyDelegateState.DryLayout) {
+      _drySize = render.getDryLayout(constraints);
+      return _drySize;
+    }
+
     assert(() {
       if (_context.debugState != _BoxyDelegateState.Layout) {
         throw FlutterError(
@@ -893,6 +931,24 @@ class BoxyChild {
 
   @override
   String toString() => 'BoxyChild(id: $id)';
+}
+
+class _CannotInflateError extends FlutterError {
+  final BoxyDelegate delegate;
+
+  _CannotInflateError(this.delegate) : super.fromParts([
+    ErrorSummary(
+      'The $delegate boxy attempted to inflate a widget during a dry layout.'
+    ),
+    ErrorDescription(
+      'This happens if an ancestor of the boxy (e.g. Wrap) requires a '
+      'dry layout, but your size also depends on an inflated widget.',
+    ),
+    ErrorDescription(
+      'If your boxy\'s size does not depend on the size of this widget you '
+      'can skip the call to `inflate` when `isDryLayout` is true',
+    ),
+  ]);
 }
 
 /// A delegate that controls the layout of multiple children.
@@ -1126,7 +1182,7 @@ abstract class BoxyDelegate<T extends Object> {
     return child;
   }
 
-  /// Gets the current build context of the boxy.
+  /// Gets the current build context of this boxy.
   BuildContext get buildContext => _getContext().render._element;
 
   /// The number of children that have not been given a [LayoutId], this
@@ -1134,8 +1190,11 @@ abstract class BoxyDelegate<T extends Object> {
   /// (exclusive).
   int get indexedChildCount => _getContext().indexedChildCount;
 
-  /// The most recent constraints of the current layout.
-  BoxConstraints get constraints => _getContext().render.constraints;
+  /// The most recent constraints given to this boxy during layout.
+  BoxConstraints get constraints {
+    final context = _getContext();
+    return context._dryConstraints ?? _context.render.constraints;
+  }
 
   /// The current canvas, should only be accessed from paint methods.
   Canvas get canvas {
@@ -1252,7 +1311,11 @@ abstract class BoxyDelegate<T extends Object> {
   /// from children inflated during the previous layout.
   BoxyChild inflate(Widget widget, {Object id}) {
     assert(() {
-      if (_context == null || _context.inflater == null) {
+      if (_context.debugState == _BoxyDelegateState.DryLayout) {
+        final error = _CannotInflateError(this);
+        render.debugCannotComputeDryLayout(error: error);
+        throw error;
+      } else if (_context == null || _context.inflater == null) {
         throw FlutterError(
           'The $this boxy attempted to inflate a widget outside of the layout method.\n'
           'You should only call `inflate` from its overriden methods.'
@@ -1287,17 +1350,26 @@ abstract class BoxyDelegate<T extends Object> {
     return child;
   }
 
+  /// Whether or not this boxy is performing a dry layout.
+  bool get isDryLayout => _context.debugState == _BoxyDelegateState.DryLayout;
+
   /// Override this method to lay out children and return the final size of the
   /// boxy.
   ///
-  /// This method must call [BoxyChild.layout] for each child. It should also
-  /// specify the final position of each child with [BoxyChild.position].
+  /// This method must call [BoxyChild.layout] exactly once for each child. It
+  /// should also specify the final position of each child with
+  /// [BoxyChild.position].
   ///
-  /// Unlike [MultiChildLayoutDelegate] the output size can depend on both the
-  /// child layout and incoming [constraints].
+  /// Unlike [MultiChildLayoutDelegate] the resulting size can depend on both
+  /// child layouts and incoming [constraints].
   ///
   /// The default behavior is to pass incoming constraints to children and size
   /// to the largest dimensions, or the smallest size if there are no children.
+  ///
+  /// During a dry layout this method is called like normal, but calling methods
+  /// such as [BoxyChild.position] and [BoxyChild.layout] no longer not affect
+  /// their actual orientation. Additionally, the [inflate] method will throw
+  /// an exception if called during a dry layout.
   Size layout() {
     Size biggest = constraints.smallest;
     for (final child in children) {

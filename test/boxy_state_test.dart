@@ -52,13 +52,13 @@ class StateTestDelegate extends BoxyDelegate {
       minHeight: 0.0, maxHeight: double.infinity,
     );
 
-    expect(children, hasLength(numChildren));
+    assert(children.length == numChildren);
 
     for (final id in inflatedNames) inflate(
       StateTestChild(key: GlobalObjectKey(id)), id: id,
     );
 
-    expect(children, hasLength(numChildren + inflatedNames.length));
+    assert(children.length == numChildren + inflatedNames.length);
 
     for (final child in children) {
       final size = child.layout(childConstraints);
