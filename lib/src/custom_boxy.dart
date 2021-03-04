@@ -97,7 +97,7 @@ class _RenderBoxyElement extends RenderObjectElement {
   List<Element> _children;
 
   // Elements of widgets inflated at layout time, this is separate from
-  // _children so we can leverage the performance of _updateChildren without
+  // _children so we can leverage the performance of updateChildren without
   // touching ones inflated by the delegate.
   LinkedList<_RenderBoxyElementEntry> _delegateChildren;
 
@@ -280,137 +280,12 @@ class _RenderBoxyElement extends RenderObjectElement {
     renderObject._element = this;
   }
 
-  /// Copy of [RenderObjectElement.updateChildren].
-  ///
-  /// A breaking change was made in Flutter v1.15.19 which changed slots from
-  /// Element to IndexedSlot<Element>, so to keep compatibility with old
-  /// versions we backport the algorithm.
-  List<Element> _updateChildren(
-    List<Element> oldChildren,
-    List<Widget> newWidgets, {
-    Set<Element> forgottenChildren,
-  }) {
-    assert(oldChildren != null);
-    assert(newWidgets != null);
-
-    Element replaceWithNullIfForgotten(Element child) {
-      return forgottenChildren != null && forgottenChildren.contains(child) ? null : child;
-    }
-
-    int newChildrenTop = 0;
-    int oldChildrenTop = 0;
-    int newChildrenBottom = newWidgets.length - 1;
-    int oldChildrenBottom = oldChildren.length - 1;
-
-    final List<Element> newChildren = oldChildren.length == newWidgets.length ?
-    oldChildren : List<Element>.filled(newWidgets.length, null);
-
-    Element previousChild;
-
-    // Update the top of the list.
-    while ((oldChildrenTop <= oldChildrenBottom) && (newChildrenTop <= newChildrenBottom)) {
-      final Element oldChild = replaceWithNullIfForgotten(oldChildren[oldChildrenTop]);
-      final Widget newWidget = newWidgets[newChildrenTop];
-      if (oldChild == null || !Widget.canUpdate(oldChild.widget, newWidget))
-        break;
-      final Element newChild = updateChild(oldChild, newWidget, IndexedSlot<Element>(newChildrenTop, previousChild));
-      newChildren[newChildrenTop] = newChild;
-      previousChild = newChild;
-      newChildrenTop += 1;
-      oldChildrenTop += 1;
-    }
-
-    // Scan the bottom of the list.
-    while ((oldChildrenTop <= oldChildrenBottom) && (newChildrenTop <= newChildrenBottom)) {
-      final Element oldChild = replaceWithNullIfForgotten(oldChildren[oldChildrenBottom]);
-      final Widget newWidget = newWidgets[newChildrenBottom];
-      if (oldChild == null || !Widget.canUpdate(oldChild.widget, newWidget))
-        break;
-      oldChildrenBottom -= 1;
-      newChildrenBottom -= 1;
-    }
-
-    // Scan the old children in the middle of the list.
-    final bool haveOldChildren = oldChildrenTop <= oldChildrenBottom;
-    Map<Key, Element> oldKeyedChildren;
-    if (haveOldChildren) {
-      oldKeyedChildren = <Key, Element>{};
-      while (oldChildrenTop <= oldChildrenBottom) {
-        final Element oldChild = replaceWithNullIfForgotten(oldChildren[oldChildrenTop]);
-        if (oldChild != null) {
-          if (oldChild.widget.key != null)
-            oldKeyedChildren[oldChild.widget.key] = oldChild;
-          else
-            deactivateChild(oldChild);
-        }
-        oldChildrenTop += 1;
-      }
-    }
-
-    // Update the middle of the list.
-    while (newChildrenTop <= newChildrenBottom) {
-      Element oldChild;
-      final Widget newWidget = newWidgets[newChildrenTop];
-      if (haveOldChildren) {
-        final Key key = newWidget.key;
-        if (key != null) {
-          oldChild = oldKeyedChildren[key];
-          if (oldChild != null) {
-            if (Widget.canUpdate(oldChild.widget, newWidget)) {
-              // we found a match!
-              // remove it from oldKeyedChildren so we don't unsync it later
-              oldKeyedChildren.remove(key);
-            } else {
-              // Not a match, let's pretend we didn't see it for now.
-              oldChild = null;
-            }
-          }
-        }
-      }
-      assert(oldChild == null || Widget.canUpdate(oldChild.widget, newWidget));
-      final Element newChild = updateChild(oldChild, newWidget, IndexedSlot<Element>(newChildrenTop, previousChild));
-      newChildren[newChildrenTop] = newChild;
-      previousChild = newChild;
-      newChildrenTop += 1;
-    }
-
-    // We've scanned the whole list.
-    assert(oldChildrenTop == oldChildrenBottom + 1);
-    assert(newChildrenTop == newChildrenBottom + 1);
-    assert(newWidgets.length - newChildrenTop == oldChildren.length - oldChildrenTop);
-    newChildrenBottom = newWidgets.length - 1;
-    oldChildrenBottom = oldChildren.length - 1;
-
-    // Update the bottom of the list.
-    while ((oldChildrenTop <= oldChildrenBottom) && (newChildrenTop <= newChildrenBottom)) {
-      final Element oldChild = oldChildren[oldChildrenTop];
-      assert(replaceWithNullIfForgotten(oldChild) != null);
-      final Widget newWidget = newWidgets[newChildrenTop];
-      assert(Widget.canUpdate(oldChild.widget, newWidget));
-      final Element newChild = updateChild(oldChild, newWidget, IndexedSlot<Element>(newChildrenTop, previousChild));
-      newChildren[newChildrenTop] = newChild;
-      previousChild = newChild;
-      newChildrenTop += 1;
-      oldChildrenTop += 1;
-    }
-
-    // Clean up any of the remaining middle nodes from the old list.
-    if (haveOldChildren && oldKeyedChildren.isNotEmpty) {
-      for (final Element oldChild in oldKeyedChildren.values) {
-        if (forgottenChildren == null || !forgottenChildren.contains(oldChild))
-          deactivateChild(oldChild);
-      }
-    }
-
-    return newChildren;
-  }
-
   @override
   void update(CustomBoxy newWidget) {
     super.update(newWidget);
     assert(widget == newWidget);
 
-    _children = _updateChildren(_children, widget.children, forgottenChildren: _forgottenChildren);
+    _children = updateChildren(_children, widget.children, forgottenChildren: _forgottenChildren);
     _forgottenChildren.clear();
 
     if (_delegateChildren.isNotEmpty) {
