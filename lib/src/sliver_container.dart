@@ -194,12 +194,18 @@ class RenderSliverContainer extends RenderSliver with RenderSliverHelpers {
     if (newClipper == null || oldClipper == null ||
       newClipper.runtimeType != oldClipper.runtimeType ||
       newClipper.shouldReclip(oldClipper)) _markNeedsClip();
+
+    if (attached) {
+      oldClipper?.removeListener(_markNeedsClip);
+      newClipper?.addListener(_markNeedsClip);
+    }
   }
 
   @override
   void attach(PipelineOwner owner) {
     super.attach(owner);
     if (foreground != null) foreground.attach(owner);
+    _clipper?.addListener(_markNeedsClip);
   }
 
   @override
@@ -208,6 +214,7 @@ class RenderSliverContainer extends RenderSliver with RenderSliverHelpers {
     if (foreground != null) foreground.detach();
     if (sliver != null) sliver.detach();
     if (background != null) background.detach();
+    _clipper?.removeListener(_markNeedsClip);
   }
 
   @override
