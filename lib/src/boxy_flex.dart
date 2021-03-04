@@ -301,6 +301,10 @@ class BoxyFlexParentData extends FlexParentData {
 /// [BoxyFlex] flexes.
 ///
 /// This is the same as [Flexible] but has a [dominant] flag.
+///
+/// See also:
+///
+///   * [Dominant], a convenient wrapper around this widget.
 class BoxyFlexible extends ParentDataWidget<FlexParentData> {
   /// Creates a widget that controls how a child of a [Row], [Column], or [Flex]
   /// flexes.
@@ -374,18 +378,52 @@ class BoxyFlexible extends ParentDataWidget<FlexParentData> {
   }
 }
 
-/// A widget that causes its child to determine the maximum cross axis size of
-/// every other child in a [BoxyRow], [BoxyColumn], or [BoxyFlex].
+/// A widget that causes its own cross axis size to determine the cross axis
+/// size of every other child in a [BoxyRow], [BoxyColumn], or [BoxyFlex].
 class Dominant extends BoxyFlexible {
   /// Creates a widget that expands a child of a [Row], [Column], or [Flex]
   /// so that the child fills the available space along the flex widget's
   /// main axis.
+  ///
+  /// This is equivalent to `BoxyFlexible(flex: 0, dominant: true, child: ...)`.
   const Dominant({
     Key key,
     @required Widget child,
   }) : super(
     key: key,
     flex: 0,
+    dominant: true,
+    child: child,
+  );
+
+  /// Same as the default constructor, but expands the child on the main axis
+  /// similar to Flexible.
+  ///
+  /// This is equivalent to `BoxyFlexible(flex: 0, dominant: true, child: ...)`.
+  const Dominant.flexible({
+    Key key,
+    int flex = 1,
+    @required Widget child,
+  }) : super(
+    key: key,
+    flex: flex,
+    dominant: true,
+    child: child,
+  );
+
+  /// Same as the default constructor, but expands the child on the main axis
+  /// similar to Expanded.
+  ///
+  /// This is equivalent to
+  /// `BoxyFlexible(flex: 1, dominant: true, fit: FlexFit.tight, child: ...)`.
+  const Dominant.expanded({
+    Key key,
+    int flex = 1,
+    @required Widget child,
+  }) : super(
+    key: key,
+    flex: flex,
+    fit: FlexFit.tight,
     dominant: true,
     child: child,
   );
