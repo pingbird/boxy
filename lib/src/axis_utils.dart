@@ -10,7 +10,6 @@ extension BoxConstraintsAxisUtil on BoxConstraints {
     double minMain = 0.0,
     double maxMain = double.infinity,
   }) {
-    assert(axis != null);
     return axis == Axis.vertical ?
       BoxConstraints(
         minWidth: minCross,
@@ -31,10 +30,9 @@ extension BoxConstraintsAxisUtil on BoxConstraints {
   /// If [cross] or [main] is given, the constraints will require exactly the
   /// given value in the given dimension.
   static BoxConstraints expand(Axis axis, {
-    double cross,
-    double main,
+    double? cross,
+    double? main,
   }) {
-    assert(axis != null);
     return axis == Axis.vertical ?
       BoxConstraints.expand(width: cross, height: main) :
       BoxConstraints.expand(width: main, height: cross);
@@ -47,10 +45,9 @@ extension BoxConstraintsAxisUtil on BoxConstraints {
   ///  * [axisTightForFinite], which is similar but instead of being tight if
   ///    the value is non-null, is tight if the value is not infinite.
   static BoxConstraints tightFor(Axis axis, {
-    double cross,
-    double main,
+    double? cross,
+    double? main,
   }) {
-    assert(axis != null);
     return axis == Axis.vertical ?
       BoxConstraints.tightFor(width: cross, height: main) :
       BoxConstraints.tightFor(width: main, height: cross);
@@ -67,7 +64,6 @@ extension BoxConstraintsAxisUtil on BoxConstraints {
     double cross = double.infinity,
     double main = double.infinity,
   }) {
-    assert(axis != null);
     return axis == Axis.vertical ?
       BoxConstraints.tightForFinite(width: cross, height: main) :
       BoxConstraints.tightForFinite(width: main, height: cross);
@@ -76,39 +72,33 @@ extension BoxConstraintsAxisUtil on BoxConstraints {
   /// Whether there is exactly one value that satisfies the constraints on the
   /// given axis.
   bool hasTightAxis(Axis axis) {
-    assert(axis != null);
     return axis == Axis.vertical ? hasTightHeight : hasTightWidth;
   }
 
   /// Whether there is exactly one value that satisfies the constraints crossing
   /// the given axis.
   bool hasTightCrossAxis(Axis axis) {
-    assert(axis != null);
     return axis == Axis.vertical ? hasTightWidth : hasTightHeight;
   }
 
   /// Whether there is an upper bound on the maximum extent of the given axis.
   bool hasBoundedAxis(Axis axis) {
-    assert(axis != null);
     return axis == Axis.vertical ? hasBoundedHeight : hasBoundedWidth;
   }
 
   /// Whether there is an upper bound on the maximum extent crossing the given
   /// axis.
   bool hasBoundedCrossAxis(Axis axis) {
-    assert(axis != null);
     return axis == Axis.vertical ? hasBoundedWidth : hasBoundedHeight;
   }
 
   /// Whether the constraint for the given axis is infinite.
   bool hasInfiniteAxis(Axis axis) {
-    assert(axis != null);
     return axis == Axis.vertical ? hasInfiniteHeight : hasInfiniteWidth;
   }
 
   /// Whether the constraint crossing the given axis is infinite.
   bool hasInfiniteCrossAxis(Axis axis) {
-    assert(axis != null);
     return axis == Axis.vertical ? hasInfiniteWidth : hasInfiniteHeight;
   }
 
@@ -116,13 +106,11 @@ extension BoxConstraintsAxisUtil on BoxConstraints {
   ///
   /// Might be [double.infinity].
   double maxAxis(Axis axis) {
-    assert(axis != null);
     return axis == Axis.vertical ? maxHeight : maxWidth;
   }
 
   /// The minimum value that satisfies the constraints on the given axis.
   double minAxis(Axis axis) {
-    assert(axis != null);
     return axis == Axis.vertical ? minHeight : minWidth;
   }
 
@@ -130,19 +118,16 @@ extension BoxConstraintsAxisUtil on BoxConstraints {
   ///
   /// Might be [double.infinity].
   double maxCrossAxis(Axis axis) {
-    assert(axis != null);
     return axis == Axis.vertical ? maxWidth : maxHeight;
   }
 
   /// The minimum value that satisfies the constraints crossing the given axis.
   double minCrossAxis(Axis axis) {
-    assert(axis != null);
     return axis == Axis.vertical ? minWidth : minHeight;
   }
 
   /// Returns new box constraints with a tight main and/or cross axes.
-  BoxConstraints tightenAxis(Axis axis, {double cross, double main}) {
-    assert(axis != null);
+  BoxConstraints tightenAxis(Axis axis, {double? cross, double? main}) {
     return axis == Axis.vertical ?
       tighten(width: cross, height: main) :
       tighten(width: main, height: cross);
@@ -154,7 +139,6 @@ extension BoxConstraintsAxisUtil on BoxConstraints {
   /// When you already have a [Size], prefer [constrain], which applies the same
   /// algorithm to a [Size] directly.
   Size constrainAxisDimensions(Axis axis, double cross, double main) {
-    assert(axis != null);
     return axis == Axis.vertical ?
       constrainDimensions(cross, main) :
       constrainDimensions(main, cross);
@@ -163,7 +147,6 @@ extension BoxConstraintsAxisUtil on BoxConstraints {
   /// Returns the value that both satisfies the constraints and is as close as
   /// possible to the given extent on [axis].
   double constrainAxis(Axis axis, [double extent = double.infinity]) {
-    assert(axis != null);
     return axis == Axis.vertical ?
       constrainHeight(extent) :
       constrainWidth(extent);
@@ -172,7 +155,6 @@ extension BoxConstraintsAxisUtil on BoxConstraints {
   /// Returns the value that both satisfies the constraints and is as close as
   /// possible to the given extent crossing [axis].
   double constrainCrossAxis(Axis axis, [double extent = double.infinity]) {
-    assert(axis != null);
     return axis == Axis.vertical ?
       constrainWidth(extent) :
       constrainHeight(extent);
@@ -181,12 +163,11 @@ extension BoxConstraintsAxisUtil on BoxConstraints {
   /// Creates a copy of this box constraints but with the given fields replaced
   /// with the new values.
   BoxConstraints copyWithAxis(Axis axis, {
-    double minCross,
-    double maxCross,
-    double minMain,
-    double maxMain,
+    double? minCross,
+    double? maxCross,
+    double? minMain,
+    double? maxMain,
   }) {
-    assert(axis != null);
     return axis == Axis.vertical ?
       copyWith(
         minWidth: minCross,
@@ -205,7 +186,6 @@ extension BoxConstraintsAxisUtil on BoxConstraints {
   /// Returns box constraints with the same [axis] constraints but with
   /// an unconstrained cross axis.
   BoxConstraints axisConstraints(Axis axis) {
-    assert(axis != null);
     return axis == Axis.vertical ?
     heightConstraints() : widthConstraints();
   }
@@ -213,7 +193,6 @@ extension BoxConstraintsAxisUtil on BoxConstraints {
   /// Returns box constraints with the same cross axis constraints but with
   /// an unconstrained main axis.
   BoxConstraints crossAxisConstraints(Axis axis) {
-    assert(axis != null);
     return axis == Axis.vertical ?
       widthConstraints() : heightConstraints();
   }
@@ -293,7 +272,6 @@ extension RenderBoxAxisUtil on RenderBox {
   /// Returns the minimum extent on [axis] that this box could be without
   /// failing to correctly paint its contents within itself, without clipping.
   double getMinIntrinsicAxis(Axis axis, double cross) {
-    assert(axis != null);
     return axis == Axis.vertical ?
       getMinIntrinsicHeight(cross) :
       getMinIntrinsicWidth(cross);
@@ -302,7 +280,6 @@ extension RenderBoxAxisUtil on RenderBox {
   /// Returns the minimum extent crossing [axis] that this box could be without
   /// failing to correctly paint its contents within itself, without clipping.
   double getMinIntrinsicCrossAxis(Axis axis, double main) {
-    assert(axis != null);
     return axis == Axis.vertical ?
       getMinIntrinsicWidth(main) :
       getMinIntrinsicHeight(main);
@@ -313,7 +290,6 @@ extension RenderBoxAxisUtil on RenderBox {
   /// the value that would be returned by [getMinIntrinsicCrossAxis] for that
   /// main extent.
   double getMaxIntrinsicAxis(Axis axis, double cross) {
-    assert(axis != null);
     return axis == Axis.vertical ?
       getMaxIntrinsicHeight(cross) :
       getMaxIntrinsicWidth(cross);
@@ -324,7 +300,6 @@ extension RenderBoxAxisUtil on RenderBox {
   /// extent is the value that would be returned by [getMinIntrinsicAxis] for
   /// that cross extent.
   double getMaxIntrinsicCrossAxis(Axis axis, double main) {
-    assert(axis != null);
     return axis == Axis.vertical ?
       getMaxIntrinsicWidth(main) :
       getMaxIntrinsicHeight(main);
@@ -335,7 +310,6 @@ extension RenderBoxAxisUtil on RenderBox {
 extension OffsetAxisUtil on Offset {
   /// Creates an offset with the specified [cross] and [main] components.
   static Offset create(Axis axis, double cross, double main) {
-    assert(axis != null);
     return axis == Axis.vertical ?
       Offset(cross, main) :
       Offset(main, cross);
@@ -344,7 +318,6 @@ extension OffsetAxisUtil on Offset {
   /// Creates an offset where [main] is the extent on [direction] and [cross]
   /// is the extent counter-clockwise to [direction].
   static Offset direction(AxisDirection direction, double cross, double main) {
-    assert(direction != null);
     if (direction == AxisDirection.up) return Offset(cross, -main);
     else if (direction == AxisDirection.right) return Offset(main, -cross);
     else if (direction == AxisDirection.down) return Offset(cross, main);
@@ -353,19 +326,16 @@ extension OffsetAxisUtil on Offset {
 
   /// Gets the component of this offset on [axis].
   double axisOffset(Axis axis) {
-    assert(axis != null);
     return axis == Axis.vertical ? dy : dx;
   }
 
   /// Gets the component of this offset crossing [axis].
   double crossAxisOffset(Axis axis) {
-    assert(axis != null);
     return axis == Axis.vertical ? dx : dy;
   }
 
   /// Returns the extent towards [direction].
   double directionExtent(AxisDirection direction) {
-    assert(direction != null);
     if (direction == AxisDirection.up) return -dy;
     else if (direction == AxisDirection.right) return dx;
     else if (direction == AxisDirection.down) return dy;
@@ -377,7 +347,6 @@ extension OffsetAxisUtil on Offset {
 extension SizeAxisUtil on Size {
   /// Creates a [Size] with the given [cross] and [main] extents.
   static Size create(Axis axis, double cross, double main) {
-    assert(axis != null);
     return axis == Axis.vertical ?
       Size(cross, main) :
       Size(main, cross);
@@ -386,7 +355,6 @@ extension SizeAxisUtil on Size {
   /// Creates a [Size] with the given main axis [extent] and an infinite cross
   /// axis extent.
   static Size from(Axis axis, double extent) {
-    assert(axis != null);
     return axis == Axis.vertical ?
       Size(double.infinity, extent) :
       Size(extent, double.infinity);
@@ -395,7 +363,6 @@ extension SizeAxisUtil on Size {
   /// Creates a [Size] with the given cross axis [extent] and an infinite main
   /// axis extent.
   static Size crossFrom(Axis axis, double extent) {
-    assert(axis != null);
     return axis == Axis.vertical ?
       Size(extent, double.infinity) :
       Size(double.infinity, extent);
@@ -403,13 +370,11 @@ extension SizeAxisUtil on Size {
 
   /// Gets the extent of this size on the given axis.
   double axisSize(Axis axis) {
-    assert(axis != null);
     return axis == Axis.vertical ? height : width;
   }
 
   /// Gets the extent of this size crossing the given axis.
   double crossAxisSize(Axis axis) {
-    assert(axis != null);
     return axis == Axis.vertical ? width : height;
   }
 }
@@ -418,10 +383,9 @@ extension SizeAxisUtil on Size {
 extension EdgeInsetsAxisUtil on EdgeInsets {
   /// Creates edge insets given the begin and end extents on the given axis.
   static EdgeInsets create(Axis axis, {
-    double mainBegin, double mainEnd,
-    double crossBegin, double crossEnd,
+    double mainBegin = 0.0, double mainEnd = 0.0,
+    double crossBegin = 0.0, double crossEnd = 0.0,
   }) {
-    assert(axis != null);
     if (axis == Axis.vertical) {
       return EdgeInsets.only(
         top: mainBegin,
@@ -443,7 +407,6 @@ extension EdgeInsetsAxisUtil on EdgeInsets {
   static EdgeInsets symmetric(Axis axis, {
     double main = 0.0, double cross = 0.0,
   }) {
-    assert(axis != null);
     if (axis == Axis.vertical) {
       return EdgeInsets.symmetric(
         vertical: main,
@@ -462,7 +425,6 @@ extension EdgeInsetsAxisUtil on EdgeInsets {
     double mainBegin = 0.0, double mainEnd = 0.0,
     double crossBegin = 0.0, double crossEnd = 0.0,
   }) {
-    assert(direction != null);
     if (direction == AxisDirection.up) {
       return EdgeInsets.only(
         bottom: mainBegin,
@@ -496,7 +458,6 @@ extension EdgeInsetsAxisUtil on EdgeInsets {
 
   /// Gets the extent of the inset facing [direction].
   double directionExtent(AxisDirection direction) {
-    assert(direction != null);
     if (direction == AxisDirection.up) return top;
     else if (direction == AxisDirection.right) return right;
     else if (direction == AxisDirection.down) return bottom;
@@ -513,11 +474,11 @@ class AxisSizedBox extends SizedBox {
   /// to indicate that the size of the box should not be constrained in
   /// the corresponding dimension.
   const AxisSizedBox({
-    Key key,
-    @required Axis axis,
-    double cross,
-    double main,
-  }) : assert(axis != null), super(
+    Key? key,
+    required Axis axis,
+    double? cross,
+    double? main,
+  }) : super(
     key: key,
     width: axis == Axis.vertical ? cross : main,
     height: axis == Axis.vertical ? main : cross,

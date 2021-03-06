@@ -1,3 +1,5 @@
+// @dart=2.9
+
 import 'dart:collection';
 import 'dart:math';
 
@@ -36,7 +38,7 @@ class CustomBoxy extends RenderObjectWidget {
   CustomBoxy({
     Key key,
     @required this.delegate,
-    this.children = const <Widget>[],
+    this.children = const <Widget/*!*/>[],
   }) : assert(delegate != null),
     assert(children != null),
     assert(() {
@@ -52,7 +54,7 @@ class CustomBoxy extends RenderObjectWidget {
     super(key: key);
 
   /// The list of children this boxy is a parent of.
-  final List<Widget> children;
+  final List<Widget/*!*/> children;
 
   /// The delegate that controls the layout of the children.
   final BoxyDelegate delegate;
@@ -74,10 +76,10 @@ class CustomBoxy extends RenderObjectWidget {
 class _RenderBoxyElementEntry extends LinkedListEntry<_RenderBoxyElementEntry> {
   _RenderBoxyElementEntry(this.id, this.element);
   final Object id;
-  Element element;
+  Element/*!*/ element;
 }
 
-typedef _RenderBoxyInflater = RenderBox Function(Object, Widget);
+typedef _RenderBoxyInflater = RenderBox/*!*/ Function(Object, Widget/*!*/);
 
 /// An Element that uses a [CustomBoxy] as its configuration, this is similar to
 /// [MultiChildRenderObjectElement] but allows multiple children to be inflated
@@ -94,15 +96,15 @@ class _RenderBoxyElement extends RenderObjectElement {
   _RenderBoxy get renderObject => super.renderObject as _RenderBoxy;
 
   // Elements of children explicitly passed to the widget.
-  List<Element> _children;
+  List<Element/*!*/>/*!*/ _children;
 
   // Elements of widgets inflated at layout time, this is separate from
   // _children so we can leverage the performance of updateChildren without
   // touching ones inflated by the delegate.
-  LinkedList<_RenderBoxyElementEntry> _delegateChildren;
+  final _delegateChildren = LinkedList<_RenderBoxyElementEntry/*!*/>();
 
   // Hash map of each entry in _delegateChildren
-  Map<Object, _RenderBoxyElementEntry> _delegateCache;
+  final _delegateCache = HashMap<Object, _RenderBoxyElementEntry>();
 
   void wrapInflaterCallback(void Function(_RenderBoxyInflater) callback) {
     assert(_delegateCache != null && _delegateChildren != null);
@@ -114,7 +116,7 @@ class _RenderBoxyElement extends RenderObjectElement {
     int index = 0;
     _RenderBoxyElementEntry lastEntry;
 
-    RenderBox inflateChild(Object id, Widget widget) {
+    RenderBox/*!*/ inflateChild(Object id, Widget/*!*/ widget) {
       final slotIndex = index++;
 
       inflatedIds.add(id);
@@ -126,12 +128,13 @@ class _RenderBoxyElement extends RenderObjectElement {
           slotIndex, lastEntry == null ?
             (_children.isEmpty ? null : _children.last) : lastEntry.element,
         );
-        entry = _RenderBoxyElementEntry(id, updateChild(null, widget, newSlot));
-        _delegateCache[id] = entry;
+        final newEntry = _RenderBoxyElementEntry(id, updateChild(null, widget, newSlot));
+        entry = newEntry;
+        _delegateCache[id] = newEntry;
         if (lastEntry == null) {
-          _delegateChildren.addFirst(entry);
+          _delegateChildren.addFirst(newEntry);
         } else {
-          lastEntry.insertAfter(entry);
+          lastEntry.insertAfter(newEntry);
         }
       }
 
@@ -208,7 +211,7 @@ class _RenderBoxyElement extends RenderObjectElement {
   final Set<Element> _forgottenChildren = HashSet<Element>();
 
   @override
-  void insertRenderObjectChild(RenderBox child, IndexedSlot<Element> slot) {
+  void insertRenderObjectChild(RenderBox child, IndexedSlot<Element/*?*/> slot) {
     final renderObject = this.renderObject;
     assert(renderObject.debugValidateChild(child));
     renderObject.insert(child, after: slot?.value?.renderObject as RenderBox);
@@ -216,7 +219,7 @@ class _RenderBoxyElement extends RenderObjectElement {
   }
 
   @override
-  void moveRenderObjectChild(RenderBox child, IndexedSlot<Element> oldSlot, IndexedSlot<Element> slot) {
+  void moveRenderObjectChild(RenderBox child, IndexedSlot<Element/*?*/> oldSlot, IndexedSlot<Element> slot) {
     final renderObject = this.renderObject;
     assert(child.parent == renderObject);
     renderObject.move(child, after: slot?.value?.renderObject as RenderBox);
@@ -224,7 +227,7 @@ class _RenderBoxyElement extends RenderObjectElement {
   }
 
   @override
-  void removeRenderObjectChild(RenderBox child, IndexedSlot<Element> slot) {
+  void removeRenderObjectChild(RenderBox child, IndexedSlot<Element/*?*/> slot) {
     final renderObject = this.renderObject;
     assert(child.parent == renderObject);
     renderObject.remove(child);
@@ -275,9 +278,15 @@ class _RenderBoxyElement extends RenderObjectElement {
       previousChild = newChild;
     }
 
-    _delegateChildren = LinkedList();
-    _delegateCache = HashMap();
     renderObject._element = this;
+  }
+
+  @override
+  void unmount() {
+    _delegateChildren.clear();
+    _delegateCache.clear();
+    _children = null;
+    super.unmount();
   }
 
   @override
@@ -317,7 +326,7 @@ class _RenderBoxy extends RenderBox with
   BoxyDelegate get delegate => _delegate;
   final _delegateContext = _BoxyDelegateContext();
 
-  _RenderBoxyElement _element;
+  _RenderBoxyElement/*!*/ _element;
 
   void flushInflateQueue() {
     _element.owner.buildScope(_element, () {
