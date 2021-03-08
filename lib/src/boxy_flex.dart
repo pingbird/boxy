@@ -295,6 +295,7 @@ class BoxyFlexParentData extends FlexParentData {
   /// other child.
   bool dominant;
 
+  // Temporary child size used in _computeSizes
   Size _tempSize;
 
   @override
@@ -692,11 +693,24 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
     }
   }
 
+  bool get _canComputeIntrinsics => crossAxisAlignment != CrossAxisAlignment.baseline;
+
   double _getIntrinsicSize({
     Axis sizingDirection,
     double extent, // the extent in the direction that isn't the sizing direction
     _ChildSizingFunction childSize, // a method to find the size in the sizing direction
   }) {
+    if (!_canComputeIntrinsics) {
+      // Intrinsics cannot be calculated without a full layout for
+      // baseline alignment. Throw an assertion and return 0.0 as documented
+      // on [RenderBox.computeMinIntrinsicWidth].
+      assert(
+      RenderObject.debugCheckingIntrinsics,
+      'Intrinsics are not available for CrossAxisAlignment.baseline.'
+      );
+      return 0.0;
+    }
+
     if (_direction == sizingDirection) {
       // INTRINSIC MAIN SIZE
       // Intrinsic main size is the smallest size the flex container can take
@@ -848,6 +862,129 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
     return childParentData.dominant ?? false;
   }
 
+  FlutterError _debugCheckConstraints({@required BoxConstraints constraints, @required bool reportParentConstraints}) {
+    FlutterError result;
+    assert(() {
+      final double maxMainSize = _direction == Axis.horizontal ? constraints.maxWidth : constraints.maxHeight;
+      final bool canFlex = maxMainSize < double.infinity;
+      RenderBox child = firstChild;
+      while (child != null) {
+        final int flex = _getFlex(child);
+        if (flex > 0) {
+          final String identity = _direction == Axis.horizontal ? 'row' : 'column';
+          final String axis = _direction == Axis.horizontal ? 'horizontal' : 'vertical';
+          final String dimension = _direction == Axis.horizontal ? 'width' : 'height';
+          DiagnosticsNode error, message;
+          final List<DiagnosticsNode> addendum = <DiagnosticsNode>[];
+          if (!canFlex && (mainAxisSize == MainAxisSize.max || _getFit(child) == FlexFit.tight)) {
+            error = ErrorSummary('RenderBoxyFlex children have non-zero flex but incoming $dimension constraints are unbounded.');
+            message = ErrorDescription(
+              'When a $identity is in a parent that does not provide a finite $dimension constraint, for example '
+              'if it is in a $axis scrollable, it will try to shrink-wrap its children along the $axis '
+              'axis. Setting a flex on a child (e.g. using Expanded) indicates that the child is to '
+              'expand to fill the remaining space in the $axis direction.'
+            );
+            if (reportParentConstraints) { // Constraints of parents are unavailable in dry layout.
+              RenderBox node = this;
+              switch (_direction) {
+                case Axis.horizontal:
+                  while (!node.constraints.hasBoundedWidth && node.parent is RenderBox)
+                    node = node.parent as RenderBox;
+                  if (!node.constraints.hasBoundedWidth)
+                    node = null;
+                  break;
+                case Axis.vertical:
+                  while (!node.constraints.hasBoundedHeight && node.parent is RenderBox)
+                    node = node.parent as RenderBox;
+                  if (!node.constraints.hasBoundedHeight)
+                    node = null;
+                  break;
+              }
+              if (node != null) {
+                addendum.add(node.describeForError('The nearest ancestor providing an unbounded width constraint is'));
+              }
+            }
+            addendum.add(ErrorHint('See also: https://flutter.dev/layout/'));
+          } else {
+            return true;
+          }
+          result = FlutterError.fromParts(<DiagnosticsNode>[
+            error,
+            message,
+            ErrorDescription(
+              'These two directives are mutually exclusive. If a parent is to shrink-wrap its child, the child '
+              'cannot simultaneously expand to fit its parent.'
+            ),
+            ErrorHint(
+              'Consider setting mainAxisSize to MainAxisSize.min and using FlexFit.loose fits for the flexible '
+              'children (using Flexible rather than Expanded). This will allow the flexible children '
+              'to size themselves to less than the infinite remaining space they would otherwise be '
+              'forced to take, and then will cause the RenderBoxyFlex to shrink-wrap the children '
+              'rather than expanding to fit the maximum constraints provided by the parent.'
+            ),
+            ErrorDescription(
+              'If this message did not help you determine the problem, consider using debugDumpRenderTree():\n'
+              '  https://flutter.dev/debugging/#rendering-layer\n'
+              '  http://api.flutter.dev/flutter/rendering/debugDumpRenderTree.html'
+            ),
+            describeForError('The affected RenderBoxyFlex is', style: DiagnosticsTreeStyle.errorProperty),
+            DiagnosticsProperty<dynamic>('The creator information is set to', debugCreator, style: DiagnosticsTreeStyle.errorProperty),
+            ...addendum,
+            ErrorDescription(
+              "If none of the above helps enough to fix this problem, please don't hesitate to file a bug:\n"
+              '  https://github.com/flutter/flutter/issues/new?template=2_bug.md'
+            ),
+          ]);
+          return true;
+        }
+        child = childAfter(child);
+      }
+      return true;
+    }());
+    return result;
+  }
+
+  @override
+  Size computeDryLayout(BoxConstraints constraints) {
+    if (!_canComputeIntrinsics) {
+      assert(debugCannotComputeDryLayout(
+          reason: 'Dry layout cannot be computed for CrossAxisAlignment.baseline, which requires a full layout.'
+      ));
+      return Size.zero;
+    }
+    FlutterError constraintsError;
+    assert(() {
+      constraintsError = _debugCheckConstraints(
+        constraints: constraints,
+        reportParentConstraints: false,
+      );
+      return true;
+    }());
+    if (constraintsError != null) {
+      assert(debugCannotComputeDryLayout(error: constraintsError));
+      return Size.zero;
+    }
+
+    final _LayoutSizes sizes = _computeSizes(
+      layoutChild: (RenderBox child, BoxConstraints constraints) {
+        final size = child.getDryLayout(constraints);
+        final childParentData = child.parentData as BoxyFlexParentData;
+        childParentData._tempSize = child.size;
+        return size;
+      },
+      constraints: constraints,
+    );
+
+    switch (_direction) {
+      case Axis.horizontal:
+        return constraints.constrain(Size(sizes.mainSize, sizes.crossSize));
+      case Axis.vertical:
+        return constraints.constrain(Size(sizes.crossSize, sizes.mainSize));
+    }
+
+    return null;
+  }
+
   _LayoutSizes _computeSizes({
     @required BoxConstraints constraints,
     @required ChildLayouter layoutChild,
@@ -879,7 +1016,7 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
           DiagnosticsNode error, message;
           final List<DiagnosticsNode> addendum = <DiagnosticsNode>[];
           if (!canFlex && (mainAxisSize == MainAxisSize.max || _getFit(child) == FlexFit.tight)) {
-            error = ErrorSummary('RenderFlex children have non-zero flex but incoming $dimension constraints are unbounded.');
+            error = ErrorSummary('RenderBoxyFlex children have non-zero flex but incoming $dimension constraints are unbounded.');
             message = ErrorDescription(
               'When a $identity is in a parent that does not provide a finite $dimension constraint, for example '
               'if it is in a $axis scrollable, it will try to shrink-wrap its children along the $axis '
@@ -919,7 +1056,7 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
               'Consider setting mainAxisSize to MainAxisSize.min and using FlexFit.loose fits for the flexible '
               'children (using Flexible rather than Expanded). This will allow the flexible children '
               'to size themselves to less than the infinite remaining space they would otherwise be '
-              'forced to take, and then will cause the RenderFlex to shrink-wrap the children '
+              'forced to take, and then will cause the RenderBoxyFlex to shrink-wrap the children '
               'rather than expanding to fit the maximum constraints provided by the parent.'
             ),
             ErrorDescription(
@@ -927,7 +1064,7 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
               '  https://flutter.dev/debugging/#rendering-layer\n'
               '  http://api.flutter.dev/flutter/rendering/debugDumpRenderTree.html'
             ),
-            describeForError('The affected RenderFlex is', style: DiagnosticsTreeStyle.errorProperty),
+            describeForError('The affected RenderBoxyFlex is', style: DiagnosticsTreeStyle.errorProperty),
             DiagnosticsProperty<dynamic>('The creator information is set to', debugCreator, style: DiagnosticsTreeStyle.errorProperty),
             ...addendum,
             ErrorDescription(
@@ -1184,14 +1321,13 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
       }
       if (flipMainAxis)
         childMainPosition -= child.size.axisSize(_direction);
-      switch (_direction) {
-        case Axis.horizontal:
-          childParentData.offset = Offset(childMainPosition, childCrossPosition);
-          break;
-        case Axis.vertical:
-          childParentData.offset = Offset(childCrossPosition, childMainPosition);
-          break;
-      }
+
+      childParentData.offset = OffsetAxisUtil.create(
+        _direction,
+        childCrossPosition,
+        childMainPosition,
+      );
+
       if (flipMainAxis) {
         childMainPosition -= betweenSpace;
       } else {
