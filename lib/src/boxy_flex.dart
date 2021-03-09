@@ -309,7 +309,7 @@ class BoxyFlexParentData extends FlexParentData {
 ///
 /// See also:
 ///
-///   * [Dominant], a convenient wrapper around this widget.
+///  * [Dominant], a convenient wrapper around this widget.
 class BoxyFlexible extends ParentDataWidget<FlexParentData> {
   /// Creates a widget that controls how a child of a [Row], [Column], or [Flex]
   /// flexes.

@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 ///
 /// See also:
 ///
-///   [SliverContainer], the sliver this is based on.
+///  * [SliverContainer], the sliver this is based on.
 class SliverCard extends StatelessWidget {
   /// The color of this card.
   final Color color;
