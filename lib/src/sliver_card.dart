@@ -1,5 +1,3 @@
-// @dart=2.9
-
 import 'package:boxy/src/sliver_container.dart';
 import 'package:flutter/material.dart';
 
@@ -12,33 +10,33 @@ import 'package:flutter/material.dart';
 ///  * [SliverContainer], the sliver this is based on.
 class SliverCard extends StatelessWidget {
   /// The color of this card.
-  final Color color;
+  final Color? color;
 
   /// The color the cards shadow will cast.
-  final Color shadowColor;
+  final Color? shadowColor;
 
   /// The elevation of this card.
-  final double elevation;
+  final double? elevation;
 
   /// The shape of this card's material.
-  final ShapeBorder shape;
+  final ShapeBorder? shape;
 
   /// The clip behavior this child will apply to its child, defaults to none.
-  final Clip clipBehavior;
+  final Clip? clipBehavior;
 
   /// The padding to apply around the card.
-  final EdgeInsetsGeometry margin;
+  final EdgeInsetsGeometry? margin;
 
   /// The sliver child of this card.
-  final Widget sliver;
+  final Widget? sliver;
 
   /// How far the card will extend off-screen when parts of [sliver] are not
   /// visible, this should be at least the size of any border effects.
-  final double bufferExtent;
+  final double? bufferExtent;
 
   /// Creates a SliverCard.
   const SliverCard({
-    Key key,
+    Key? key,
     this.color,
     this.shadowColor,
     this.elevation,

@@ -1,11 +1,9 @@
-// @dart=2.9
-
 import 'dart:math';
 
+import 'package:boxy/utils.dart';
 import 'package:boxy/src/sliver_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:boxy/utils.dart';
 
 /// A sliver container that gives its sliver a foreground or background
 /// consisting of box widgets, this is useful if you want a sliver to look and
@@ -28,29 +26,29 @@ import 'package:boxy/utils.dart';
 ///   * [SliverCard], which gives the sliver a card look.
 class SliverContainer extends StatelessWidget {
   /// The child sliver that this container will wrap.
-  final Widget sliver;
+  final Widget? sliver;
 
   /// The child box widget that is layed out so that it covers the visual space
   /// of [sliver], and painted above it.
-  final Widget foreground;
+  final Widget? foreground;
 
   /// The child box widget that is layed out so that it covers the visual space
   /// of [sliver], and painted below it.
-  final Widget background;
+  final Widget? background;
 
   /// The amount of space [foreground] and [background] will extend off-screen
   /// in each direction if portions of [sliver] are out of view.
   final double bufferExtent;
 
   /// How much padding to apply to [sliver].
-  final EdgeInsetsGeometry padding;
+  final EdgeInsetsGeometry? padding;
 
   /// How much padding to apply to the container itself.
-  final EdgeInsetsGeometry margin;
+  final EdgeInsetsGeometry? margin;
 
   /// A custom clipper that defines the path to clip [sliver], [foreground], and
   /// [background.
-  final CustomClipper<Path> clipper;
+  final CustomClipper<Path>? clipper;
 
   /// The clip behavior of [clipper], defaults to none.
   final Clip clipBehavior;
@@ -60,17 +58,17 @@ class SliverContainer extends StatelessWidget {
 
   /// Constructs a SliverContainer with the specified arguments.
   SliverContainer({
-    Key key,
-    @required this.sliver,
+    Key? key,
+    required this.sliver,
     this.foreground,
     this.background,
     this.bufferExtent = 0.0,
     this.padding,
     this.margin,
-    CustomClipper<Path> clipper,
+    CustomClipper<Path>? clipper,
     this.clipBehavior = Clip.antiAlias,
     this.clipSliverOnly = false,
-    BorderRadiusGeometry borderRadius,
+    BorderRadiusGeometry? borderRadius,
   }) :
     assert(clipper == null || borderRadius == null, 'clipper cannot be used with borderRadius'),
     clipper = borderRadius != null ?
@@ -84,11 +82,11 @@ class SliverContainer extends StatelessWidget {
     if (padding != null) {
       current = SliverPadding(
         sliver: current,
-        padding: padding,
+        padding: padding!,
       );
     }
     current = _BaseSliverContainer(
-      sliver: current,
+      sliver: current!,
       foreground: foreground,
       background: background,
       bufferExtent: bufferExtent,
@@ -99,7 +97,7 @@ class SliverContainer extends StatelessWidget {
     if (margin != null) {
       current = SliverPadding(
         sliver: current,
-        padding: margin,
+        padding: margin!,
       );
     }
     return current;
@@ -108,16 +106,16 @@ class SliverContainer extends StatelessWidget {
 
 class _BaseSliverContainer extends RenderObjectWidget {
   final Widget sliver;
-  final Widget foreground;
-  final Widget background;
+  final Widget? foreground;
+  final Widget? background;
   final double bufferExtent;
-  final CustomClipper<Path> clipper;
+  final CustomClipper<Path>? clipper;
   final Clip clipBehavior;
   final bool clipSliverOnly;
 
   const _BaseSliverContainer({
-    Key key,
-    @required this.sliver,
+    Key? key,
+    required this.sliver,
     this.foreground,
     this.background,
     this.bufferExtent = 0.0,
@@ -125,9 +123,6 @@ class _BaseSliverContainer extends RenderObjectWidget {
     this.clipBehavior = Clip.antiAlias,
     this.clipSliverOnly = false,
   }) :
-    assert(sliver != null),
-    assert(bufferExtent != null),
-    assert(clipBehavior != null),
     super(key: key);
 
   @override
@@ -164,25 +159,24 @@ class RenderSliverContainer extends RenderSliver with RenderSliverHelpers {
     this.sliver,
     this.background,
     double bufferExtent = 0.0,
-    Clip clipBehavior,
-    CustomClipper<Path> clipper,
-    bool clipSliverOnly,
+    Clip clipBehavior = Clip.antiAlias,
+    CustomClipper<Path>? clipper,
+    bool clipSliverOnly = false,
   }) :
-    assert(bufferExtent != null),
     _clipBehavior = clipBehavior,
     _clipper = clipper,
     _bufferExtent = bufferExtent,
     _clipSliverOnly = clipSliverOnly {
-    if (foreground != null) adoptChild(foreground);
-    if (sliver != null) adoptChild(sliver);
-    if (background != null) adoptChild(background);
+    if (foreground != null) adoptChild(foreground!);
+    if (sliver != null) adoptChild(sliver!);
+    if (background != null) adoptChild(background!);
   }
 
   /// A custom clipper that defines the path to clip [sliver], [foreground], and
   /// [background.
-  CustomClipper<Path> get clipper => _clipper;
-  CustomClipper<Path> _clipper;
-  set clipper(CustomClipper<Path> newClipper) {
+  CustomClipper<Path>? get clipper => _clipper;
+  CustomClipper<Path>? _clipper;
+  set clipper(CustomClipper<Path>? newClipper) {
     if (_clipper == newClipper) return;
 
     final didNeedCompositing = alwaysNeedsCompositing;
@@ -206,33 +200,33 @@ class RenderSliverContainer extends RenderSliver with RenderSliverHelpers {
   @override
   void attach(PipelineOwner owner) {
     super.attach(owner);
-    if (foreground != null) foreground.attach(owner);
+    if (foreground != null) foreground!.attach(owner);
     _clipper?.addListener(_markNeedsClip);
   }
 
   @override
   void detach() {
     super.detach();
-    if (foreground != null) foreground.detach();
-    if (sliver != null) sliver.detach();
-    if (background != null) background.detach();
+    if (foreground != null) foreground!.detach();
+    if (sliver != null) sliver!.detach();
+    if (background != null) background!.detach();
     _clipper?.removeListener(_markNeedsClip);
   }
 
   @override
   void redepthChildren() {
-    if (foreground != null) redepthChild(foreground);
-    if (sliver != null) redepthChild(sliver);
-    if (background != null) redepthChild(background);
+    if (foreground != null) redepthChild(foreground!);
+    if (sliver != null) redepthChild(sliver!);
+    if (background != null) redepthChild(background!);
   }
 
   /// Adopts a new child, drops the previous one.
-  void updateChild(RenderObject oldChild, RenderObject newChild) {
+  void updateChild(RenderObject? oldChild, RenderObject? newChild) {
     if (oldChild != null) dropChild(oldChild);
     if (newChild != null) adoptChild(newChild);
   }
 
-  Path _clipPath;
+  Path? _clipPath;
   void _markNeedsClip() {
     _clipPath = null;
     markNeedsPaint();
@@ -240,7 +234,7 @@ class RenderSliverContainer extends RenderSliver with RenderSliverHelpers {
 
   void _updateClip() {
     if (_clipper == null || _clipPath != null) return;
-    _clipPath = _clipper?.getClip(_bufferRect.size);
+    _clipPath = _clipper?.getClip(_bufferRect!.size);
     assert(_clipPath != null);
   }
 
@@ -282,49 +276,45 @@ class RenderSliverContainer extends RenderSliver with RenderSliverHelpers {
 
   /// The child box widget that is layed out so that it covers the visual space
   /// of [sliver], and painted above it.
-  RenderBox foreground;
+  RenderBox? foreground;
 
   /// The child sliver that this container will wrap.
-  RenderSliver sliver;
+  RenderSliver? sliver;
 
   /// The child box widget that is layed out so that it covers the visual space
   /// of [sliver], and painted below it.
-  RenderBox background;
+  RenderBox? background;
 
   @override
   void visitChildren(RenderObjectVisitor visitor) {
-    if (foreground != null) visitor(foreground);
-    if (sliver != null) visitor(sliver);
-    if (background != null) visitor(background);
+    if (foreground != null) visitor(foreground!);
+    if (sliver != null) visitor(sliver!);
+    if (background != null) visitor(background!);
   }
 
   Offset _getBufferOffset(double mainAxisPosition, double mainAxisSize) {
     var delta = mainAxisPosition;
-    assert(constraints.axis != null);
     switch (constraints.axis) {
       case Axis.horizontal:
         if (!_rightWayUp)
-          delta = geometry.paintExtent - mainAxisSize - delta;
+          delta = geometry!.paintExtent - mainAxisSize - delta;
         return Offset(delta, 0);
       case Axis.vertical:
         if (!_rightWayUp)
-          delta = geometry.paintExtent - mainAxisSize - delta;
+          delta = geometry!.paintExtent - mainAxisSize - delta;
         return Offset(0, delta);
-        break;
     }
-    assert(false, 'Unreachable');
-    return null;
   }
 
-  Rect _bufferRect;
-  bool _rightWayUp;
-  double _bufferMainSize;
+  Rect? _bufferRect;
+  late bool _rightWayUp;
+  late double _bufferMainSize;
 
   @override
   void performLayout() {
     assert(sliver != null);
-    sliver.layout(constraints, parentUsesSize: true);
-    final geometry = this.geometry = sliver.geometry;
+    sliver!.layout(constraints, parentUsesSize: true);
+    final geometry = (this.geometry = sliver!.geometry)!;
 
     final maxBufferExtent = min(
       bufferExtent,
@@ -343,7 +333,6 @@ class RenderSliverContainer extends RenderSliver with RenderSliverHelpers {
       end = max(end, start + maxBufferExtent * 2);
     }
 
-    assert(constraints.axisDirection != null);
     switch (constraints.axisDirection) {
       case AxisDirection.up:
       case AxisDirection.left:
@@ -354,7 +343,7 @@ class RenderSliverContainer extends RenderSliver with RenderSliverHelpers {
         _rightWayUp = true;
         break;
     }
-    assert(constraints.growthDirection != null);
+
     switch (constraints.growthDirection) {
       case GrowthDirection.reverse:
         _rightWayUp = !_rightWayUp;
@@ -371,21 +360,20 @@ class RenderSliverContainer extends RenderSliver with RenderSliverHelpers {
     );
 
     final newRect = _getBufferOffset(start, _bufferMainSize) & boxConstraints.biggest;
-    if (_bufferRect == null || newRect.size != _bufferRect.size) _markNeedsClip();
+    if (_bufferRect == null || newRect.size != _bufferRect!.size) _markNeedsClip();
     _bufferRect = newRect;
 
     if (foreground != null)
-      foreground.layout(boxConstraints, parentUsesSize: false);
+      foreground!.layout(boxConstraints, parentUsesSize: false);
 
     if (background != null)
-      background.layout(boxConstraints, parentUsesSize: false);
+      background!.layout(boxConstraints, parentUsesSize: false);
   }
 
   @override
   void applyPaintTransform(RenderObject child, Matrix4 transform) {
-    assert(child != null);
     if (identical(child, sliver)) return;
-    transform.translate(_bufferRect.left, _bufferRect.top);
+    transform.translate(_bufferRect!.left, _bufferRect!.top);
   }
 
   @override
@@ -395,71 +383,71 @@ class RenderSliverContainer extends RenderSliver with RenderSliverHelpers {
   void paint(PaintingContext context, Offset offset) {
     _updateClip();
     if (shouldClip) {
-      if (clipSliverOnly && background != null) context.paintChild(background, offset + _bufferRect.topLeft);
+      if (clipSliverOnly && background != null) context.paintChild(background!, offset + _bufferRect!.topLeft);
 
-      if (_bufferRect.left == 0.0 && _bufferRect.top == 0.0) {
+      if (_bufferRect!.left == 0.0 && _bufferRect!.top == 0.0) {
         context.pushClipPath(
-          needsCompositing, offset, Offset.zero & _bufferRect.size, _clipPath,
+          needsCompositing, offset, Offset.zero & _bufferRect!.size, _clipPath!,
           (context, offset) {
-            if (!clipSliverOnly && background != null) context.paintChild(background, offset);
-            if (sliver != null) context.paintChild(sliver, offset);
-            if (!clipSliverOnly && foreground != null) context.paintChild(foreground, offset);
+            if (!clipSliverOnly && background != null) context.paintChild(background!, offset);
+            if (sliver != null) context.paintChild(sliver!, offset);
+            if (!clipSliverOnly && foreground != null) context.paintChild(foreground!, offset);
           }
         );
       } else {
-        final transform = Matrix4.translationValues(_bufferRect.left, _bufferRect.top, 0);
+        final transform = Matrix4.translationValues(_bufferRect!.left, _bufferRect!.top, 0);
         context.pushTransform(needsCompositing, Offset.zero, transform, (context, newOffset) {
           context.pushClipPath(
-            needsCompositing, offset, Offset.zero & _bufferRect.size, _clipPath,
+            needsCompositing, offset, Offset.zero & _bufferRect!.size, _clipPath!,
             (context, offset) {
-              offset -= _bufferRect.topLeft;
-              if (!clipSliverOnly && background != null) context.paintChild(background, offset + _bufferRect.topLeft);
-              if (sliver != null) context.paintChild(sliver, offset);
-              if (!clipSliverOnly && foreground != null) context.paintChild(foreground, offset + _bufferRect.topLeft);
+              offset -= _bufferRect!.topLeft;
+              if (!clipSliverOnly && background != null) context.paintChild(background!, offset + _bufferRect!.topLeft);
+              if (sliver != null) context.paintChild(sliver!, offset);
+              if (!clipSliverOnly && foreground != null) context.paintChild(foreground!, offset + _bufferRect!.topLeft);
             },
             clipBehavior: clipBehavior,
-            oldLayer: layer as ClipPathLayer,
+            oldLayer: layer as ClipPathLayer?,
           );
         });
       }
 
-      if (clipSliverOnly && foreground != null) context.paintChild(foreground, offset + _bufferRect.topLeft);
+      if (clipSliverOnly && foreground != null) context.paintChild(foreground!, offset + _bufferRect!.topLeft);
     } else {
-      if (background != null) context.paintChild(background, offset + _bufferRect.topLeft);
-      if (sliver != null) context.paintChild(sliver, offset);
-      if (foreground != null) context.paintChild(foreground, offset + _bufferRect.topLeft);
+      if (background != null) context.paintChild(background!, offset + _bufferRect!.topLeft);
+      if (sliver != null) context.paintChild(sliver!, offset);
+      if (foreground != null) context.paintChild(foreground!, offset + _bufferRect!.topLeft);
     }
   }
 
-  bool _hitTestBoxChild(BoxHitTestResult result, RenderBox child, {
-    double mainAxisPosition, double crossAxisPosition,
+  bool _hitTestBoxChild(BoxHitTestResult result, RenderBox? child, {
+    required double mainAxisPosition, required double crossAxisPosition,
   }) {
     final transformedPosition = OffsetAxisUtil.create(constraints.axis, crossAxisPosition, mainAxisPosition);
     return result.addWithPaintOffset(
-      offset: _bufferRect.topLeft,
+      offset: _bufferRect!.topLeft,
       position: transformedPosition,
-      hitTest: (BoxHitTestResult result, Offset position) => child.hitTest(result, position: position),
+      hitTest: (BoxHitTestResult result, Offset position) => child!.hitTest(result, position: position),
     );
   }
 
   @override
   bool hitTestChildren(SliverHitTestResult result, {
-    double mainAxisPosition, double crossAxisPosition,
+    double? mainAxisPosition, double? crossAxisPosition,
   }) {
     return (foreground != null && _hitTestBoxChild(
       BoxHitTestResult.wrap(result),
       foreground,
-      mainAxisPosition: mainAxisPosition,
-      crossAxisPosition: crossAxisPosition,
-    )) || (sliver != null && sliver.geometry.hitTestExtent > 0 && sliver.hitTest(
+      mainAxisPosition: mainAxisPosition!,
+      crossAxisPosition: crossAxisPosition!,
+    )) || (sliver != null && sliver!.geometry!.hitTestExtent > 0 && sliver!.hitTest(
       result,
-      mainAxisPosition: mainAxisPosition,
-      crossAxisPosition: crossAxisPosition,
+      mainAxisPosition: mainAxisPosition!,
+      crossAxisPosition: crossAxisPosition!,
     )) || (background != null && _hitTestBoxChild(
       BoxHitTestResult.wrap(result),
       background,
-      mainAxisPosition: mainAxisPosition,
-      crossAxisPosition: crossAxisPosition,
+      mainAxisPosition: mainAxisPosition!,
+      crossAxisPosition: crossAxisPosition!,
     ));
   }
 
@@ -478,9 +466,9 @@ enum _SliverOverlaySlot {
 class _SliverContainerElement extends RenderObjectElement {
   _SliverContainerElement(_BaseSliverContainer widget) : super(widget);
 
-  Element foreground;
-  Element sliver;
-  Element background;
+  Element? foreground;
+  Element? sliver;
+  Element? background;
 
   @override
   _BaseSliverContainer get widget => super.widget as _BaseSliverContainer;
@@ -490,9 +478,9 @@ class _SliverContainerElement extends RenderObjectElement {
 
   @override
   void visitChildren(ElementVisitor visitor) {
-    if (foreground != null) visitor(foreground);
-    if (sliver != null) visitor(sliver);
-    if (background != null) visitor(background);
+    if (foreground != null) visitor(foreground!);
+    if (sliver != null) visitor(sliver!);
+    if (background != null) visitor(background!);
   }
 
   @override
@@ -514,7 +502,7 @@ class _SliverContainerElement extends RenderObjectElement {
   }
 
   @override
-  void mount(Element parent, dynamic newSlot) {
+  void mount(Element? parent, dynamic newSlot) {
     super.mount(parent, newSlot);
     _updateChildren();
   }
