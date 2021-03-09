@@ -25,8 +25,8 @@ class MyApp extends StatelessWidget {
       scaffoldBackgroundColor: NiceColors.background,
       primaryColor: NiceColors.primary,
     ),
-    home: MyHomePage(),
     routes: {
+      '/': (_) => MyHomePage(),
       'tree-view': (_) => TreeViewPage(),
       'product-tile': (_) => ProductTilePage(),
       'product-tile-simple': (_) => ProductTileSimplePage(),
@@ -126,7 +126,7 @@ class GalleryAppBar extends StatelessWidget implements PreferredSizeWidget {
   build(context) => AppBar(
     leading: title.length == 1 ? null : GalleryAppBarButton(
       Icons.arrow_back_ios, () {
-        Navigator.pop(context);
+        Navigator.pushReplacementNamed(context, '/');
       }
     ),
     title: SizedBox(height: kToolbarHeight, child: OverflowBox(
