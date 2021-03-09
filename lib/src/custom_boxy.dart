@@ -317,8 +317,12 @@ class _RenderBoxyElement extends RenderObjectElement {
   }
 }
 
+class _RenderBoxyParentData extends MultiChildLayoutParentData {
+  dynamic userData;
+}
+
 class _RenderBoxy extends RenderBox with
-  ContainerRenderObjectMixin<RenderBox, MultiChildLayoutParentData> {
+  ContainerRenderObjectMixin<RenderBox, _RenderBoxyParentData> {
 
   _RenderBoxy({@required BoxyDelegate delegate}) : assert(delegate != null),
     _delegate = delegate;
@@ -357,7 +361,7 @@ class _RenderBoxy extends RenderBox with
     // Attempt to recycle existing child handles.
     final top = min(_element._children.length, _delegateContext.children.length);
     while (index < top && child != null) {
-      final parentData = child.parentData as MultiChildLayoutParentData;
+      final parentData = child.parentData as _RenderBoxyParentData;
       var id = parentData.id;
 
       final oldChild = _delegateContext.children[index];
@@ -384,7 +388,7 @@ class _RenderBoxy extends RenderBox with
 
     // Create new child handles
     while (child != null && index < _element._children.length) {
-      final parentData = child.parentData as MultiChildLayoutParentData;
+      final parentData = child.parentData as _RenderBoxyParentData;
       var id = parentData.id;
 
       // Assign the child an incrementing index if it does not already have one.
@@ -500,8 +504,8 @@ class _RenderBoxy extends RenderBox with
 
   @override
   void setupParentData(RenderBox child) {
-    if (child.parentData is! MultiChildLayoutParentData)
-      child.parentData = MultiChildLayoutParentData();
+    if (child.parentData is! _RenderBoxyParentData)
+      child.parentData = _RenderBoxyParentData();
   }
 
   /// The delegate that controls the layout of a set of children.
@@ -555,16 +559,18 @@ class _RenderBoxy extends RenderBox with
   @override
   void paint(PaintingContext context, Offset offset) {
     _delegateContext.paintingContext = context;
-    _delegateContext.offset = offset;
     _delegate._callWithContext(
       _delegateContext, _BoxyDelegateState.Painting, () {
         context.canvas.save();
         context.canvas.translate(offset.dx, offset.dy);
+        _delegateContext.offset = Offset.zero;
         _delegate.paint();
         context.canvas.restore();
+        _delegateContext.offset = offset;
         _delegate.paintChildren();
         context.canvas.save();
         context.canvas.translate(offset.dx, offset.dy);
+        _delegateContext.offset = Offset.zero;
         _delegate.paintForeground();
         context.canvas.restore();
       }
@@ -603,6 +609,10 @@ enum _BoxyDelegateState {
 }
 
 class _BoxyDelegateContext {
+  _BoxyDelegateContext() {
+    layers = BoxyLayerContext._(this);
+  }
+
   _RenderBoxy render;
   List<BoxyChild> inflateQueue = [];
   List<BoxyChild> children = [];
@@ -611,6 +621,7 @@ class _BoxyDelegateContext {
   PaintingContext paintingContext;
   BoxHitTestResult hitTestResult;
   Offset offset;
+  BoxyLayerContext layers;
   Object layoutData;
   _RenderBoxyInflater inflater;
   BoxConstraints _dryConstraints;
@@ -624,6 +635,314 @@ class _BoxyDelegateContext {
       _debugState = state;
       return true;
     }());
+  }
+}
+
+/// Cache for [Layer] objects, used by [BoxyLayerContext] methods.
+///
+/// Preserving [Layer]s between paints can significantly improve performance
+/// in some cases, this class provides a convenient way of identifying them.
+///
+/// See also:
+///
+///  * [BoxyDelegate]
+///  * [BoxyLayerContext]
+class LayerKey {
+  /// The current cached layer.
+  Layer layer;
+}
+
+/// A convenient wrapper to [PaintingContext], provides methods to push
+/// compositing [Layer]s from the paint methods of [BoxyDelegate].
+///
+/// See also:
+///
+///  * [BoxyDelegate]
+class BoxyLayerContext {
+  final _BoxyDelegateContext _context;
+
+  BoxyLayerContext._(this._context);
+
+  /// Pushes a [ContainerLayer] to the current recording, calling [paint] to
+  /// paint on top of the layer.
+  ///
+  /// {@template boxy.custom_boxy.BoxyLayerContext.push.bounds}
+  /// The [bounds] argument defines the bounds in which the [paint] should
+  /// paint, this is useful for debugging tools and does not affect rendering.
+  /// {@endtemplate}
+  ///
+  /// See also:
+  ///
+  ///  * [PaintingContext.pushLayer]
+  void push({
+    @required VoidCallback paint,
+    ContainerLayer layer,
+    Rect bounds,
+    Offset offset = Offset.zero,
+  }) {
+    final oldContext = _context.paintingContext;
+    final oldOffset = _context.offset;
+    try {
+      if (layer == null) {
+        paint();
+      } else {
+        oldContext.pushLayer(
+          layer,
+          (context, offset) {
+            _context.paintingContext = context;
+            _context.offset = offset;
+            paint();
+          },
+          offset + _context.offset,
+          childPaintBounds: bounds,
+        );
+      }
+    } finally {
+      _context.paintingContext = oldContext;
+      _context.offset = oldOffset;
+    }
+  }
+
+  /// Pushes a [Layer] to the compositing tree similar to [push], but can't
+  /// paint anything on top of it.
+  ///
+  /// {@macro boxy.custom_boxy.BoxyLayerContext.push.bounds}
+  ///
+  /// See also:
+  ///
+  ///  * [PaintingContext.addLayer]
+  void add({@required Layer layer}) {
+    _context.paintingContext.addLayer(layer);
+  }
+
+  /// Pushes a [ClipPathLayer] to the compositing tree, calling [paint] to paint
+  /// on top of the layer.
+  ///
+  /// {@macro boxy.custom_boxy.BoxyLayerContext.push.bounds}
+  ///
+  /// See also:
+  ///
+  ///  * [PaintingContext.pushClipPath]
+  void clipPath({
+    @required Path path,
+    @required VoidCallback paint,
+    Clip clipBehavior = Clip.antiAlias,
+    Offset offset = Offset.zero,
+    Rect bounds,
+    LayerKey key,
+  }) {
+    final offsetClipPath = path.shift(offset + _context.offset);
+    ClipPathLayer layer;
+    if (key?.layer is ClipPathLayer) {
+      layer = (key.layer as ClipPathLayer)
+        ..clipPath = offsetClipPath
+        ..clipBehavior = clipBehavior;
+    } else {
+      layer = ClipPathLayer(
+        clipPath: offsetClipPath,
+        clipBehavior: clipBehavior,
+      );
+      key?.layer = layer;
+    }
+    push(layer: layer, paint: paint, offset: offset, bounds: bounds);
+  }
+
+  /// Pushes a [ClipRectLayer] to the compositing tree, calling [paint] to paint
+  /// on top of the layer.
+  ///
+  /// {@macro boxy.custom_boxy.BoxyLayerContext.push.bounds}
+  ///
+  /// See also:
+  ///
+  ///  * [PaintingContext.pushClipRect]
+  void clipRect({
+    @required Rect rect,
+    @required VoidCallback paint,
+    Clip clipBehavior = Clip.antiAlias,
+    Offset offset = Offset.zero,
+    Rect bounds,
+    LayerKey key,
+  }) {
+    final offsetClipRect = rect.shift(offset + _context.offset);
+    ClipRectLayer layer;
+    if (key?.layer is ClipRectLayer) {
+      layer = (key.layer as ClipRectLayer)
+        ..clipRect = offsetClipRect
+        ..clipBehavior = clipBehavior;
+    } else {
+      layer = ClipRectLayer(
+        clipRect: offsetClipRect,
+        clipBehavior: clipBehavior,
+      );
+      key?.layer = layer;
+    }
+    push(layer: layer, paint: paint, offset: offset, bounds: bounds);
+  }
+
+  /// Pushes a [ClipRRectLayer] to the compositing tree, calling [paint] to
+  /// paint on top of the layer.
+  ///
+  /// {@macro boxy.custom_boxy.BoxyLayerContext.push.bounds}
+  ///
+  /// See also:
+  ///
+  ///  * [PaintingContext.pushClipRRect]
+  void clipRRect({
+    @required RRect rrect,
+    @required VoidCallback paint,
+    Clip clipBehavior = Clip.antiAlias,
+    Offset offset = Offset.zero,
+    Rect bounds,
+    LayerKey key,
+  }) {
+    final offsetClipRRect = rrect.shift(offset + _context.offset);
+    ClipRRectLayer layer;
+    if (key?.layer is ClipRRectLayer) {
+      layer = (key.layer as ClipRRectLayer)
+        ..clipRRect = offsetClipRRect
+        ..clipBehavior = clipBehavior;
+    } else {
+      layer = ClipRRectLayer(
+        clipRRect: offsetClipRRect,
+        clipBehavior: clipBehavior,
+      );
+      key?.layer = layer;
+    }
+    push(layer: layer, paint: paint, offset: offset, bounds: bounds);
+  }
+
+  /// Pushes a [ColorFilterLayer] to the compositing tree, calling [paint] to
+  /// paint on top of the layer.
+  ///
+  /// {@macro boxy.custom_boxy.BoxyLayerContext.push.bounds}
+  ///
+  /// See also:
+  ///
+  ///  * [PaintingContext.pushColorFilter]
+  void colorFilter({
+    @required ColorFilter colorFilter,
+    @required VoidCallback paint,
+    Rect bounds,
+    LayerKey key,
+  }) {
+    ColorFilterLayer layer;
+    if (key?.layer is ColorFilterLayer) {
+      layer = (key.layer as ColorFilterLayer)..colorFilter = colorFilter;
+    } else {
+      layer = ColorFilterLayer(colorFilter: colorFilter);
+      key?.layer = layer;
+    }
+    push(layer: layer, paint: paint, bounds: bounds);
+  }
+
+  /// Pushes an [OffsetLayer] to the compositing tree, calling [paint] to paint
+  /// on top of the layer.
+  ///
+  /// {@macro boxy.custom_boxy.BoxyLayerContext.push.bounds}
+  ///
+  /// See also:
+  ///
+  ///  * [PaintingContext.pushTransform]
+  void offset({
+    @required Offset offset,
+    @required VoidCallback paint,
+    Rect bounds,
+    LayerKey key,
+  }) {
+    OffsetLayer layer;
+    if (key?.layer is OffsetLayer) {
+      layer = (key.layer as OffsetLayer)..offset = offset;
+    } else {
+      layer = OffsetLayer(offset: offset);
+      key?.layer = layer;
+    }
+    push(layer: layer, paint: paint, bounds: bounds);
+  }
+
+  /// Pushes an [TransformLayer] to the compositing tree, calling [paint] to
+  /// paint on top of the layer.
+  ///
+  /// {@macro boxy.custom_boxy.BoxyLayerContext.push.bounds}
+  ///
+  /// See also:
+  ///
+  ///  * [PaintingContext.pushTransform]
+  void transform({
+    @required Matrix4 transform,
+    @required VoidCallback paint,
+    Offset offset = Offset.zero,
+    Rect bounds,
+    LayerKey key,
+  }) {
+    final layerOffset = _context.offset + offset;
+    TransformLayer layer;
+    if (key?.layer is TransformLayer) {
+      layer = (key.layer as TransformLayer)
+        ..transform = transform
+        ..offset = layerOffset;
+    } else {
+      layer = TransformLayer(
+        transform: transform,
+        offset: layerOffset,
+      );
+      key?.layer = layer;
+    }
+    push(layer: layer, paint: paint, offset: -_context.offset, bounds: bounds);
+  }
+
+  /// Pushes an [OpacityLayer] to the compositing tree, calling [paint] to paint
+  /// on top of the layer.
+  ///
+  /// The `alpha` argument is the alpha value to use when blending. An alpha
+  /// value of 0 means the painting is fully transparent and an alpha value of
+  /// 255 means the painting is fully opaque.
+  ///
+  /// {@macro boxy.custom_boxy.BoxyLayerContext.push.bounds}
+  ///
+  /// See also:
+  ///
+  ///  * [PaintingContext.pushOpacity]
+  void alpha({
+    @required int alpha,
+    @required VoidCallback paint,
+    Offset offset = Offset.zero,
+    Rect bounds,
+    LayerKey key,
+  }) {
+    OpacityLayer layer;
+    if (key?.layer is OffsetLayer) {
+      layer = (key.layer as OpacityLayer)..alpha = alpha;
+    } else {
+      layer = OpacityLayer(alpha: alpha);
+      key?.layer = layer;
+    }
+    push(layer: layer, paint: paint, offset: offset, bounds: bounds);
+  }
+
+  /// Pushes an [OpacityLayer] to the compositing tree, calling [paint] to paint
+  /// on top of the layer.
+  ///
+  /// This is the same as [alpha] but takes a fraction instead of an integer,
+  /// where 0.0 means the painting is fully transparent and an opacity value of
+  //  1.0 means the painting is fully opaque.
+  ///
+  /// See also:
+  ///
+  ///  * [PaintingContext.pushOpacity]
+  void opacity({
+    @required double opacity,
+    @required VoidCallback paint,
+    Offset offset = Offset.zero,
+    Rect bounds,
+    LayerKey key,
+  }) {
+    return alpha(
+      alpha: (opacity * 255).round(),
+      paint: paint,
+      offset: offset,
+      bounds: bounds,
+      key: key,
+    );
   }
 }
 
@@ -669,8 +988,20 @@ class BoxyChild {
   }
   RenderBox _render;
 
-  MultiChildLayoutParentData get _parentData =>
-    render.parentData as MultiChildLayoutParentData;
+  _RenderBoxyParentData get _parentData =>
+    render.parentData as _RenderBoxyParentData;
+
+  /// A variable that can store arbitrary data by the [BoxyDelegate] during
+  /// layout.
+  ///
+  /// See also:
+  ///
+  ///  * [ParentData]
+  dynamic get parentData => _parentData.userData;
+
+  set parentData(dynamic value) {
+    _parentData.userData = value;
+  }
 
   /// The offset to this child relative to the parent, this can be set by
   /// calling [position] from [BoxyDelegate.layout].
@@ -835,17 +1166,16 @@ class _CannotInflateError extends FlutterError {
   ]);
 }
 
-/// A delegate that controls the layout of multiple children.
+/// A delegate that controls the layout of multiple children, used with the
+/// [CustomBoxy] widget.
 ///
-/// Used with [CustomBoxy].
-///
-/// Delegates must ensure an identical delegate produces the same layout.
+/// Delegates must ensure an identical delegate would produce the same layout.
 /// If your delegate takes arguments also make sure [shouldRelayout] and/or
-/// [shouldRepaint] return true when fields change.
+/// [shouldRepaint] return true when those fields change.
 ///
 /// Keep in mind a single delegate can be used by multiple widgets at a time and
 /// should not keep any state. If you need to pass information from [layout] to
-/// another method, store it in [layoutData].
+/// another method, store it in [layoutData] or [BoxyChild.parentData].
 ///
 /// Delegates may access their children by id with [getChild], alternatively
 /// they can be accessed through the [children] list.
@@ -855,7 +1185,7 @@ class _CannotInflateError extends FlutterError {
 /// the animation directly instead of having the parent rebuild [CustomBoxy] with a
 /// new delegate.
 ///
-/// ### Layout
+/// ## Layout
 ///
 /// Override [layout] to control the layout of children and return what size
 /// the boxy should be.
@@ -903,7 +1233,7 @@ class _CannotInflateError extends FlutterError {
 ///   }
 /// ```
 ///
-/// ### Painting
+/// ## Painting
 ///
 /// Override [paint] to draw behind children, this is similar to
 /// [CustomPainter.paint] where you get a [Canvas] to draw on.
@@ -931,7 +1261,7 @@ class _CannotInflateError extends FlutterError {
 /// If you use the [canvas] in [paintChildren] you should draw at [paintOffset]
 /// and make sure the canvas is restored before continuing to paint children.
 /// This is required because a child might need its own compositing [Layer]
-/// which is rendered in a separate context.
+/// that is rendered in a separate context.
 ///
 /// The following example draws a semi transparent rectangle between two
 /// children:
@@ -948,11 +1278,35 @@ class _CannotInflateError extends FlutterError {
 ///   }
 /// ```
 ///
-/// If any paint method could potentially push a layer to [paintingContext],
-/// you must override [needsCompositing] to return true. This getter may check
-/// the fields of the boxy to determine if compositing will be necessary.
+/// ### Layers
 ///
-/// ### Widget inflation
+/// In order to apply special effects to children such as transforms, opacity,
+/// clipping, etc. you will need to interact with the compositing tree. Boxy
+/// wraps this functionality conveniently with the [layers] getter.
+///
+/// Before your delegate can push layers make sure to override
+/// [needsCompositing]. This getter can check the fields of the boxy to
+/// determine if compositing will be necessary, returning true if that is the
+/// case.
+///
+/// The following example paints its child with 50% opacity:
+///
+/// ```dart
+///   @override
+///   bool get needsCompositing => true;
+///
+///   @override
+///   void paintChildren() {
+///     layers.opacity(
+///       opacity: 0.5,
+///       paint: () {
+///         getChild(#first).paint();
+///       },
+///     );
+///   }
+/// ```
+///
+/// ## Widget inflation
 ///
 /// In [layout] you can inflate arbitrary widgets using the [inflate] method,
 /// this enables complex layouts where the contents of widgets change depending
@@ -1000,9 +1354,9 @@ class _CannotInflateError extends FlutterError {
 ///       firstSize.height + secondSize.height,
 ///     );
 ///   }
-/// ```
 abstract class BoxyDelegate<T extends Object> {
-  /// Constructs a BoxyDelegate with optional relayout and repaint listenables.
+  /// Constructs a BoxyDelegate with optional [relayout] and [repaint]
+  /// [Listenable]s.
   BoxyDelegate({
     Listenable relayout,
     Listenable repaint,
@@ -1093,8 +1447,10 @@ abstract class BoxyDelegate<T extends Object> {
     return _context.paintingContext.canvas;
   }
 
-  /// The offset of the current paint context, should only be used if you paint
-  /// to [canvas] in [paintChildren].
+  /// The offset of the current paint context.
+  ///
+  /// This offset applies to to [paint] and [paintForeground] by default, you
+  /// should translate by this in [paintChildren] if you paint to [canvas].
   Offset get paintOffset {
     assert(() {
       if (_context == null || _context.debugState != _BoxyDelegateState.Painting) {
@@ -1120,6 +1476,13 @@ abstract class BoxyDelegate<T extends Object> {
     return _context.paintingContext;
   }
 
+  /// The current layer context, useful for pushing [Layer]s to the scene during
+  /// [paintChildren].
+  ///
+  /// Delegates that push layers should override [needsCompositing] to return
+  /// true.
+  BoxyLayerContext get layers => _context.layers;
+  
   /// Paints a [ContainerLayer] compositing layer in the current painting
   /// context with an optional [painter] callback, this should only be called in
   /// [paintChildren].
@@ -1132,6 +1495,7 @@ abstract class BoxyDelegate<T extends Object> {
   ///   painter: getChild(#title).paint,
   /// );
   /// ```
+  @Deprecated('Use layers.push instead')
   void paintLayer(ContainerLayer layer, {
     VoidCallback painter, Offset offset, Rect debugBounds
   }) {
