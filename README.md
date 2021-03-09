@@ -40,7 +40,7 @@ See the [Product Tile](https://me.tst.sh/git/flutter-boxy/gallery/#product-tile)
 layout, and the documentation of [CustomBoxy](https://pub.dev/documentation/boxy/latest/boxy/CustomBoxy-class.html) for
 more information.
 
-Another powerful feature of is the ability to inflate widgets at layout time, including the content of those widgets
+Another powerful feature of `CustomBoxy` is the ability to inflate widgets at layout time, including the content of those widgets
 depending on the size of others:
 
 ![](https://i.tst.sh/NqzcA.gif)
