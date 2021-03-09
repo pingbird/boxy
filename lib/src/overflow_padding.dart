@@ -1,12 +1,10 @@
-// @dart=2.9
-
 import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter/rendering.dart';
 
-/// A padding widget which allows the child to overflow when given negative
-/// edge insets.
+/// A padding widget similar to [Padding] but allows the child to overflow when
+/// given negative insets.
 ///
 /// This widget will consume the size of the child plus padding, allowing the
 /// child to paint past the amount of space the [OverflowPadding] consumes.
@@ -24,11 +22,10 @@ class OverflowPadding extends SingleChildRenderObjectWidget {
   ///
   /// The [padding] argument must not be null.
   const OverflowPadding({
-    Key key,
-    @required this.padding,
-    Widget child,
-  }) : assert(padding != null),
-        super(key: key, child: child);
+    Key? key,
+    required this.padding,
+    Widget? child,
+  }) : super(key: key, child: child);
 
   /// The amount of space by which to inset the child.
   final EdgeInsetsGeometry padding;
@@ -37,7 +34,7 @@ class OverflowPadding extends SingleChildRenderObjectWidget {
   RenderOverflowPadding createRenderObject(BuildContext context) {
     return RenderOverflowPadding(
       padding: padding,
-      textDirection: Directionality.of(context),
+      textDirection: Directionality.maybeOf(context),
     );
   }
 
@@ -45,7 +42,7 @@ class OverflowPadding extends SingleChildRenderObjectWidget {
   void updateRenderObject(BuildContext context, RenderOverflowPadding renderObject) {
     renderObject
       ..padding = padding
-      ..textDirection = Directionality.of(context);
+      ..textDirection = Directionality.maybeOf(context);
   }
 
   @override
@@ -63,18 +60,16 @@ class OverflowPadding extends SingleChildRenderObjectWidget {
 class RenderOverflowPadding extends RenderShiftedBox {
   /// Creates a render object that insets its child.
   ///
-  /// The [padding] argument must not be null and must have non-negative insets.
+  /// The [padding] argument must not be null.
   RenderOverflowPadding({
-    @required EdgeInsetsGeometry padding,
-    TextDirection textDirection,
-    RenderBox child,
-  }) :
-    assert(padding != null),
-    _textDirection = textDirection,
-    _padding = padding,
-    super(child);
+    required EdgeInsetsGeometry padding,
+    TextDirection? textDirection,
+    RenderBox? child,
+  }) : _textDirection = textDirection,
+       _padding = padding,
+       super(child);
 
-  EdgeInsets _resolvedPadding;
+  EdgeInsets? _resolvedPadding;
 
   void _resolve() {
     if (_resolvedPadding != null)
@@ -94,7 +89,6 @@ class RenderOverflowPadding extends RenderShiftedBox {
   EdgeInsetsGeometry get padding => _padding;
   EdgeInsetsGeometry _padding;
   set padding(EdgeInsetsGeometry value) {
-    assert(value != null);
     if (_padding == value)
       return;
     _padding = value;
@@ -105,9 +99,9 @@ class RenderOverflowPadding extends RenderShiftedBox {
   ///
   /// This may be changed to null, but only after the [padding] has been changed
   /// to a value that does not depend on the direction.
-  TextDirection get textDirection => _textDirection;
-  TextDirection _textDirection;
-  set textDirection(TextDirection value) {
+  TextDirection? get textDirection => _textDirection;
+  TextDirection? _textDirection;
+  set textDirection(TextDirection? value) {
     if (_textDirection == value)
       return;
     _textDirection = value;
@@ -117,41 +111,59 @@ class RenderOverflowPadding extends RenderShiftedBox {
   @override
   double computeMinIntrinsicWidth(double height) {
     _resolve();
-    final double totalHorizontalPadding = _resolvedPadding.left + _resolvedPadding.right;
-    final double totalVerticalPadding = _resolvedPadding.top + _resolvedPadding.bottom;
+    final double totalHorizontalPadding = _resolvedPadding!.left + _resolvedPadding!.right;
+    final double totalVerticalPadding = _resolvedPadding!.top + _resolvedPadding!.bottom;
     if (child != null) // next line relies on double.infinity absorption
-      return child.getMinIntrinsicWidth(math.max(0.0, height - totalVerticalPadding)) + totalHorizontalPadding;
+      return child!.getMinIntrinsicWidth(math.max(0.0, height - totalVerticalPadding)) + totalHorizontalPadding;
     return totalHorizontalPadding;
   }
 
   @override
   double computeMaxIntrinsicWidth(double height) {
     _resolve();
-    final double totalHorizontalPadding = _resolvedPadding.left + _resolvedPadding.right;
-    final double totalVerticalPadding = _resolvedPadding.top + _resolvedPadding.bottom;
+    final double totalHorizontalPadding = _resolvedPadding!.left + _resolvedPadding!.right;
+    final double totalVerticalPadding = _resolvedPadding!.top + _resolvedPadding!.bottom;
     if (child != null) // next line relies on double.infinity absorption
-      return child.getMaxIntrinsicWidth(math.max(0.0, height - totalVerticalPadding)) + totalHorizontalPadding;
+      return child!.getMaxIntrinsicWidth(math.max(0.0, height - totalVerticalPadding)) + totalHorizontalPadding;
     return totalHorizontalPadding;
   }
 
   @override
   double computeMinIntrinsicHeight(double width) {
     _resolve();
-    final double totalHorizontalPadding = _resolvedPadding.left + _resolvedPadding.right;
-    final double totalVerticalPadding = _resolvedPadding.top + _resolvedPadding.bottom;
+    final double totalHorizontalPadding = _resolvedPadding!.left + _resolvedPadding!.right;
+    final double totalVerticalPadding = _resolvedPadding!.top + _resolvedPadding!.bottom;
     if (child != null) // next line relies on double.infinity absorption
-      return child.getMinIntrinsicHeight(math.max(0.0, width - totalHorizontalPadding)) + totalVerticalPadding;
+      return child!.getMinIntrinsicHeight(math.max(0.0, width - totalHorizontalPadding)) + totalVerticalPadding;
     return totalVerticalPadding;
   }
 
   @override
   double computeMaxIntrinsicHeight(double width) {
     _resolve();
-    final double totalHorizontalPadding = _resolvedPadding.left + _resolvedPadding.right;
-    final double totalVerticalPadding = _resolvedPadding.top + _resolvedPadding.bottom;
+    final double totalHorizontalPadding = _resolvedPadding!.left + _resolvedPadding!.right;
+    final double totalVerticalPadding = _resolvedPadding!.top + _resolvedPadding!.bottom;
     if (child != null) // next line relies on double.infinity absorption
-      return child.getMaxIntrinsicHeight(math.max(0.0, width - totalHorizontalPadding)) + totalVerticalPadding;
+      return child!.getMaxIntrinsicHeight(math.max(0.0, width - totalHorizontalPadding)) + totalVerticalPadding;
     return totalVerticalPadding;
+  }
+
+  @override
+  Size computeDryLayout(BoxConstraints constraints) {
+    _resolve();
+    assert(_resolvedPadding != null);
+    if (child == null) {
+      return constraints.constrain(Size(
+        _resolvedPadding!.left + _resolvedPadding!.right,
+        _resolvedPadding!.top + _resolvedPadding!.bottom,
+      ));
+    }
+    final BoxConstraints innerConstraints = constraints.deflate(_resolvedPadding!);
+    final Size childSize = child!.getDryLayout(innerConstraints);
+    return constraints.constrain(Size(
+      _resolvedPadding!.left + childSize.width + _resolvedPadding!.right,
+      _resolvedPadding!.top + childSize.height + _resolvedPadding!.bottom,
+    ));
   }
 
   @override
@@ -161,18 +173,18 @@ class RenderOverflowPadding extends RenderShiftedBox {
     assert(_resolvedPadding != null);
     if (child == null) {
       size = constraints.constrain(Size(
-        _resolvedPadding.left + _resolvedPadding.right,
-        _resolvedPadding.top + _resolvedPadding.bottom,
+        _resolvedPadding!.left + _resolvedPadding!.right,
+        _resolvedPadding!.top + _resolvedPadding!.bottom,
       ));
       return;
     }
-    final BoxConstraints innerConstraints = constraints.deflate(_resolvedPadding);
-    child.layout(innerConstraints, parentUsesSize: true);
-    final BoxParentData childParentData = child.parentData as BoxParentData;
-    childParentData.offset = Offset(_resolvedPadding.left, _resolvedPadding.top);
+    final BoxConstraints innerConstraints = constraints.deflate(_resolvedPadding!);
+    child!.layout(innerConstraints, parentUsesSize: true);
+    final BoxParentData childParentData = child!.parentData! as BoxParentData;
+    childParentData.offset = Offset(_resolvedPadding!.left, _resolvedPadding!.top);
     size = constraints.constrain(Size(
-      _resolvedPadding.left + child.size.width + _resolvedPadding.right,
-      _resolvedPadding.top + child.size.height + _resolvedPadding.bottom,
+      _resolvedPadding!.left + child!.size.width + _resolvedPadding!.right,
+      _resolvedPadding!.top + child!.size.height + _resolvedPadding!.bottom,
     ));
   }
 
@@ -181,7 +193,7 @@ class RenderOverflowPadding extends RenderShiftedBox {
     super.debugPaintSize(context, offset);
     assert(() {
       final Rect outerRect = offset & size;
-      debugPaintPadding(context.canvas, outerRect, child != null ? _resolvedPadding.deflateRect(outerRect) : null);
+      debugPaintPadding(context.canvas, outerRect, child != null ? _resolvedPadding!.deflateRect(outerRect) : null);
       return true;
     }());
   }
