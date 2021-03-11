@@ -1,5 +1,3 @@
-// @dart=2.9
-
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
@@ -31,8 +29,8 @@ class BoxyFlex extends MultiChildRenderObjectWidget {
   /// disambiguate `start` or `end` values for the main or cross axis
   /// directions, the [textDirection] must not be null.
   BoxyFlex({
-    Key key,
-    @required this.direction,
+    Key? key,
+    required this.direction,
     this.mainAxisAlignment = MainAxisAlignment.start,
     this.mainAxisSize = MainAxisSize.max,
     this.crossAxisAlignment = CrossAxisAlignment.stretch,
@@ -40,13 +38,8 @@ class BoxyFlex extends MultiChildRenderObjectWidget {
     this.verticalDirection = VerticalDirection.down,
     this.textBaseline,
     List<Widget> children = const <Widget>[],
-  }) : assert(direction != null),
-        assert(mainAxisAlignment != null),
-        assert(mainAxisSize != null),
-        assert(crossAxisAlignment != null),
-        assert(verticalDirection != null),
-        assert(crossAxisAlignment != CrossAxisAlignment.baseline || textBaseline != null),
-        super(key: key, children: children);
+  }) : assert(crossAxisAlignment != CrossAxisAlignment.baseline || textBaseline != null),
+       super(key: key, children: children);
 
   /// The direction to use as the main axis.
   ///
@@ -103,7 +96,7 @@ class BoxyFlex extends MultiChildRenderObjectWidget {
   /// If the [direction] is [Axis.vertical], and the [crossAxisAlignment] is
   /// either [CrossAxisAlignment.start] or [CrossAxisAlignment.end], then the
   /// [textDirection] (or the ambient [Directionality]) must not be null.
-  final TextDirection textDirection;
+  final TextDirection? textDirection;
 
   /// Determines the order to lay children out vertically and how to interpret
   /// `start` and `end` in the vertical direction.
@@ -128,19 +121,16 @@ class BoxyFlex extends MultiChildRenderObjectWidget {
   final VerticalDirection verticalDirection;
 
   /// If aligning items according to their baseline, which baseline to use.
-  final TextBaseline textBaseline;
+  final TextBaseline? textBaseline;
 
-  bool get _needTextDirection {
-    assert(direction != null);
+  bool? get _needTextDirection {
     switch (direction) {
       case Axis.horizontal:
         return true; // because it affects the layout order.
       case Axis.vertical:
-        assert(crossAxisAlignment != null);
         return crossAxisAlignment == CrossAxisAlignment.start
             || crossAxisAlignment == CrossAxisAlignment.end;
     }
-    return null;
   }
 
   /// The value to pass to [RenderBoxyFlex.textDirection].
@@ -159,8 +149,8 @@ class BoxyFlex extends MultiChildRenderObjectWidget {
   /// render objects that are derived from [RenderBoxyFlex] can do so and still use
   /// the logic for providing a text direction only when it is necessary.
   @protected
-  TextDirection getEffectiveTextDirection(BuildContext context) {
-    return textDirection ?? (_needTextDirection ? Directionality.of(context) : null);
+  TextDirection? getEffectiveTextDirection(BuildContext context) {
+    return textDirection ?? (_needTextDirection! ? Directionality.of(context) : null);
   }
 
   @override
@@ -225,13 +215,13 @@ class BoxyRow extends BoxyFlex {
   /// `start` or `end` values for the [mainAxisAlignment], the [textDirection]
   /// must not be null.
   BoxyRow({
-    Key key,
+    Key? key,
     MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start,
     MainAxisSize mainAxisSize = MainAxisSize.max,
     CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.stretch,
-    TextDirection textDirection,
+    TextDirection? textDirection,
     VerticalDirection verticalDirection = VerticalDirection.down,
-    TextBaseline textBaseline,
+    TextBaseline? textBaseline,
     List<Widget> children = const <Widget>[],
   }) : super(
     children: children,
@@ -268,13 +258,13 @@ class BoxyColumn extends BoxyFlex {
   /// to be necessary to disambiguate `start` or `end` values for the
   /// [crossAxisAlignment], the [textDirection] must not be null.
   BoxyColumn({
-    Key key,
+    Key? key,
     MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start,
     MainAxisSize mainAxisSize = MainAxisSize.max,
     CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.stretch,
-    TextDirection textDirection,
+    TextDirection? textDirection,
     VerticalDirection verticalDirection = VerticalDirection.down,
-    TextBaseline textBaseline,
+    TextBaseline? textBaseline,
     List<Widget> children = const <Widget>[],
   }) : super(
     children: children,
@@ -293,10 +283,10 @@ class BoxyColumn extends BoxyFlex {
 class BoxyFlexParentData extends FlexParentData {
   /// Whether this child should determine the maximum cross axis size of every
   /// other child.
-  bool dominant;
+  bool? dominant;
 
   // Temporary child size used in _computeSizes
-  Size _tempSize;
+  Size? _tempSize;
 
   @override
   String toString() => '${super.toString()}; flex=$flex; fit=$fit; dominant=$dominant';
@@ -314,11 +304,11 @@ class BoxyFlexible extends ParentDataWidget<FlexParentData> {
   /// Creates a widget that controls how a child of a [Row], [Column], or [Flex]
   /// flexes.
   const BoxyFlexible({
-    Key key,
+    Key? key,
     this.flex = 1,
     this.fit = FlexFit.loose,
     this.dominant = false,
-    @required Widget child,
+    required Widget child,
   }) : super(key: key, child: child);
 
   /// The flex factor to use for this child
@@ -367,7 +357,7 @@ class BoxyFlexible extends ParentDataWidget<FlexParentData> {
     }
 
     if (needsLayout) {
-      final AbstractNode targetParent = renderObject.parent;
+      final AbstractNode? targetParent = renderObject.parent;
       if (targetParent is RenderObject)
         targetParent.markNeedsLayout();
     }
@@ -392,8 +382,8 @@ class Dominant extends BoxyFlexible {
   ///
   /// This is equivalent to `BoxyFlexible(flex: 0, dominant: true, child: ...)`.
   const Dominant({
-    Key key,
-    @required Widget child,
+    Key? key,
+    required Widget child,
   }) : super(
     key: key,
     flex: 0,
@@ -406,9 +396,9 @@ class Dominant extends BoxyFlexible {
   ///
   /// This is equivalent to `BoxyFlexible(flex: 0, dominant: true, child: ...)`.
   const Dominant.flexible({
-    Key key,
+    Key? key,
     int flex = 1,
-    @required Widget child,
+    required Widget child,
   }) : super(
     key: key,
     flex: flex,
@@ -422,9 +412,9 @@ class Dominant extends BoxyFlexible {
   /// This is equivalent to
   /// `BoxyFlexible(flex: 1, dominant: true, fit: FlexFit.tight, child: ...)`.
   const Dominant.expanded({
-    Key key,
+    Key? key,
     int flex = 1,
-    @required Widget child,
+    required Widget child,
   }) : super(
     key: key,
     flex: flex,
@@ -434,8 +424,7 @@ class Dominant extends BoxyFlexible {
   );
 }
 
-bool _startIsTopLeft(Axis direction, TextDirection textDirection, VerticalDirection verticalDirection) {
-  assert(direction != null);
+bool? _startIsTopLeft(Axis direction, TextDirection? textDirection, VerticalDirection verticalDirection) {
   // If the relevant value of textDirection or verticalDirection is null, this returns null too.
   switch (direction) {
     case Axis.horizontal:
@@ -444,8 +433,9 @@ bool _startIsTopLeft(Axis direction, TextDirection textDirection, VerticalDirect
           return true;
         case TextDirection.rtl:
           return false;
+        case null:
+          return null;
       }
-      break;
     case Axis.vertical:
       switch (verticalDirection) {
         case VerticalDirection.down:
@@ -453,9 +443,7 @@ bool _startIsTopLeft(Axis direction, TextDirection textDirection, VerticalDirect
         case VerticalDirection.up:
           return false;
       }
-      break;
   }
-  return null;
 }
 
 typedef _ChildSizingFunction = double Function(RenderBox child, double extent);
@@ -476,25 +464,21 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
   /// By default, the flex layout is horizontal and children are aligned to the
   /// start of the main axis and the center of the cross axis.
   RenderBoxyFlex({
-    List<RenderBox> children,
+    List<RenderBox>? children,
     Axis direction = Axis.horizontal,
     MainAxisSize mainAxisSize = MainAxisSize.max,
     MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start,
     CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.stretch,
-    TextDirection textDirection,
+    TextDirection? textDirection,
     VerticalDirection verticalDirection = VerticalDirection.down,
-    TextBaseline textBaseline,
-  }) : assert(direction != null),
-        assert(mainAxisAlignment != null),
-        assert(mainAxisSize != null),
-        assert(crossAxisAlignment != null),
-        _direction = direction,
-        _mainAxisAlignment = mainAxisAlignment,
-        _mainAxisSize = mainAxisSize,
-        _crossAxisAlignment = crossAxisAlignment,
-        _textDirection = textDirection,
-        _verticalDirection = verticalDirection,
-        _textBaseline = textBaseline {
+    TextBaseline? textBaseline,
+  }) : _direction = direction,
+       _mainAxisAlignment = mainAxisAlignment,
+       _mainAxisSize = mainAxisSize,
+       _crossAxisAlignment = crossAxisAlignment,
+       _textDirection = textDirection,
+       _verticalDirection = verticalDirection,
+       _textBaseline = textBaseline {
     addAll(children);
   }
 
@@ -502,7 +486,6 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
   Axis get direction => _direction;
   Axis _direction;
   set direction(Axis value) {
-    assert(value != null);
     if (_direction != value) {
       _direction = value;
       markNeedsLayout();
@@ -521,7 +504,6 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
   MainAxisAlignment get mainAxisAlignment => _mainAxisAlignment;
   MainAxisAlignment _mainAxisAlignment;
   set mainAxisAlignment(MainAxisAlignment value) {
-    assert(value != null);
     if (_mainAxisAlignment != value) {
       _mainAxisAlignment = value;
       markNeedsLayout();
@@ -541,7 +523,6 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
   MainAxisSize get mainAxisSize => _mainAxisSize;
   MainAxisSize _mainAxisSize;
   set mainAxisSize(MainAxisSize value) {
-    assert(value != null);
     if (_mainAxisSize != value) {
       _mainAxisSize = value;
       markNeedsLayout();
@@ -560,7 +541,6 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
   CrossAxisAlignment get crossAxisAlignment => _crossAxisAlignment;
   CrossAxisAlignment _crossAxisAlignment;
   set crossAxisAlignment(CrossAxisAlignment value) {
-    assert(value != null);
     if (_crossAxisAlignment != value) {
       _crossAxisAlignment = value;
       markNeedsLayout();
@@ -587,9 +567,9 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
   /// If the [direction] is [Axis.vertical], and the [crossAxisAlignment] is
   /// either [CrossAxisAlignment.start] or [CrossAxisAlignment.end], then the
   /// [textDirection] must not be null.
-  TextDirection get textDirection => _textDirection;
-  TextDirection _textDirection;
-  set textDirection(TextDirection value) {
+  TextDirection? get textDirection => _textDirection;
+  TextDirection? _textDirection;
+  set textDirection(TextDirection? value) {
     if (_textDirection != value) {
       _textDirection = value;
       markNeedsLayout();
@@ -626,9 +606,9 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
   /// If aligning items according to their baseline, which baseline to use.
   ///
   /// Must not be null if [crossAxisAlignment] is [CrossAxisAlignment.baseline].
-  TextBaseline get textBaseline => _textBaseline;
-  TextBaseline _textBaseline;
-  set textBaseline(TextBaseline value) {
+  TextBaseline? get textBaseline => _textBaseline;
+  TextBaseline? _textBaseline;
+  set textBaseline(TextBaseline? value) {
     assert(_crossAxisAlignment != CrossAxisAlignment.baseline || value != null);
     if (_textBaseline != value) {
       _textBaseline = value;
@@ -637,8 +617,6 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
   }
 
   bool get _debugHasNecessaryDirections {
-    assert(direction != null);
-    assert(crossAxisAlignment != null);
     if (firstChild != null && lastChild != firstChild) {
       // i.e. there's more than one child
       switch (direction) {
@@ -646,7 +624,6 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
           assert(textDirection != null, 'Horizontal $runtimeType with multiple children has a null textDirection, so the layout order is undefined.');
           break;
         case Axis.vertical:
-          assert(verticalDirection != null, 'Vertical $runtimeType with multiple children has a null verticalDirection, so the layout order is undefined.');
           break;
       }
     }
@@ -657,7 +634,6 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
           assert(textDirection != null, 'Horizontal $runtimeType with $mainAxisAlignment has a null textDirection, so the alignment cannot be resolved.');
           break;
         case Axis.vertical:
-          assert(verticalDirection != null, 'Vertical $runtimeType with $mainAxisAlignment has a null verticalDirection, so the alignment cannot be resolved.');
           break;
       }
     }
@@ -665,7 +641,6 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
         crossAxisAlignment == CrossAxisAlignment.end) {
       switch (direction) {
         case Axis.horizontal:
-          assert(verticalDirection != null, 'Horizontal $runtimeType with $crossAxisAlignment has a null verticalDirection, so the alignment cannot be resolved.');
           break;
         case Axis.vertical:
           assert(textDirection != null, 'Vertical $runtimeType with $crossAxisAlignment has a null textDirection, so the alignment cannot be resolved.');
@@ -676,7 +651,7 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
   }
 
   // Set during layout if overflow occurred on the main axis.
-  double _overflow;
+  double _overflow = 0.0;
   // Check whether any meaningful overflow is present. Values below an epsilon
   // are treated as not overflowing.
   bool get _hasOverflow => _overflow > precisionErrorTolerance;
@@ -696,9 +671,9 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
   bool get _canComputeIntrinsics => crossAxisAlignment != CrossAxisAlignment.baseline;
 
   double _getIntrinsicSize({
-    Axis sizingDirection,
-    double extent, // the extent in the direction that isn't the sizing direction
-    _ChildSizingFunction childSize, // a method to find the size in the sizing direction
+    required Axis sizingDirection,
+    required double extent, // the extent in the direction that isn't the sizing direction
+    required _ChildSizingFunction childSize, // a method to find the size in the sizing direction
   }) {
     if (!_canComputeIntrinsics) {
       // Intrinsics cannot be calculated without a full layout for
@@ -718,7 +693,7 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
       double totalFlex = 0.0;
       double inflexibleSpace = 0.0;
       double maxFlexFractionSoFar = 0.0;
-      RenderBox child = firstChild;
+      RenderBox? child = firstChild;
       while (child != null) {
         final int flex = _getFlex(child);
         totalFlex += flex;
@@ -739,8 +714,8 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
       // with the children sized using their max intrinsic dimensions.
 
       // Return the dominant intrinsic size, if any.
-      RenderBox child = firstChild;
-      RenderBox dominantChild;
+      RenderBox? child = firstChild;
+      RenderBox? dominantChild;
       while (child != null) {
         final flex = _getFlex(child);
         if (_getDominant(child)) {
@@ -840,7 +815,7 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
   }
 
   @override
-  double computeDistanceToActualBaseline(TextBaseline baseline) {
+  double? computeDistanceToActualBaseline(TextBaseline baseline) {
     if (_direction == Axis.horizontal)
       return defaultComputeDistanceToHighestActualBaseline(baseline);
     return defaultComputeDistanceToFirstActualBaseline(baseline);
@@ -862,12 +837,12 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
     return childParentData.dominant ?? false;
   }
 
-  FlutterError _debugCheckConstraints({@required BoxConstraints constraints, @required bool reportParentConstraints}) {
-    FlutterError result;
+  FlutterError? _debugCheckConstraints({required BoxConstraints constraints, required bool reportParentConstraints}) {
+    FlutterError? result;
     assert(() {
       final double maxMainSize = _direction == Axis.horizontal ? constraints.maxWidth : constraints.maxHeight;
       final bool canFlex = maxMainSize < double.infinity;
-      RenderBox child = firstChild;
+      RenderBox? child = firstChild;
       while (child != null) {
         final int flex = _getFlex(child);
         if (flex > 0) {
@@ -885,17 +860,17 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
               'expand to fill the remaining space in the $axis direction.'
             );
             if (reportParentConstraints) { // Constraints of parents are unavailable in dry layout.
-              RenderBox node = this;
+              RenderBox? node = this;
               switch (_direction) {
                 case Axis.horizontal:
-                  while (!node.constraints.hasBoundedWidth && node.parent is RenderBox)
-                    node = node.parent as RenderBox;
+                  while (!node!.constraints.hasBoundedWidth && node.parent is RenderBox)
+                    node = node.parent as RenderBox?;
                   if (!node.constraints.hasBoundedWidth)
                     node = null;
                   break;
                 case Axis.vertical:
-                  while (!node.constraints.hasBoundedHeight && node.parent is RenderBox)
-                    node = node.parent as RenderBox;
+                  while (!node!.constraints.hasBoundedHeight && node.parent is RenderBox)
+                    node = node.parent as RenderBox?;
                   if (!node.constraints.hasBoundedHeight)
                     node = null;
                   break;
@@ -952,7 +927,7 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
       ));
       return Size.zero;
     }
-    FlutterError constraintsError;
+    FlutterError? constraintsError;
     assert(() {
       constraintsError = _debugCheckConstraints(
         constraints: constraints,
@@ -981,23 +956,20 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
       case Axis.vertical:
         return constraints.constrain(Size(sizes.crossSize, sizes.mainSize));
     }
-
-    return null;
   }
 
   _LayoutSizes _computeSizes({
-    @required BoxConstraints constraints,
-    @required ChildLayouter layoutChild,
+    required BoxConstraints constraints,
+    required ChildLayouter layoutChild,
   }) {
     int totalFlex = 0;
-    assert(constraints != null);
     final double maxMainSize = _direction == Axis.horizontal ? constraints.maxWidth : constraints.maxHeight;
     final bool canFlex = maxMainSize < double.infinity;
 
-    RenderBox dominantChild;
-    RenderBox child = firstChild;
+    RenderBox? dominantChild;
+    RenderBox? child = firstChild;
     bool hasInflexible = false;
-    RenderBox lastFlexChild;
+    RenderBox? lastFlexChild;
 
     while (child != null) {
       final int flex = _getFlex(child);
@@ -1015,7 +987,7 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
           final String dimension = _direction == Axis.horizontal ? 'width' : 'height';
           DiagnosticsNode error, message;
           final List<DiagnosticsNode> addendum = <DiagnosticsNode>[];
-          if (!canFlex && (mainAxisSize == MainAxisSize.max || _getFit(child) == FlexFit.tight)) {
+          if (!canFlex && (mainAxisSize == MainAxisSize.max || _getFit(child!) == FlexFit.tight)) {
             error = ErrorSummary('RenderBoxyFlex children have non-zero flex but incoming $dimension constraints are unbounded.');
             message = ErrorDescription(
               'When a $identity is in a parent that does not provide a finite $dimension constraint, for example '
@@ -1023,17 +995,17 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
               'axis. Setting a flex on a child (e.g. using Expanded) indicates that the child is to '
               'expand to fill the remaining space in the $axis direction.'
             );
-            RenderBox node = this;
+            RenderBox? node = this;
             switch (_direction) {
               case Axis.horizontal:
-                while (!node.constraints.hasBoundedWidth && node.parent is RenderBox)
-                  node = node.parent as RenderBox;
+                while (!node!.constraints.hasBoundedWidth && node.parent is RenderBox)
+                  node = node.parent as RenderBox?;
                 if (!node.constraints.hasBoundedWidth)
                   node = null;
                 break;
               case Axis.vertical:
-                while (!node.constraints.hasBoundedHeight && node.parent is RenderBox)
-                  node = node.parent as RenderBox;
+                while (!node!.constraints.hasBoundedHeight && node.parent is RenderBox)
+                  node = node.parent as RenderBox?;
                 if (!node.constraints.hasBoundedHeight)
                   node = null;
                 break;
@@ -1145,8 +1117,8 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
         final flex = childParentData.flex ?? 0;
         if (flex > 0) {
           final maxChildExtent = canFlex ? (child == lastFlexChild ? (freeSpace - allocatedFlexSpace) : spacePerFlex * flex) : double.infinity;
-          double minChildExtent;
-          switch (childParentData.fit) {
+          late final double minChildExtent;
+          switch (childParentData.fit ?? FlexFit.tight) {
             case FlexFit.tight:
               assert(maxChildExtent < double.infinity);
               minChildExtent = maxChildExtent;
@@ -1155,7 +1127,6 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
               minChildExtent = 0.0;
               break;
           }
-          assert(minChildExtent != null);
 
           if (child != dominantChild || hasInflexible) {
             BoxConstraints flexConstraints;
@@ -1180,7 +1151,7 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
             layoutChild(child, flexConstraints);
           }
 
-          final double childSize = childParentData._tempSize.axisSize(_direction);
+          final double childSize = childParentData._tempSize!.axisSize(_direction);
           assert(() {
             if (!(childSize <= maxChildExtent)) {
               return false;
@@ -1189,7 +1160,7 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
           }());
           allocatedSize += childSize;
           allocatedFlexSpace += maxChildExtent;
-          crossSize = math.max(crossSize, childParentData._tempSize.crossAxisSize(_direction));
+          crossSize = math.max(crossSize, childParentData._tempSize!.crossAxisSize(_direction));
         }
         child = childParentData.nextSibling;
       }
@@ -1229,7 +1200,7 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
             throw FlutterError('To use FlexAlignItems.baseline, you must also specify which baseline to use using the "baseline" argument.');
           return true;
         }());
-        final double distance = child.getDistanceToBaseline(textBaseline, onlyReal: true);
+        final double? distance = child.getDistanceToBaseline(textBaseline!, onlyReal: true);
         if (distance != null) {
           maxBaselineDistance = math.max(maxBaselineDistance, distance);
           maxSizeAboveBaseline = math.max(
@@ -1254,8 +1225,8 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
     final actualSizeDelta = actualSize - _sizes.allocatedSize;
     _overflow = math.max(0.0, -actualSizeDelta);
     final remainingSpace = math.max(0.0, actualSizeDelta);
-    double leadingSpace;
-    double betweenSpace;
+    late double leadingSpace;
+    late double betweenSpace;
 
     // flipMainAxis is used to decide whether to lay out left-to-right/top-to-bottom (false), or
     // right-to-left/bottom-to-top (true). The _startIsTopLeft will return null if there's only
@@ -1294,11 +1265,11 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
     var child = firstChild;
     while (child != null) {
       final FlexParentData childParentData = child.parentData as FlexParentData;
-      double childCrossPosition;
+      final double childCrossPosition;
       switch (_crossAxisAlignment) {
         case CrossAxisAlignment.start:
         case CrossAxisAlignment.end:
-          childCrossPosition = _startIsTopLeft(flipAxis(direction), textDirection, verticalDirection)
+          childCrossPosition = _startIsTopLeft(flipAxis(direction), textDirection!, verticalDirection)
               == (_crossAxisAlignment == CrossAxisAlignment.start)
               ? 0.0
               : crossSize - child.size.crossAxisSize(_direction);
@@ -1310,12 +1281,15 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
           childCrossPosition = 0.0;
           break;
         case CrossAxisAlignment.baseline:
-          childCrossPosition = 0.0;
           if (_direction == Axis.horizontal) {
             assert(textBaseline != null);
-            final double distance = child.getDistanceToBaseline(textBaseline, onlyReal: true);
+            final double? distance = child.getDistanceToBaseline(textBaseline!, onlyReal: true);
             if (distance != null)
               childCrossPosition = maxBaselineDistance - distance;
+            else
+              childCrossPosition = 0.0;
+          } else {
+            childCrossPosition = 0.0;
           }
           break;
       }
@@ -1338,7 +1312,7 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
   }
 
   @override
-  bool hitTestChildren(BoxHitTestResult result, { Offset position }) {
+  bool hitTestChildren(BoxHitTestResult result, { required Offset position }) {
     return defaultHitTestChildren(result, position: position);
   }
 
@@ -1385,7 +1359,7 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
       // Simulate a child rect that overflows by the right amount. This child
       // rect is never used for drawing, just for determining the overflow
       // location and amount.
-      Rect overflowChildRect;
+      late Rect overflowChildRect;
       switch (_direction) {
         case Axis.horizontal:
           overflowChildRect = Rect.fromLTWH(0.0, 0.0, size.width + _overflow, 0.0);
@@ -1400,7 +1374,7 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
   }
 
   @override
-  Rect describeApproximatePaintClip(RenderObject child) => _hasOverflow ? Offset.zero & size : null;
+  Rect? describeApproximatePaintClip(RenderObject child) => _hasOverflow ? Offset.zero & size : null;
 
   @override
   String toStringShort() {
@@ -1425,9 +1399,9 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
 
 class _LayoutSizes {
   const _LayoutSizes({
-    @required this.mainSize,
-    @required this.crossSize,
-    @required this.allocatedSize,
+    required this.mainSize,
+    required this.crossSize,
+    required this.allocatedSize,
   });
 
   final double mainSize;
