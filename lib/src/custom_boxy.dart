@@ -1,5 +1,3 @@
-// @dart=2.9
-
 import 'dart:collection';
 import 'dart:math';
 
@@ -35,26 +33,14 @@ import 'package:flutter/rendering.dart';
 ///  * [BoxyDelegate], the base class of a delegate.
 class CustomBoxy extends RenderObjectWidget {
   /// Constructs a CustomBoxy with a delegate and optional set of children.
-  CustomBoxy({
-    Key key,
-    @required this.delegate,
-    this.children = const <Widget/*!*/>[],
-  }) : assert(delegate != null),
-    assert(children != null),
-    assert(() {
-      final int index = children.indexOf(null);
-      if (index >= 0) {
-        throw FlutterError(
-          "CustomBoxy's children must not contain any null values, "
-          'but a null value was found at index $index'
-        );
-      }
-      return true;
-    }()),
-    super(key: key);
+  const CustomBoxy({
+    Key? key,
+    required this.delegate,
+    this.children = const <Widget>[],
+  }) : super(key: key);
 
   /// The list of children this boxy is a parent of.
-  final List<Widget/*!*/> children;
+  final List<Widget> children;
 
   /// The delegate that controls the layout of the children.
   final BoxyDelegate delegate;
@@ -76,10 +62,10 @@ class CustomBoxy extends RenderObjectWidget {
 class _RenderBoxyElementEntry extends LinkedListEntry<_RenderBoxyElementEntry> {
   _RenderBoxyElementEntry(this.id, this.element);
   final Object id;
-  Element/*!*/ element;
+  Element element;
 }
 
-typedef _RenderBoxyInflater = RenderBox/*!*/ Function(Object, Widget/*!*/);
+typedef _RenderBoxyInflater = RenderBox Function(Object, Widget);
 
 /// An Element that uses a [CustomBoxy] as its configuration, this is similar to
 /// [MultiChildRenderObjectElement] but allows multiple children to be inflated
@@ -96,72 +82,72 @@ class _RenderBoxyElement extends RenderObjectElement {
   _RenderBoxy get renderObject => super.renderObject as _RenderBoxy;
 
   // Elements of children explicitly passed to the widget.
-  List<Element/*!*/>/*!*/ _children;
+  List<Element>? _children;
 
   // Elements of widgets inflated at layout time, this is separate from
   // _children so we can leverage the performance of updateChildren without
   // touching ones inflated by the delegate.
-  final _delegateChildren = LinkedList<_RenderBoxyElementEntry/*!*/>();
+  final LinkedList<_RenderBoxyElementEntry> _delegateChildren = LinkedList<_RenderBoxyElementEntry>();
 
   // Hash map of each entry in _delegateChildren
   final _delegateCache = HashMap<Object, _RenderBoxyElementEntry>();
 
   void wrapInflaterCallback(void Function(_RenderBoxyInflater) callback) {
-    assert(_delegateCache != null && _delegateChildren != null);
-
     Set<Object> inflatedIds;
 
     inflatedIds = <Object>{};
 
     int index = 0;
-    _RenderBoxyElementEntry lastEntry;
+    _RenderBoxyElementEntry? lastEntry;
 
-    RenderBox/*!*/ inflateChild(Object id, Widget/*!*/ widget) {
+    RenderBox inflateChild(Object id, Widget widget) {
       final slotIndex = index++;
 
       inflatedIds.add(id);
 
       var entry = _delegateCache[id];
 
+      final children = _children!;
+
       void pushChild(Widget widget) {
         final newSlot = IndexedSlot(
           slotIndex, lastEntry == null ?
-            (_children.isEmpty ? null : _children.last) : lastEntry.element,
+            (children.isEmpty ? null : children.last) : lastEntry!.element,
         );
-        final newEntry = _RenderBoxyElementEntry(id, updateChild(null, widget, newSlot));
+        final newEntry = _RenderBoxyElementEntry(id, updateChild(null, widget, newSlot)!);
         entry = newEntry;
         _delegateCache[id] = newEntry;
         if (lastEntry == null) {
           _delegateChildren.addFirst(newEntry);
         } else {
-          lastEntry.insertAfter(newEntry);
+          lastEntry!.insertAfter(newEntry);
         }
       }
 
       try {
         if (entry != null) {
-          final movedTop = lastEntry == null && entry.previous != null;
-          final moved = movedTop || (lastEntry != null && entry.previous?.id != lastEntry.id);
+          final movedTop = lastEntry == null && entry!.previous != null;
+          final moved = movedTop || (lastEntry != null && entry!.previous?.id != lastEntry!.id);
 
           final newSlot = IndexedSlot(slotIndex, moved ?
             (movedTop ?
-              (_children.isEmpty ? null : _children.last) :
-              lastEntry.element) :
-            entry.previous?.element ??
-              (_children.isEmpty ? null : _children.last));
+              (children.isEmpty ? null : children.last) :
+              lastEntry!.element) :
+            entry!.previous?.element ??
+              (children.isEmpty ? null : children.last));
 
-          entry.element = updateChild(entry.element, widget, newSlot);
+          entry!.element = updateChild(entry!.element, widget, newSlot)!;
 
           // Move child if it was inflated in a different order
           if (moved) {
-            entry.unlink();
+            entry!.unlink();
             if (movedTop) {
-              _delegateChildren.addFirst(entry);
+              _delegateChildren.addFirst(entry!);
             } else {
-              lastEntry.insertAfter(entry);
+              lastEntry!.insertAfter(entry!);
             }
             // oldSlot can be null because we don't use it
-            moveRenderObjectChild(entry.element.renderObject as RenderBox, null, newSlot);
+            moveRenderObjectChild(entry!.element.renderObject as RenderBox, null, newSlot);
           }
         } else {
           pushChild(widget);
@@ -184,9 +170,9 @@ class _RenderBoxyElement extends RenderObjectElement {
 
       lastEntry = entry;
 
-      assert(entry.element.renderObject != null);
+      assert(entry!.element.renderObject != null);
 
-      return entry.element.renderObject as RenderBox;
+      return entry!.element.renderObject as RenderBox;
     }
 
     callback(inflateChild);
@@ -194,13 +180,13 @@ class _RenderBoxyElement extends RenderObjectElement {
     // One or more cached children were not inflated, deactivate them.
     if (inflatedIds.length != _delegateCache.length) {
       assert(inflatedIds.length < _delegateCache.length);
-      lastEntry = lastEntry == null ? _delegateChildren.first : lastEntry.next;
+      lastEntry = lastEntry == null ? _delegateChildren.first : lastEntry!.next;
       while (lastEntry != null) {
-        final next = lastEntry.next;
-        assert(!inflatedIds.contains(lastEntry.id));
-        deactivateChild(lastEntry.element);
-        lastEntry.unlink();
-        _delegateCache.remove(lastEntry.id);
+        final next = lastEntry!.next;
+        assert(!inflatedIds.contains(lastEntry!.id));
+        deactivateChild(lastEntry!.element);
+        lastEntry!.unlink();
+        _delegateCache.remove(lastEntry!.id);
         lastEntry = next;
       }
     }
@@ -211,23 +197,23 @@ class _RenderBoxyElement extends RenderObjectElement {
   final Set<Element> _forgottenChildren = HashSet<Element>();
 
   @override
-  void insertRenderObjectChild(RenderBox child, IndexedSlot<Element/*?*/> slot) {
+  void insertRenderObjectChild(RenderBox child, IndexedSlot<Element?>? slot) {
     final renderObject = this.renderObject;
     assert(renderObject.debugValidateChild(child));
-    renderObject.insert(child, after: slot?.value?.renderObject as RenderBox);
+    renderObject.insert(child, after: slot?.value?.renderObject as RenderBox?);
     assert(renderObject == this.renderObject);
   }
 
   @override
-  void moveRenderObjectChild(RenderBox child, IndexedSlot<Element/*?*/> oldSlot, IndexedSlot<Element> slot) {
+  void moveRenderObjectChild(RenderBox child, IndexedSlot<Element?>? oldSlot, IndexedSlot<Element?>? slot) {
     final renderObject = this.renderObject;
     assert(child.parent == renderObject);
-    renderObject.move(child, after: slot?.value?.renderObject as RenderBox);
+    renderObject.move(child, after: slot?.value?.renderObject as RenderBox?);
     assert(renderObject == this.renderObject);
   }
 
   @override
-  void removeRenderObjectChild(RenderBox child, IndexedSlot<Element/*?*/> slot) {
+  void removeRenderObjectChild(RenderBox child, IndexedSlot<Element?>? slot) {
     final renderObject = this.renderObject;
     assert(child.parent == renderObject);
     renderObject.remove(child);
@@ -236,7 +222,7 @@ class _RenderBoxyElement extends RenderObjectElement {
 
   @override
   void visitChildren(ElementVisitor visitor) {
-    for (final child in _children) {
+    for (final child in _children!) {
       if (!_forgottenChildren.contains(child))
         visitor(child);
     }
@@ -259,22 +245,22 @@ class _RenderBoxyElement extends RenderObjectElement {
     }
     if (!inflated) {
       assert(!_forgottenChildren.contains(child));
-      assert(_children.contains(child));
+      assert(_children!.contains(child));
       _forgottenChildren.add(child);
     }
     super.forgetChild(child);
   }
 
   @override
-  void mount(Element parent, dynamic newSlot) {
+  void mount(Element? parent, dynamic newSlot) {
     super.mount(parent, newSlot);
-    _children = List<Element>.filled(widget.children.length, null);
+    _children = List<Element?>.filled(widget.children.length, null) as List<Element>;
 
-    Element previousChild;
-    for (int i = 0; i < _children.length; i += 1) {
+    Element? previousChild;
+    for (int i = 0; i < _children!.length; i += 1) {
       final slot = IndexedSlot(i, previousChild);
       final newChild = inflateWidget(widget.children[i], slot);
-      _children[i] = newChild;
+      _children![i] = newChild;
       previousChild = newChild;
     }
 
@@ -294,13 +280,14 @@ class _RenderBoxyElement extends RenderObjectElement {
     super.update(newWidget);
     assert(widget == newWidget);
 
-    _children = updateChildren(_children, widget.children, forgottenChildren: _forgottenChildren);
+    final children = updateChildren(_children ?? const [], widget.children, forgottenChildren: _forgottenChildren);
+    _children = children;
     _forgottenChildren.clear();
 
     if (_delegateChildren.isNotEmpty) {
-      final newSlot = _children.isEmpty ?
+      final newSlot = children.isEmpty ?
         const IndexedSlot(0, null) :
-        IndexedSlot(_children.length, _children.last);
+        IndexedSlot(children.length, children.last);
       final childElement = _delegateChildren.first.element;
       if (childElement.slot != newSlot) {
         updateSlotForChild(childElement, newSlot);
@@ -324,20 +311,17 @@ class _RenderBoxyParentData extends MultiChildLayoutParentData {
 class _RenderBoxy extends RenderBox with
   ContainerRenderObjectMixin<RenderBox, _RenderBoxyParentData> {
 
-  _RenderBoxy({@required BoxyDelegate delegate}) : assert(delegate != null),
-    _delegate = delegate;
+  _RenderBoxy({required BoxyDelegate delegate}) : _delegate = delegate;
 
-  BoxyDelegate get delegate => _delegate;
   final _delegateContext = _BoxyDelegateContext();
 
-  _RenderBoxyElement/*!*/ _element;
+  late _RenderBoxyElement _element;
 
   void flushInflateQueue() {
-    _element.owner.buildScope(_element, () {
+    _element.owner!.buildScope(_element, () {
       for (final child in _delegateContext.inflateQueue) {
         assert(child._widget != null);
-        final childObject = _delegateContext.inflater(child.id, child._widget);
-        assert(childObject != null);
+        final childObject = _delegateContext.inflater!(child.id, child._widget!);
         child._render = childObject;
       }
       _delegateContext.inflateQueue.clear();
@@ -356,10 +340,10 @@ class _RenderBoxy extends RenderBox with
 
     int index = 0;
     int movingIndex = 0;
-    RenderBox child = firstChild;
+    RenderBox? child = firstChild;
 
     // Attempt to recycle existing child handles.
-    final top = min(_element._children.length, _delegateContext.children.length);
+    final top = min(_element._children!.length, _delegateContext.children.length);
     while (index < top && child != null) {
       final parentData = child.parentData as _RenderBoxyParentData;
       var id = parentData.id;
@@ -387,7 +371,7 @@ class _RenderBoxy extends RenderBox with
     _delegateContext.children.length = index;
 
     // Create new child handles
-    while (child != null && index < _element._children.length) {
+    while (child != null && index < _element._children!.length) {
       final parentData = child.parentData as _RenderBoxyParentData;
       var id = parentData.id;
 
@@ -398,7 +382,7 @@ class _RenderBoxy extends RenderBox with
         if (_delegateContext.childrenMap.containsKey(id)) {
           throw FlutterError.fromParts(<DiagnosticsNode>[
             ErrorSummary('The $_delegate boxy delegate was given a child with a duplicate id.'),
-            child.describeForError('The following child has the duplicate id $id'),
+            child!.describeForError('The following child has the duplicate id $id'),
           ]);
         }
         return true;
@@ -434,7 +418,6 @@ class _RenderBoxy extends RenderBox with
           } finally {
             _delegateContext.render.flushInflateQueue();
           }
-          assert(size != null);
           size = constraints.constrain(size);
         });
         _delegateContext.inflater = null;
@@ -464,23 +447,23 @@ class _RenderBoxy extends RenderBox with
   @override
   Size computeDryLayout(BoxConstraints dryConstraints) {
     _delegateContext._dryConstraints = dryConstraints;
-    Size resultSize;
+    Size? resultSize;
     try {
       delegate._callWithContext(_delegateContext, _BoxyDelegateState.DryLayout, () {
         resultSize = delegate.layout();
         assert(resultSize != null);
-        resultSize = dryConstraints.constrain(resultSize);
+        resultSize = dryConstraints.constrain(resultSize!);
       });
     } on _CannotInflateError {
       return Size.zero;
     } finally {
       _delegateContext._dryConstraints = null;
     }
-    return resultSize;
+    return resultSize!;
   }
 
-  String _debugDescribeChild(Object id) =>
-    '$id: ${_delegateContext.childrenMap[id].render}';
+  String _debugDescribeChild(Object? id) =>
+    '$id: ${_delegateContext.childrenMap[id!]!.render}';
 
   @override
   double computeMinIntrinsicWidth(double height) => _delegate._callWithContext(
@@ -511,8 +494,8 @@ class _RenderBoxy extends RenderBox with
   /// The delegate that controls the layout of a set of children.
   BoxyDelegate _delegate;
 
+  BoxyDelegate get delegate => _delegate;
   set delegate(BoxyDelegate newDelegate) {
-    assert(newDelegate != null);
     if (_delegate == newDelegate)
       return;
 
@@ -535,24 +518,24 @@ class _RenderBoxy extends RenderBox with
     }
 
     if (attached) {
-      oldDelegate?._relayout?.removeListener(markNeedsLayout);
-      oldDelegate?._repaint?.removeListener(markNeedsPaint);
-      newDelegate?._relayout?.addListener(markNeedsLayout);
-      newDelegate?._repaint?.addListener(markNeedsPaint);
+      oldDelegate._relayout?.removeListener(markNeedsLayout);
+      oldDelegate._repaint?.removeListener(markNeedsPaint);
+      newDelegate._relayout?.addListener(markNeedsLayout);
+      newDelegate._repaint?.addListener(markNeedsPaint);
     }
   }
 
   @override
   void attach(PipelineOwner owner) {
     super.attach(owner);
-    _delegate?._relayout?.addListener(markNeedsLayout);
-    _delegate?._repaint?.addListener(markNeedsPaint);
+    _delegate._relayout?.addListener(markNeedsLayout);
+    _delegate._repaint?.addListener(markNeedsPaint);
   }
 
   @override
   void detach() {
-    _delegate?._relayout?.removeListener(markNeedsLayout);
-    _delegate?._repaint?.removeListener(markNeedsPaint);
+    _delegate._relayout?.removeListener(markNeedsLayout);
+    _delegate._repaint?.removeListener(markNeedsPaint);
     super.detach();
   }
 
@@ -580,7 +563,7 @@ class _RenderBoxy extends RenderBox with
   }
 
   @override
-  bool hitTest(BoxHitTestResult result, {@required Offset position}) {
+  bool hitTest(BoxHitTestResult result, {required Offset position}) {
     _delegateContext.hitTestResult = result;
     _delegateContext.offset = position;
     try {
@@ -613,20 +596,20 @@ class _BoxyDelegateContext {
     layers = BoxyLayerContext._(this);
   }
 
-  _RenderBoxy render;
+  late _RenderBoxy render;
   List<BoxyChild> inflateQueue = [];
   List<BoxyChild> children = [];
   Map<Object, BoxyChild> childrenMap = HashMap();
   int indexedChildCount = 0;
-  PaintingContext paintingContext;
-  BoxHitTestResult hitTestResult;
-  Offset offset;
-  BoxyLayerContext layers;
-  Object layoutData;
-  _RenderBoxyInflater inflater;
-  BoxConstraints _dryConstraints;
+  PaintingContext? paintingContext;
+  BoxHitTestResult? hitTestResult;
+  Offset? offset;
+  late BoxyLayerContext layers;
+  Object? layoutData;
+  _RenderBoxyInflater? inflater;
+  BoxConstraints? _dryConstraints;
 
-  final Set<Object> debugChildrenNeedingLayout = {};
+  final Set<Object?> debugChildrenNeedingLayout = {};
 
   _BoxyDelegateState _debugState = _BoxyDelegateState.None;
   _BoxyDelegateState get debugState => _debugState;
@@ -649,7 +632,7 @@ class _BoxyDelegateContext {
 ///  * [BoxyLayerContext]
 class LayerKey {
   /// The current cached layer.
-  Layer layer;
+  late Layer layer;
 }
 
 /// A convenient wrapper to [PaintingContext], provides methods to push
@@ -675,9 +658,9 @@ class BoxyLayerContext {
   ///
   ///  * [PaintingContext.pushLayer]
   void push({
-    @required VoidCallback paint,
-    ContainerLayer layer,
-    Rect bounds,
+    required VoidCallback paint,
+    ContainerLayer? layer,
+    Rect? bounds,
     Offset offset = Offset.zero,
   }) {
     final oldContext = _context.paintingContext;
@@ -686,14 +669,14 @@ class BoxyLayerContext {
       if (layer == null) {
         paint();
       } else {
-        oldContext.pushLayer(
+        oldContext!.pushLayer(
           layer,
           (context, offset) {
             _context.paintingContext = context;
             _context.offset = offset;
             paint();
           },
-          offset + _context.offset,
+          offset + _context.offset!,
           childPaintBounds: bounds,
         );
       }
@@ -711,8 +694,8 @@ class BoxyLayerContext {
   /// See also:
   ///
   ///  * [PaintingContext.addLayer]
-  void add({@required Layer layer}) {
-    _context.paintingContext.addLayer(layer);
+  void add({required Layer layer}) {
+    _context.paintingContext!.addLayer(layer);
   }
 
   /// Pushes a [ClipPathLayer] to the compositing tree, calling [paint] to paint
@@ -724,17 +707,17 @@ class BoxyLayerContext {
   ///
   ///  * [PaintingContext.pushClipPath]
   void clipPath({
-    @required Path path,
-    @required VoidCallback paint,
+    required Path path,
+    required VoidCallback paint,
     Clip clipBehavior = Clip.antiAlias,
     Offset offset = Offset.zero,
-    Rect bounds,
-    LayerKey key,
+    Rect? bounds,
+    LayerKey? key,
   }) {
-    final offsetClipPath = path.shift(offset + _context.offset);
+    final offsetClipPath = path.shift(offset + _context.offset!);
     ClipPathLayer layer;
     if (key?.layer is ClipPathLayer) {
-      layer = (key.layer as ClipPathLayer)
+      layer = (key!.layer as ClipPathLayer)
         ..clipPath = offsetClipPath
         ..clipBehavior = clipBehavior;
     } else {
@@ -756,17 +739,17 @@ class BoxyLayerContext {
   ///
   ///  * [PaintingContext.pushClipRect]
   void clipRect({
-    @required Rect rect,
-    @required VoidCallback paint,
+    required Rect rect,
+    required VoidCallback paint,
     Clip clipBehavior = Clip.antiAlias,
     Offset offset = Offset.zero,
-    Rect bounds,
-    LayerKey key,
+    Rect? bounds,
+    LayerKey? key,
   }) {
-    final offsetClipRect = rect.shift(offset + _context.offset);
+    final offsetClipRect = rect.shift(offset + _context.offset!);
     ClipRectLayer layer;
     if (key?.layer is ClipRectLayer) {
-      layer = (key.layer as ClipRectLayer)
+      layer = (key!.layer as ClipRectLayer)
         ..clipRect = offsetClipRect
         ..clipBehavior = clipBehavior;
     } else {
@@ -788,17 +771,17 @@ class BoxyLayerContext {
   ///
   ///  * [PaintingContext.pushClipRRect]
   void clipRRect({
-    @required RRect rrect,
-    @required VoidCallback paint,
+    required RRect rrect,
+    required VoidCallback paint,
     Clip clipBehavior = Clip.antiAlias,
     Offset offset = Offset.zero,
-    Rect bounds,
-    LayerKey key,
+    Rect? bounds,
+    LayerKey? key,
   }) {
-    final offsetClipRRect = rrect.shift(offset + _context.offset);
+    final offsetClipRRect = rrect.shift(offset + _context.offset!);
     ClipRRectLayer layer;
     if (key?.layer is ClipRRectLayer) {
-      layer = (key.layer as ClipRRectLayer)
+      layer = (key!.layer as ClipRRectLayer)
         ..clipRRect = offsetClipRRect
         ..clipBehavior = clipBehavior;
     } else {
@@ -820,14 +803,14 @@ class BoxyLayerContext {
   ///
   ///  * [PaintingContext.pushColorFilter]
   void colorFilter({
-    @required ColorFilter colorFilter,
-    @required VoidCallback paint,
-    Rect bounds,
-    LayerKey key,
+    required ColorFilter colorFilter,
+    required VoidCallback paint,
+    Rect? bounds,
+    LayerKey? key,
   }) {
     ColorFilterLayer layer;
     if (key?.layer is ColorFilterLayer) {
-      layer = (key.layer as ColorFilterLayer)..colorFilter = colorFilter;
+      layer = (key!.layer as ColorFilterLayer)..colorFilter = colorFilter;
     } else {
       layer = ColorFilterLayer(colorFilter: colorFilter);
       key?.layer = layer;
@@ -844,14 +827,14 @@ class BoxyLayerContext {
   ///
   ///  * [PaintingContext.pushTransform]
   void offset({
-    @required Offset offset,
-    @required VoidCallback paint,
-    Rect bounds,
-    LayerKey key,
+    required Offset offset,
+    required VoidCallback paint,
+    Rect? bounds,
+    LayerKey? key,
   }) {
     OffsetLayer layer;
     if (key?.layer is OffsetLayer) {
-      layer = (key.layer as OffsetLayer)..offset = offset;
+      layer = (key!.layer as OffsetLayer)..offset = offset;
     } else {
       layer = OffsetLayer(offset: offset);
       key?.layer = layer;
@@ -868,16 +851,16 @@ class BoxyLayerContext {
   ///
   ///  * [PaintingContext.pushTransform]
   void transform({
-    @required Matrix4 transform,
-    @required VoidCallback paint,
+    required Matrix4 transform,
+    required VoidCallback paint,
     Offset offset = Offset.zero,
-    Rect bounds,
-    LayerKey key,
+    Rect? bounds,
+    LayerKey? key,
   }) {
-    final layerOffset = _context.offset + offset;
+    final layerOffset = _context.offset! + offset;
     TransformLayer layer;
     if (key?.layer is TransformLayer) {
-      layer = (key.layer as TransformLayer)
+      layer = (key!.layer as TransformLayer)
         ..transform = transform
         ..offset = layerOffset;
     } else {
@@ -887,7 +870,7 @@ class BoxyLayerContext {
       );
       key?.layer = layer;
     }
-    push(layer: layer, paint: paint, offset: -_context.offset, bounds: bounds);
+    push(layer: layer, paint: paint, offset: -_context.offset!, bounds: bounds);
   }
 
   /// Pushes an [OpacityLayer] to the compositing tree, calling [paint] to paint
@@ -903,15 +886,15 @@ class BoxyLayerContext {
   ///
   ///  * [PaintingContext.pushOpacity]
   void alpha({
-    @required int alpha,
-    @required VoidCallback paint,
+    required int alpha,
+    required VoidCallback paint,
     Offset offset = Offset.zero,
-    Rect bounds,
-    LayerKey key,
+    Rect? bounds,
+    LayerKey? key,
   }) {
     OpacityLayer layer;
     if (key?.layer is OffsetLayer) {
-      layer = (key.layer as OpacityLayer)..alpha = alpha;
+      layer = (key!.layer as OpacityLayer)..alpha = alpha;
     } else {
       layer = OpacityLayer(alpha: alpha);
       key?.layer = layer;
@@ -930,11 +913,11 @@ class BoxyLayerContext {
   ///
   ///  * [PaintingContext.pushOpacity]
   void opacity({
-    @required double opacity,
-    @required VoidCallback paint,
+    required double opacity,
+    required VoidCallback paint,
     Offset offset = Offset.zero,
-    Rect bounds,
-    LayerKey key,
+    Rect? bounds,
+    LayerKey? key,
   }) {
     return alpha(
       alpha: (opacity * 255).round(),
@@ -958,10 +941,10 @@ class BoxyLayerContext {
 ///  * [BoxyDelegate]
 class BoxyChild {
   BoxyChild._({
-    @required _BoxyDelegateContext context,
-    @required this.id,
-    RenderBox render,
-    Widget widget,
+    required _BoxyDelegateContext context,
+    required this.id,
+    RenderBox? render,
+    Widget? widget,
   }) :
     _render = render,
     _widget = widget,
@@ -970,9 +953,9 @@ class BoxyChild {
 
   final _BoxyDelegateContext _context;
   bool _ignore = false;
-  final Widget _widget;
-  Offset _dryOffset;
-  Size _drySize;
+  final Widget? _widget;
+  Offset? _dryOffset;
+  Size? _drySize;
 
   /// The id of the child, will either be the id given by [LayoutId] or an
   /// incrementing int in the order provided to [CustomBoxy].
@@ -981,12 +964,12 @@ class BoxyChild {
   /// The RenderBox for this child in case you need to access intrinsic
   /// dimensions, size, constraints, etc.
   RenderBox get render {
-    if (_render != null) return _render;
+    if (_render != null) return _render!;
     _context.render.flushInflateQueue();
     assert(_render != null);
-    return _render;
+    return _render!;
   }
-  RenderBox _render;
+  RenderBox? _render;
 
   _RenderBoxyParentData get _parentData =>
     render.parentData as _RenderBoxyParentData;
@@ -1051,7 +1034,7 @@ class BoxyChild {
   Size layout(BoxConstraints constraints, {bool useSize = true}) {
     if (_context.debugState == _BoxyDelegateState.DryLayout) {
       _drySize = render.getDryLayout(constraints);
-      return _drySize;
+      return _drySize!;
     }
 
     assert(() {
@@ -1099,7 +1082,7 @@ class BoxyChild {
   ///
   /// This the canvas must be restored before calling this because the child
   /// might need its own [Layer] which is rendered in a separate context.
-  void paint({Offset offset}) {
+  void paint({Offset? offset}) {
     if (_ignore) return;
     assert(() {
       if (_context.debugState != _BoxyDelegateState.Painting) {
@@ -1112,7 +1095,7 @@ class BoxyChild {
     }());
 
     offset ??= _parentData.offset;
-    _context.paintingContext.paintChild(render, _context.offset + offset);
+    _context.paintingContext!.paintChild(render, _context.offset! + offset);
   }
 
   /// Hit tests this child, returns true if the hit was a success. This should
@@ -1123,11 +1106,11 @@ class BoxyChild {
   ///
   /// The [position] argument specifies the relative position of the hit test,
   /// defaults to the position given to [BoxyDelegate.hitTest].
-  bool hitTest({Offset offset, Offset position}) {
+  bool hitTest({Offset? offset, Offset? position}) {
     if (_ignore) return false;
-    return _context.hitTestResult.addWithPaintOffset(
+    return _context.hitTestResult!.addWithPaintOffset(
       offset: offset ?? this.offset,
-      position: position ?? _context.offset,
+      position: position ?? _context.offset!,
       hitTest: (BoxHitTestResult result, Offset transformed) {
         return render.hitTest(result, position: transformed);
       },
@@ -1140,7 +1123,6 @@ class BoxyChild {
   /// Causes this child to be dropped from paint and hit testing, the child
   /// still needs to be layed out.
   void ignore([bool value = true]) {
-    assert(value != null);
     _ignore = value;
   }
 
@@ -1358,18 +1340,18 @@ abstract class BoxyDelegate<T extends Object> {
   /// Constructs a BoxyDelegate with optional [relayout] and [repaint]
   /// [Listenable]s.
   BoxyDelegate({
-    Listenable relayout,
-    Listenable repaint,
+    Listenable? relayout,
+    Listenable? repaint,
   }) : _relayout = relayout, _repaint = repaint;
 
-  final Listenable _relayout;
-  final Listenable _repaint;
+  final Listenable? _relayout;
+  final Listenable? _repaint;
 
-  _BoxyDelegateContext _context;
+  _BoxyDelegateContext? _context;
 
   _BoxyDelegateContext _getContext() {
     assert(() {
-      if (_context == null || _context.debugState == _BoxyDelegateState.None) {
+      if (_context == null || _context!.debugState == _BoxyDelegateState.None) {
         throw FlutterError(
           'The $this boxy delegate attempted to get the context outside of its normal lifecycle.\n'
           'You should only access the BoxyDelegate from its overriden methods.'
@@ -1377,23 +1359,23 @@ abstract class BoxyDelegate<T extends Object> {
       }
       return true;
     }());
-    return _context;
+    return _context!;
   }
 
   /// A slot to hold additional data created during [layout] which can be used
   /// while painting and hit testing.
-  T get layoutData => _getContext().layoutData as T;
+  T? get layoutData => _getContext().layoutData as T?;
 
-  set layoutData(T data) {
+  set layoutData(T? data) {
     assert(() {
-      if (_context == null || _context.debugState != _BoxyDelegateState.Layout) {
+      if (_context == null || _context!.debugState != _BoxyDelegateState.Layout) {
         throw FlutterError(
           'The $this boxy delegate attempted to set layout data outside of the layout method.\n'
         );
       }
       return true;
     }());
-    _context.layoutData = data;
+    _context!.layoutData = data;
   }
 
   /// The RenderBox of the current context.
@@ -1407,7 +1389,8 @@ abstract class BoxyDelegate<T extends Object> {
 
   /// Gets the child handle with the specified [id].
   BoxyChild getChild(Object id) {
-    final child = _getContext().childrenMap[id];
+    final context = _getContext();
+    final child = context.childrenMap[id];
     assert(() {
       if (child == null) {
         throw FlutterError(
@@ -1417,7 +1400,7 @@ abstract class BoxyDelegate<T extends Object> {
       }
       return true;
     }());
-    return child;
+    return child!;
   }
 
   /// Gets the current build context of this boxy.
@@ -1431,20 +1414,20 @@ abstract class BoxyDelegate<T extends Object> {
   /// The most recent constraints given to this boxy during layout.
   BoxConstraints get constraints {
     final context = _getContext();
-    return context._dryConstraints ?? _context.render.constraints;
+    return context._dryConstraints ?? context.render.constraints;
   }
 
   /// The current canvas, should only be accessed from paint methods.
   Canvas get canvas {
     assert(() {
-      if (_context == null || _context.debugState != _BoxyDelegateState.Painting) {
+      if (_context == null || _context!.debugState != _BoxyDelegateState.Painting) {
         throw FlutterError(
           'The $this boxy delegate attempted to access the canvas outside of a paint method.'
         );
       }
       return true;
     }());
-    return _context.paintingContext.canvas;
+    return _context!.paintingContext!.canvas;
   }
 
   /// The offset of the current paint context.
@@ -1453,27 +1436,27 @@ abstract class BoxyDelegate<T extends Object> {
   /// should translate by this in [paintChildren] if you paint to [canvas].
   Offset get paintOffset {
     assert(() {
-      if (_context == null || _context.debugState != _BoxyDelegateState.Painting) {
+      if (_context == null || _context!.debugState != _BoxyDelegateState.Painting) {
         throw FlutterError(
           'The $this boxy delegate attempted to access the paint offset outside of a paint method.'
         );
       }
       return true;
     }());
-    return _context.offset;
+    return _context!.offset!;
   }
 
   /// The current painting context, should only be accessed from paint methods.
   PaintingContext get paintingContext {
     assert(() {
-      if (_context == null || _context.debugState != _BoxyDelegateState.Painting) {
+      if (_context == null || _context!.debugState != _BoxyDelegateState.Painting) {
         throw FlutterError(
           'The $this boxy delegate attempted to access the paint context outside of a paint method.'
         );
       }
       return true;
     }());
-    return _context.paintingContext;
+    return _context!.paintingContext!;
   }
 
   /// The current layer context, useful for pushing [Layer]s to the scene during
@@ -1481,7 +1464,7 @@ abstract class BoxyDelegate<T extends Object> {
   ///
   /// Delegates that push layers should override [needsCompositing] to return
   /// true.
-  BoxyLayerContext get layers => _context.layers;
+  BoxyLayerContext get layers => _context!.layers;
   
   /// Paints a [ContainerLayer] compositing layer in the current painting
   /// context with an optional [painter] callback, this should only be called in
@@ -1497,32 +1480,31 @@ abstract class BoxyDelegate<T extends Object> {
   /// ```
   @Deprecated('Use layers.push instead')
   void paintLayer(ContainerLayer layer, {
-    VoidCallback painter, Offset offset, Rect debugBounds
+    VoidCallback? painter, Offset? offset, Rect? debugBounds
   }) {
-    assert(layer != null);
-
+    final boxyContext = _getContext();
     paintingContext.pushLayer(layer, (context, offset) {
-      final lastContext = _context.paintingContext;
-      final lastOffset = _context.offset;
-      _context.paintingContext = context;
-      _context.offset = lastOffset;
+      final lastContext = boxyContext.paintingContext;
+      final lastOffset = boxyContext.offset;
+      boxyContext.paintingContext = context;
+      boxyContext.offset = lastOffset;
       if (painter != null) painter();
-      _context.paintingContext = lastContext;
-      _context.offset = lastOffset;
-    }, offset ?? _context.offset, childPaintBounds: debugBounds);
+      boxyContext.paintingContext = lastContext;
+      boxyContext.offset = lastOffset;
+    }, offset ?? boxyContext.offset!, childPaintBounds: debugBounds);
   }
 
   /// The current hit test result, should only be accessed from [hitTest].
   BoxHitTestResult get hitTestResult {
     assert(() {
-      if (_context == null || _context.debugState != _BoxyDelegateState.HitTest) {
+      if (_context == null || _context!.debugState != _BoxyDelegateState.HitTest) {
         throw FlutterError(
           'The $this boxy attempted to get the hit test result outside of the hitTest method.'
         );
       }
       return true;
     }());
-    return _context.hitTestResult;
+    return _context!.hitTestResult!;
   }
 
   T _callWithContext<T>(_BoxyDelegateContext context, _BoxyDelegateState state, T Function() func) {
@@ -1557,13 +1539,14 @@ abstract class BoxyDelegate<T extends Object> {
   /// Unlike children passed to the widget, [Key]s cannot be used to move state
   /// from one child id to another. You may hit duplicate [GlobalKey] assertions
   /// from children inflated during the previous layout.
-  BoxyChild inflate(Widget widget, {Object id}) {
+  BoxyChild inflate(Widget widget, {Object? id}) {
+    final context = _context;
     assert(() {
-      if (_context.debugState == _BoxyDelegateState.DryLayout) {
+      if (context?.debugState == _BoxyDelegateState.DryLayout) {
         final error = _CannotInflateError(this);
         render.debugCannotComputeDryLayout(error: error);
         throw error;
-      } else if (_context == null || _context.inflater == null) {
+      } else if (context == null || context.inflater == null) {
         throw FlutterError(
           'The $this boxy attempted to inflate a widget outside of the layout method.\n'
           'You should only call `inflate` from its overriden methods.'
@@ -1572,34 +1555,34 @@ abstract class BoxyDelegate<T extends Object> {
       return true;
     }());
 
-    id ??= _context.indexedChildCount++;
+    id ??= context?.indexedChildCount++;
 
     assert(() {
-      if (hasChild(id)) {
+      if (hasChild(id!)) {
         throw FlutterError(
           'The $this boxy delegate attempted to inflate a widget with a duplicate id.\n'
           'There is already a child with the id "$id"'
         );
       }
-      _context.debugChildrenNeedingLayout.add(id);
+      context?.debugChildrenNeedingLayout.add(id);
       return true;
     }());
 
     final child = BoxyChild._(
-      context: _context,
-      id: id,
+      context: context!,
+      id: id!,
       widget: widget,
     );
 
-    _context.inflateQueue.add(child);
-    _context.children.add(child);
-    _context.childrenMap[id] = child;
+    context.inflateQueue.add(child);
+    context.children.add(child);
+    context.childrenMap[id] = child;
 
     return child;
   }
 
   /// Whether or not this boxy is performing a dry layout.
-  bool get isDryLayout => _context.debugState == _BoxyDelegateState.DryLayout;
+  bool get isDryLayout => _getContext().debugState == _BoxyDelegateState.DryLayout;
 
   /// Override this method to lay out children and return the final size of the
   /// boxy.
@@ -1691,7 +1674,7 @@ abstract class BoxyDelegate<T extends Object> {
   /// Adds the boxy to the hit test result, call from [hitTest] when the hit
   /// succeeds.
   void addHit() {
-    hitTestResult.add(BoxHitTestEntry(render, _getContext().offset));
+    hitTestResult.add(BoxHitTestEntry(render, _getContext().offset!));
   }
 
   /// Override this method to change how the boxy gets hit tested.

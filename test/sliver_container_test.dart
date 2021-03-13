@@ -1,5 +1,3 @@
-// @dart=2.9
-
 import 'package:boxy/slivers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -53,7 +51,7 @@ class TestClipper extends CustomClipper<Path> {
 
 class TestSliverChild extends StatelessWidget {
   const TestSliverChild({
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   @override

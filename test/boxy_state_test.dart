@@ -1,5 +1,3 @@
-// @dart=2.9
-
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -10,15 +8,15 @@ import 'package:boxy/boxy.dart';
 import 'common.dart';
 
 class StateTestChild extends StatefulWidget {
-  const StateTestChild({Key key}) : super(key: key);
+  const StateTestChild({Key? key}) : super(key: key);
 
   @override
   State createState() => StateTestChildState();
 }
 
 class StateTestChildState extends State<StateTestChild> {
-  bool isNew;
-  bool checkDisposed;
+  bool? isNew;
+  bool? checkDisposed;
 
   @override
   void initState() {
@@ -42,8 +40,8 @@ class StateTestDelegate extends BoxyDelegate {
   final List<String> inflatedNames;
 
   StateTestDelegate({
-    @required this.numChildren,
-    @required this.inflatedNames,
+    required this.numChildren,
+    required this.inflatedNames,
   });
 
   @override
@@ -104,7 +102,7 @@ void main() {
       expect(childElements, hasLength(allNames.length - outside.length));
 
       final childRenderObjects = <RenderObject>[];
-      boxyElement.renderObject.visitChildren(childRenderObjects.add);
+      boxyElement.renderObject!.visitChildren(childRenderObjects.add);
 
       // Make sure Element tree is in the correct order
 
@@ -121,7 +119,7 @@ void main() {
       expect(childRenderObjects, hasLength(childElements.length));
       for (var i = 0; i < childElements.length; i++) {
         expect(childElements[i].renderObject, equals(childRenderObjects[i]));
-        Element parent;
+        Element? parent;
         childElements[i].visitAncestorElements((element) {
           parent = element;
           return false;
@@ -147,7 +145,7 @@ void main() {
 
       // Make sure old children have been disposed
       for (final nm in states.keys.where((nm) => !allNames.contains(nm)).toList()) {
-        final state = states[nm];
+        final state = states[nm]!;
         expect(state.checkDisposed, isTrue);
         state.checkDisposed = false;
         states.remove(nm);
