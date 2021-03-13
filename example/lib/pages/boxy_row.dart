@@ -28,7 +28,7 @@ Color lerpGradient(List<Color> colors, List<double> stops, double t) {
       return leftColor;
     } else if (t < rightStop) {
       final sectionT = (t - leftStop) / (rightStop - leftStop);
-      return Color.lerp(leftColor, rightColor, sectionT);
+      return Color.lerp(leftColor, rightColor, sectionT)!;
     }
   }
   return colors.last;
@@ -82,8 +82,8 @@ class ChildCard extends StatefulWidget {
   final Color color;
 
   const ChildCard({
-    @required this.text,
-    @required this.color,
+    required this.text,
+    required this.color,
   });
 
   createState() => ChildCardState();
@@ -92,7 +92,7 @@ class ChildCard extends StatefulWidget {
 class ChildCardState extends State<ChildCard> with SingleTickerProviderStateMixin {
   int state = 0;
 
-  AnimationController anim;
+  late AnimationController anim;
 
   initState() {
     super.initState();
@@ -125,7 +125,7 @@ class LabelBox extends StatelessWidget {
   final String label;
   final Widget child;
 
-  const LabelBox({@required this.label, @required this.child});
+  const LabelBox({required this.label, required this.child});
 
   @override
   Widget build(BuildContext context) => Stack(children: [

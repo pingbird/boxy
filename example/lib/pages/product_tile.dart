@@ -8,7 +8,7 @@ import 'package:tuple/tuple.dart';
 import 'package:rxdart/rxdart.dart' as rx;
 
 class ProductTitleController {
-  var expanded = rx.BehaviorSubject<int>();
+  var expanded = rx.BehaviorSubject<int?>();
   void close() {
     expanded.close();
   }
@@ -84,7 +84,7 @@ class ProductTilePageState extends State<ProductTilePage> {
 class SeebSeller extends StatefulWidget {
   final String image;
 
-  const SeebSeller({@required this.image});
+  const SeebSeller({required this.image});
 
   createState() => _SeebSellerState();
 }
@@ -120,8 +120,8 @@ class SeebTitle extends StatefulWidget {
   final String image;
 
   SeebTitle({
-    @required this.controller, @required this.index,
-    @required this.name, @required this.image
+    required this.controller, required this.index,
+    required this.name, required this.image
   }) :
     super(key: ValueKey(Tuple2(#seebTitle, index)));
 
@@ -129,8 +129,8 @@ class SeebTitle extends StatefulWidget {
 }
 
 class SeebTitleState extends State<SeebTitle> {
-  StreamSubscription subscription;
-  bool expanded;
+  late StreamSubscription subscription;
+  late bool expanded;
 
   initState() {
     super.initState();
@@ -188,9 +188,9 @@ class SeebTitleState extends State<SeebTitle> {
           padding: const EdgeInsets.all(16),
         ), alignment: Alignment.bottomLeft), onTap: () {
           if (widget.controller.expanded.value == widget.index) {
-            widget.controller.expanded.value = null;
+            widget.controller.expanded.add(null);
           } else {
-            widget.controller.expanded.value = widget.index;
+            widget.controller.expanded.add(widget.index);
           }
         }),
       ),
@@ -210,7 +210,7 @@ class SeebTitleState extends State<SeebTitle> {
 class SeebInfoTile extends StatelessWidget {
   final String text;
 
-  const SeebInfoTile({@required this.text});
+  const SeebInfoTile({required this.text});
 
   build(context) => Padding(
     padding: const EdgeInsets.only(top: 16),
@@ -230,14 +230,14 @@ class SeebInfo extends StatefulWidget {
   final String price;
 
   const SeebInfo({
-    @required this.price,
+    required this.price,
   });
 
   createState() => SeebInfoState();
 }
 
 class SeebInfoState extends State<SeebInfo> with TickerProviderStateMixin {
-  AnimationController anim;
+  late AnimationController anim;
   int expanded = 0;
 
   initState() {
@@ -314,9 +314,9 @@ class ProductTile extends StatelessWidget {
   final ProductTileStyle style;
 
   const ProductTile({
-    @required this.title,
-    @required this.info,
-    @required this.seller,
+    required this.title,
+    required this.info,
+    required this.seller,
     this.style = const ProductTileStyle(),
   });
 
@@ -334,7 +334,7 @@ class ProductTileDelegate extends BoxyDelegate {
   final ProductTileStyle style;
 
   ProductTileDelegate({
-    @required this.style,
+    required this.style,
   });
 
   @override

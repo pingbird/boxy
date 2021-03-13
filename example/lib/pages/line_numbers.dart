@@ -160,15 +160,15 @@ class LineNumberView extends StatelessWidget {
   final int lineCount;
   final IndexedWidgetBuilder buildNumber;
   final IndexedWidgetBuilder buildLine;
-  final Widget lineBg;
-  final Widget numberBg;
+  final Widget? lineBg;
+  final Widget? numberBg;
   final Alignment numberAlignment;
   final double lineAlignment;
 
   const LineNumberView({
-    @required this.lineCount,
-    @required this.buildNumber,
-    @required this.buildLine,
+    required this.lineCount,
+    required this.buildNumber,
+    required this.buildLine,
     this.lineBg,
     this.numberBg,
     this.numberAlignment = Alignment.topRight,
@@ -177,8 +177,8 @@ class LineNumberView extends StatelessWidget {
 
   build(context) => CustomBoxy(
     children: [
-      if (numberBg != null) LayoutId(id: #numBg, child: numberBg),
-      if (lineBg != null) LayoutId(id: #lineBg, child: lineBg),
+      if (numberBg != null) LayoutId(id: #numBg, child: numberBg!),
+      if (lineBg != null) LayoutId(id: #lineBg, child: lineBg!),
       for (int i = 0; i < lineCount; i++) ...[
         LayoutId(id: Tuple2(#num, i), child: buildNumber(context, i)),
         buildLine(context, i),
@@ -198,9 +198,9 @@ class LineNumberDelegate extends BoxyDelegate {
   final double lineAlignment;
 
   LineNumberDelegate({
-    @required this.lineCount,
-    @required this.numberAlignment,
-    @required this.lineAlignment,
+    required this.lineCount,
+    required this.numberAlignment,
+    required this.lineAlignment,
   });
 
   @override

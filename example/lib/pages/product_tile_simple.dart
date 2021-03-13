@@ -100,7 +100,7 @@ class SeebInfo extends StatefulWidget {
 }
 
 class SeebInfoState extends State<SeebInfo> with TickerProviderStateMixin {
-  AnimationController anim;
+  late AnimationController anim;
   int expanded = 0;
 
   initState() {
@@ -158,9 +158,9 @@ class ProductTile extends StatelessWidget {
   final ProductTileStyle style;
 
   const ProductTile({
-    @required this.title,
-    @required this.info,
-    @required this.seller,
+    required this.title,
+    required this.info,
+    required this.seller,
     this.style = const ProductTileStyle(),
   });
 
@@ -178,7 +178,7 @@ class ProductTileDelegate extends BoxyDelegate {
   final ProductTileStyle style;
 
   ProductTileDelegate({
-    @required this.style,
+    required this.style,
   });
 
   @override

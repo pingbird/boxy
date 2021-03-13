@@ -40,9 +40,9 @@ class MyApp extends StatelessWidget {
 
 class DemoTile extends StatelessWidget {
   const DemoTile({
-    @required this.icon,
-    @required this.name,
-    @required this.route,
+    required this.icon,
+    required this.name,
+    required this.route,
   });
 
   final String name;
@@ -84,7 +84,7 @@ class Separator extends StatelessWidget {
 class GalleryAppBarButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
-  final String tooltip;
+  final String? tooltip;
 
   const GalleryAppBarButton(this.icon, this.onTap, {this.tooltip});
 
@@ -107,7 +107,7 @@ class GalleryAppBarButton extends StatelessWidget {
 
     if (tooltip != null) {
       result = Tooltip(
-        message: tooltip,
+        message: tooltip!,
         child: result,
       );
     }
@@ -118,8 +118,8 @@ class GalleryAppBarButton extends StatelessWidget {
 
 class GalleryAppBar extends StatelessWidget implements PreferredSizeWidget {
   final List<String> title;
-  final String source;
-  final List<Widget> actions;
+  final String? source;
+  final List<Widget>? actions;
   
   const GalleryAppBar(this.title, {this.source, this.actions});
   
@@ -149,10 +149,10 @@ class GalleryAppBar extends StatelessWidget implements PreferredSizeWidget {
     )),
     elevation: 0,
     actions: [
-      if (actions != null) ...actions,
+      if (actions != null) ...actions!,
       if (source != null) GalleryAppBarButton(
         Icons.description, () {
-          launch(source);
+          launch(source!);
         }, tooltip: 'Source code',
       ),
       const Padding(padding: EdgeInsets.only(right: 8)),

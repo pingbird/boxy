@@ -47,15 +47,15 @@ class ExpandButton extends StatefulWidget {
   final VoidCallback onPressed;
 
   const ExpandButton({
-    @required this.expanded,
-    @required this.onPressed,
+    required this.expanded,
+    required this.onPressed,
   });
 
   createState() => _ExpandButtonState();
 }
 
 class _ExpandButtonState extends State<ExpandButton> with SingleTickerProviderStateMixin {
-  AnimationController controller;
+  late AnimationController controller;
 
   @override
   initState() {
@@ -105,7 +105,7 @@ class BlogDesc extends StatefulWidget {
   final String author;
 
   const BlogDesc({
-    @required this.author,
+    required this.author,
   });
 
   createState() => _BlogDescState();
@@ -205,10 +205,10 @@ const kButtonSize = 50.0;
 
 class ShareButton extends StatefulWidget {
   final IconData icon;
-  final IconData alt;
+  final IconData? alt;
 
   const ShareButton({
-    @required this.icon,
+    required this.icon,
     this.alt,
   });
 
@@ -288,11 +288,11 @@ class ShareMoreButton extends StatelessWidget {
 
 class BlogTile extends StatelessWidget {
   final Widget body;
-  final List<Tuple2<IconData, IconData>> icons;
+  final List<Tuple2<IconData, IconData?>> icons;
 
   const BlogTile({
-    @required this.body,
-    @required this.icons,
+    required this.body,
+    required this.icons,
   });
 
   build(context) => CustomBoxy(
@@ -313,8 +313,8 @@ class BlogTileDelegate extends BoxyDelegate {
   IndexedWidgetBuilder buttonBuilder;
 
   BlogTileDelegate({
-    @required this.numButtons,
-    @required this.buttonBuilder,
+    required this.numButtons,
+    required this.buttonBuilder,
   });
 
   @override
