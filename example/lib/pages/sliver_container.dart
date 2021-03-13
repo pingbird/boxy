@@ -32,7 +32,7 @@ Color lerpGradient(List<Color> colors, List<double> stops, double t) {
       return leftColor;
     } else if (t < rightStop) {
       final sectionT = (t - leftStop) / (rightStop - leftStop);
-      return Color.lerp(leftColor, rightColor, sectionT);
+      return Color.lerp(leftColor, rightColor, sectionT)!;
     }
   }
   return colors.last;
@@ -135,7 +135,7 @@ class SliverOverlayFrame extends StatelessWidget {
                 color: rainbow[s][shades[0]],
               ),
               for (var i = 0; i <= s && i < shades.length; i++)
-                ColorTile(color: rainbow[s][shades[i]], direction: direction)
+                ColorTile(color: rainbow[s][shades[i]]!, direction: direction)
             ]),
           ),
           margin: EdgeInsetsAxisUtil.direction(direction,
@@ -154,14 +154,14 @@ class ColorTile extends StatefulWidget {
   final Color color;
   final AxisDirection direction;
 
-  const ColorTile({this.color, this.direction});
+  const ColorTile({required this.color, required this.direction});
 
   createState() => _ColorTileState();
 }
 
 class _ColorTileState extends State<ColorTile> with SingleTickerProviderStateMixin {
-  AnimationController anim;
-  double descWidth;
+  late AnimationController anim;
+  late double descWidth;
 
   initState() {
     descWidth = Random().nextInt(100).toDouble();

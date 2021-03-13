@@ -130,7 +130,7 @@ class TreeTile extends StatefulWidget {
   final String text;
 
   const TreeTile({
-    @required this.text,
+    required this.text,
   });
 
   createState() => TreeTileState();
@@ -139,7 +139,7 @@ class TreeTile extends StatefulWidget {
 class TreeTileState extends State<TreeTile> with SingleTickerProviderStateMixin {
   int state = 0;
 
-  AnimationController anim;
+  late AnimationController anim;
 
   initState() {
     super.initState();
@@ -195,11 +195,11 @@ class TreeStyle {
   });
 
   TreeStyle copyWith({
-    double lineThickness,
-    Color lineColor,
-    double spacing,
-    double lineSpacing,
-    double lineRadius,
+    double? lineThickness,
+    Color? lineColor,
+    double? spacing,
+    double? lineSpacing,
+    double? lineRadius,
   }) => TreeStyle(
     lineThickness: lineThickness ?? this.lineThickness,
     lineColor: lineColor ?? this.lineColor,
@@ -223,7 +223,7 @@ class TreeView extends StatelessWidget {
   final TreeStyle style;
 
   const TreeView({
-    @required this.root,
+    required this.root,
     this.style = const TreeStyle(),
   });
 
@@ -291,8 +291,8 @@ class TreeViewDelegate extends BoxyDelegate {
   final TreeStyle style;
 
   TreeViewDelegate({
-    @required this.root,
-    @required this.style,
+    required this.root,
+    required this.style,
   });
 
   @override
@@ -308,7 +308,7 @@ class TreeViewDelegate extends BoxyDelegate {
   layout() {
     int i = 0;
     // size, offset of parent, position
-    Tuple3<Size, double, void Function(Offset)> layoutNode(
+    Tuple3<Size, double, void Function(Offset)>? layoutNode(
       TreeNode node, BoxConstraints constraints
     ) {
       if (node is TreeLeaf) {
@@ -330,12 +330,12 @@ class TreeViewDelegate extends BoxyDelegate {
         final branches = <void Function(Offset)>[];
         var cSize = Size.zero;
 
-        double topY;
-        double btmY;
+        late double topY;
+        late double btmY;
 
         for (var i = 0; i < node.children.length; i++) {
           if (i != 0) cSize += Offset(0, style.spacing);
-          final ch = layoutNode(node.children[i], cConstraints);
+          final ch = layoutNode(node.children[i], cConstraints)!;
 
           final y = cSize.height + ch.item2;
           if (i == 0) topY = y;
@@ -385,7 +385,7 @@ class TreeViewDelegate extends BoxyDelegate {
       }
     }
 
-    final ch = layoutNode(root, constraints);
+    final ch = layoutNode(root, constraints)!;
     ch.item3(Offset.zero);
     return constraints.constrain(ch.item1);
   }
@@ -407,8 +407,8 @@ class TreeViewDelegate extends BoxyDelegate {
         );
         final x = parent.dx;
 
-        double start;
-        double end;
+        double? start;
+        double? end;
         for (int i = 0; i < node.children.length; i++) {
           final left = children[childIndex].rect.centerLeft;
           end = left.dy;
@@ -425,12 +425,12 @@ class TreeViewDelegate extends BoxyDelegate {
           final diameter = style.lineRadius * 2;
           canvas.drawPath(
             Path()
-              ..moveTo(x + style.lineSpacing * 2, start)
-              ..addArc(Rect.fromLTWH(
-                x + style.lineSpacing, start, diameter, diameter
-              ), pi / -2, pi / -2)
+              ..moveTo(x + style.lineSpacing * 2, start!)
               ..arcTo(Rect.fromLTWH(
-                x + style.lineSpacing, end - diameter, diameter, diameter,
+                x + style.lineSpacing, start, diameter, diameter
+              ), pi / -2, pi / -2, false)
+              ..arcTo(Rect.fromLTWH(
+                x + style.lineSpacing, end! - diameter, diameter, diameter,
               ), pi, pi / -2, false)
               ..lineTo(x + style.lineSpacing * 2, end),
             linePaint,
