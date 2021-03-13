@@ -1,3 +1,12 @@
+## [1.3.0]
+
+* Migrate to null safety
+* Added BoxyChild.parentData
+* Added LayerKey and BoxyLayerContext
+* Added dry layouts
+* Added the Dominant.flexible and Dominant.expanded constructors
+* Bug fixes
+
 ## [1.2.0+1]
 
 * Transition deprecated RenderObjectElement methods (flutter/#63269)

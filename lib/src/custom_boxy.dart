@@ -254,13 +254,13 @@ class _RenderBoxyElement extends RenderObjectElement {
   @override
   void mount(Element? parent, dynamic newSlot) {
     super.mount(parent, newSlot);
-    _children = List<Element?>.filled(widget.children.length, null) as List<Element>;
+    _children = <Element>[];
 
     Element? previousChild;
-    for (int i = 0; i < _children!.length; i += 1) {
+    for (int i = 0; i < widget.children.length; i += 1) {
       final slot = IndexedSlot(i, previousChild);
       final newChild = inflateWidget(widget.children[i], slot);
-      _children![i] = newChild;
+      _children!.add(newChild);
       previousChild = newChild;
     }
 
@@ -632,15 +632,18 @@ class _BoxyDelegateContext {
 ///  * [BoxyLayerContext]
 class LayerKey {
   /// The current cached layer.
-  late Layer layer;
+  Layer? layer;
 }
 
 /// A convenient wrapper to [PaintingContext], provides methods to push
 /// compositing [Layer]s from the paint methods of [BoxyDelegate].
 ///
+/// You can obtain a layer context in a delegate through the
+/// [BoxyDelegate.layers] getter.
+///
 /// See also:
 ///
-///  * [BoxyDelegate]
+///  * [BoxyDelegate], which has an example on how to use layers.
 class BoxyLayerContext {
   final _BoxyDelegateContext _context;
 
