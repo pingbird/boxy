@@ -1,5 +1,3 @@
-// @dart=2.9
-
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -35,8 +33,8 @@ class TestFrame extends StatelessWidget {
   final BoxConstraints constraints;
 
   const TestFrame({
-    Key key,
-    @required this.child,
+    Key? key,
+    required this.child,
     this.constraints = const BoxConstraints(),
   }) : super(key: key);
 

@@ -52,48 +52,54 @@ class SliverContainerPageState extends State<SliverContainerPage> {
     setState(() {});
   }
 
-  build(BuildContext context) => Scaffold(
-    appBar: const GalleryAppBar(
-      ['Boxy Gallery', 'Sliver Container'],
-      source: 'https://github.com/PixelToast/flutter-boxy/blob/master/example/lib/pages/sliver_container.dart',
-    ),
-    backgroundColor: NiceColors.primary,
-    body: Column(children: [
-      Separator(),
-      Expanded(child: Align(child: Container(
-        width: 400,
-        height: 500,
-        child: Column(children: [
-          Flexible(child: SliverOverlayFrame(direction)),
-          Padding(child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            RaisedButton(
-              color: NiceColors.primary,
-              onPressed: () => setDir(AxisDirection.down),
-              child: const Icon(Icons.keyboard_arrow_down),
-            ),
-            RaisedButton(
-              color: NiceColors.primary,
-              onPressed: () => setDir(AxisDirection.right),
-              child: const Icon(Icons.keyboard_arrow_right),
-            ),
-            RaisedButton(
-              color: NiceColors.primary,
-              onPressed: () => setDir(AxisDirection.up),
-              child: const Icon(Icons.keyboard_arrow_up),
-            ),
-            RaisedButton(
-              color: NiceColors.primary,
-              onPressed: () => setDir(AxisDirection.left),
-              child: const Icon(Icons.keyboard_arrow_left),
-            ),
-          ]), padding: const EdgeInsets.only(
-            top: 64,
-          )),
-        ]),
-      ))),
-      Separator(),
-    ]),
-  );
+  build(BuildContext context) {
+    final buttonTheme = ElevatedButton.styleFrom(
+      primary: NiceColors.primary,
+    );
+
+    return Scaffold(
+      appBar: const GalleryAppBar(
+        ['Boxy Gallery', 'Sliver Container'],
+        source: 'https://github.com/PixelToast/flutter-boxy/blob/master/example/lib/pages/sliver_container.dart',
+      ),
+      backgroundColor: NiceColors.primary,
+      body: Column(children: [
+        Separator(),
+        Expanded(child: Align(child: Container(
+          width: 400,
+          height: 500,
+          child: Column(children: [
+            Flexible(child: SliverOverlayFrame(direction)),
+            Padding(child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              ElevatedButton(
+                style: buttonTheme,
+                onPressed: () => setDir(AxisDirection.down),
+                child: const Icon(Icons.keyboard_arrow_down),
+              ),
+              ElevatedButton(
+                style: buttonTheme,
+                onPressed: () => setDir(AxisDirection.right),
+                child: const Icon(Icons.keyboard_arrow_right),
+              ),
+              ElevatedButton(
+                style: buttonTheme,
+                onPressed: () => setDir(AxisDirection.up),
+                child: const Icon(Icons.keyboard_arrow_up),
+              ),
+              ElevatedButton(
+                style: buttonTheme,
+                onPressed: () => setDir(AxisDirection.left),
+                child: const Icon(Icons.keyboard_arrow_left),
+              ),
+            ]), padding: const EdgeInsets.only(
+              top: 64,
+            )),
+          ]),
+        ))),
+        Separator(),
+      ]),
+    );
+  }
 }
 
 class SliverOverlayFrame extends StatelessWidget {
