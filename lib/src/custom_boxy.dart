@@ -420,12 +420,13 @@ class _RenderBoxy extends RenderBox with
       _element.wrapInflaterCallback((inflater) {
         _delegateContext.inflater = inflater;
         delegate._callWithContext(_delegateContext, _BoxyDelegateState.Layout, () {
+          var resultSize = constraints.smallest;
           try {
-            size = delegate.layout();
+            resultSize = delegate.layout();
           } finally {
             _delegateContext.render.flushInflateQueue();
           }
-          size = constraints.constrain(size);
+          size = constraints.constrain(resultSize);
         });
         _delegateContext.inflater = null;
       });
