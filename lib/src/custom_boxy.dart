@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
@@ -1842,4 +1843,69 @@ abstract class BoxyDelegate<T extends Object> {
     }());
     return 0.0;
   }
+}
+
+/// Widget that can provide data to the parent [CustomBoxy].
+///
+/// Similar to how the [Expanded] widget works, the parameters of this widget
+/// can influence layout and paint behavior of its direct ancestor in the render
+/// tree.
+///
+/// The [data] passed to this widget will be available to [BoxyDelegate] via
+/// [BoxyChild.parentData].
+///
+/// See also:
+///
+///  * [CustomBoxy], which can use the data this widget provides.
+///  * [ParentDataWidget], which has a more technical description of how this
+///    works.
+class BoxyData<T extends dynamic> extends ParentDataWidget {
+  /// The data to provide to the parent.
+  final T data;
+
+  /// Whether this widget rebuilding should always repaint the parent.
+  final bool alwaysRepaint;
+
+  /// Whether this widget rebuilding should always relayout the parent.
+  final bool alwaysRelayout;
+
+  /// Constructs a BoxyData with the required data and child.
+  const BoxyData({
+    Key? key,
+    required this.data,
+    required Widget child,
+    this.alwaysRelayout = true,
+    this.alwaysRepaint = true,
+  }) : super(
+    key: key,
+    child: child,
+  );
+
+  @override
+  void applyParentData(RenderObject renderObject) {
+    assert(renderObject.parentData is _RenderBoxyParentData);
+    final parentData = renderObject.parentData! as _RenderBoxyParentData;
+    final parent = renderObject.parent as RenderObject;
+    final dynamic oldData = parentData.userData;
+    if (
+      // Avoid calling shouldRelayout if old data is null
+      (oldData == null && data != null) || shouldRelayout(oldData as T)
+    ) {
+      parent.markNeedsLayout();
+    } else if (shouldRepaint(oldData)) {
+      parent.markNeedsPaint();
+    }
+    parentData.userData = data;
+  }
+
+  @override
+  Type get debugTypicalAncestorWidgetClass => CustomBoxy;
+
+  /// Whether the difference in [data] should result in a relayout, defaults to
+  /// [alwaysRelayout].
+  bool shouldRelayout(T oldData) => alwaysRelayout;
+
+  /// Whether the difference in [data] should result in a repaint, defaults to
+  /// [alwaysRepaint].
+  bool shouldRepaint(T oldData) => alwaysRelayout;
 }
