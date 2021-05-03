@@ -306,6 +306,13 @@ class _RenderBoxyElement extends RenderObjectElement {
 
 class _RenderBoxyParentData extends MultiChildLayoutParentData {
   dynamic userData;
+  Matrix4 transform = Matrix4.identity();
+
+  @override
+  Offset get offset => throw StateError('offset called, this is a bug');
+
+  @override
+  String toString() => 'id=$id transform=$transform';
 }
 
 class _RenderBoxy extends RenderBox with
@@ -576,6 +583,12 @@ class _RenderBoxy extends RenderBox with
       _delegateContext.hitTestResult = null;
       _delegateContext.offset = null;
     }
+  }
+
+  @override
+  void applyPaintTransform(RenderBox child, Matrix4 transform) {
+    final parentData = child.parentData as _RenderBoxyParentData;
+    transform.multiply(parentData.transform);
   }
 
   @override
@@ -957,7 +970,7 @@ class BoxyChild {
   final _BoxyDelegateContext _context;
   bool _ignore = false;
   final Widget? _widget;
-  Offset? _dryOffset;
+  Matrix4? _dryTransform;
   Size? _drySize;
 
   /// The id of the child, will either be the id given by [LayoutId] or an
@@ -989,9 +1002,38 @@ class BoxyChild {
     _parentData.userData = value;
   }
 
-  /// The offset to this child relative to the parent, this can be set by
-  /// calling [position] from [BoxyDelegate.layout].
-  Offset get offset => _dryOffset ?? _parentData.offset;
+  /// The offset to this child relative to the parent, set during
+  /// [BoxyDelegate.layout].
+  Offset get offset => Offset(transform[12], transform[13]);
+
+  set offset(Offset newOffset) => position(offset);
+
+  /// The translation applied to this child while painting.
+  Matrix4 get transform => _dryTransform ?? _parentData.transform;
+
+  /// Sets the paint [transform] of this child, should only be called during
+  /// layout or paint.
+  void setTransform(Matrix4 newTransform) {
+    if (_context.debugState == _BoxyDelegateState.DryLayout) {
+      _dryTransform = newTransform;
+      return;
+    }
+
+    assert(() {
+      if (
+        _context.debugState != _BoxyDelegateState.Layout
+        && _context.debugState != _BoxyDelegateState.Painting
+      ) {
+        throw FlutterError(
+          'The $this boxy delegate tried to position a child outside of the layout or paint methods.\n'
+        );
+      }
+
+      return true;
+    }());
+
+    _parentData.transform = newTransform;
+  }
 
   /// The size of this child, should only be called after [layout].
   Size get size => _drySize ?? render.size;
@@ -1009,23 +1051,8 @@ class BoxyChild {
 
   /// Sets the position of this child relative to the parent, this should only be
   /// called from [BoxyDelegate.layout].
-  void position(Offset offset) {
-    if (_context.debugState == _BoxyDelegateState.DryLayout) {
-      _dryOffset = offset;
-      return;
-    }
-
-    assert(() {
-      if (_context.debugState != _BoxyDelegateState.Layout) {
-        throw FlutterError(
-          'The $this boxy delegate tried to position a child outside of the layout method.\n'
-        );
-      }
-
-      return true;
-    }());
-
-    _parentData.offset = offset;
+  void position(Offset newOffset) {
+    setTransform(Matrix4.translationValues(newOffset.dx, newOffset.dy, 0));
   }
 
   /// Lays out the child with the specified constraints and returns its size.
@@ -1074,18 +1101,34 @@ class BoxyChild {
     return render.size;
   }
 
-  /// Tightly lays out and positions the child so that it fits in [rect].
-  void layoutRect(Rect rect) {
-    layout(BoxConstraints.tight(rect.size));
-    position(rect.topLeft);
+  /// Lays out and positions the child so that it fits in [rect].
+  ///
+  /// If the [alignment] argument is provided the child is loosely constrained
+  /// and aligned into [rect], otherwise it is tightly constrained.
+  void layoutRect(Rect rect, {Alignment? alignment}) {
+    if (alignment != null) {
+      layout(BoxConstraints.loose(rect.size));
+      position(alignment.inscribe(size, rect).topLeft);
+    } else {
+      layout(BoxConstraints.tight(rect.size));
+      position(rect.topLeft);
+    }
   }
 
   /// Paints the child in the current paint context, this should only be called
   /// in [BoxyDelegate.paintChildren].
   ///
+  /// Note that painting a child at an offset will not transform hit tests,
+  /// you may want to use [BoxyChild.setTransform] instead.
+  ///
   /// This the canvas must be restored before calling this because the child
   /// might need its own [Layer] which is rendered in a separate context.
-  void paint({Offset? offset}) {
+  void paint({Offset? offset, Matrix4? transform}) {
+    assert(
+      offset == null || transform != null,
+      'Only one of offset and transform can be provided at the same time',
+    );
+
     if (_ignore) return;
     assert(() {
       if (_context.debugState != _BoxyDelegateState.Painting) {
@@ -1097,8 +1140,29 @@ class BoxyChild {
       return true;
     }());
 
-    offset ??= _parentData.offset;
-    _context.paintingContext!.paintChild(render, _context.offset! + offset);
+    if (offset == null && transform == null) {
+      transform = _parentData.transform;
+    }
+
+    if (transform != null) {
+      offset = MatrixUtils.getAsTranslation(transform);
+      if (offset == null) {
+        _context.layers.transform(
+          transform: transform,
+          paint: () {
+            _context.paintingContext!.paintChild(render, _context.offset!);
+          },
+        );
+        return;
+      }
+    }
+
+    final paintOffset = _context.offset!;
+
+    _context.paintingContext!.paintChild(
+      render,
+      offset == null ? paintOffset : paintOffset + offset,
+    );
   }
 
   /// Hit tests this child, returns true if the hit was a success. This should
@@ -1483,7 +1547,9 @@ abstract class BoxyDelegate<T extends Object> {
   /// ```
   @Deprecated('Use layers.push instead')
   void paintLayer(ContainerLayer layer, {
-    VoidCallback? painter, Offset? offset, Rect? debugBounds
+    VoidCallback? painter,
+    Offset? offset,
+    Rect? debugBounds,
   }) {
     final boxyContext = _getContext();
     paintingContext.pushLayer(layer, (context, offset) {
