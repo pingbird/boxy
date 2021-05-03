@@ -1177,8 +1177,8 @@ class BoxyChild {
   /// defaults to the position given to [BoxyDelegate.hitTest].
   bool hitTest({Offset? offset, Offset? position}) {
     if (_ignore) return false;
-    return _context.hitTestResult!.addWithPaintOffset(
-      offset: offset ?? this.offset,
+    return _context.hitTestResult!.addWithPaintTransform(
+      transform: transform,
       position: position ?? _context.offset!,
       hitTest: (BoxHitTestResult result, Offset transformed) {
         return render.hitTest(result, position: transformed);
@@ -1423,7 +1423,7 @@ abstract class BoxyDelegate<T extends Object> {
       if (_context == null || _context!.debugState == _BoxyDelegateState.None) {
         throw FlutterError(
           'The $this boxy delegate attempted to get the context outside of its normal lifecycle.\n'
-          'You should only access the BoxyDelegate from its overriden methods.'
+          'You should only access the BoxyDelegate from its overridden methods.'
         );
       }
       return true;
@@ -1620,7 +1620,7 @@ abstract class BoxyDelegate<T extends Object> {
       } else if (context == null || context.inflater == null) {
         throw FlutterError(
           'The $this boxy attempted to inflate a widget outside of the layout method.\n'
-          'You should only call `inflate` from its overriden methods.'
+          'You should only call `inflate` from its overridden methods.'
         );
       }
       return true;
