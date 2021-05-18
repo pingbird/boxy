@@ -1,12 +1,16 @@
 import 'dart:collection';
 import 'dart:math';
 
+import 'package:boxy/boxy.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/rendering.dart';
 
 /// The base class for widgets that can inflate arbitrary widgets during layout.
 ///
-/// Used by [CustomBoxy] to perform similar [LayoutBuilder].
+/// Used by [CustomBoxy] to perform similar layout-time widget inflation as
+/// [LayoutBuilder], but allows delegates to inflate multiple widgets at the
+/// same time, in addition to rendering a list of children provided to the
+/// LayoutInflatingWidget.
 abstract class LayoutInflatingWidget extends RenderObjectWidget {
   /// Base constructor for a widget that can inflate arbitrary widgets during
   /// layout.
@@ -22,6 +26,7 @@ abstract class LayoutInflatingWidget extends RenderObjectWidget {
   InflatingElement createElement() => InflatingElement(this);
 }
 
+/// Linked list entry to keep track of inflated [Element]s
 class _InflationEntry extends LinkedListEntry<_InflationEntry> {
   _InflationEntry(this.id, this.element);
 
@@ -29,16 +34,20 @@ class _InflationEntry extends LinkedListEntry<_InflationEntry> {
   Element element;
 }
 
-/// Parent data type of [InflatingRenderObject], provides an id for children.
+/// Parent data type of [InflatingRenderObjectMixin], provides an id for
+/// the child similar to [MultiChildLayoutParentData].
 class InflatingParentData<
   ChildType extends RenderObject
 > extends ParentData with ContainerParentDataMixin<ChildType> {
-  /// An id that can be optionally provided through a [ParentDataWidget].
+  /// An id that can be optionally set using a [ParentDataWidget].
   Object? id;
 }
 
 /// The base class for lazily-inflated handles used to keep track of children
 /// in a [LayoutInflatingWidget].
+///
+/// This class is typically not used directly, instead consider obtaining a
+/// [BoxyChild] through [BaseBoxyDelegate.getChild].
 class InflatedChildHandle {
   /// The id of the child, will either be the id given by LayoutId, BoxyId, or
   /// an incrementing int in-order.
@@ -73,6 +82,9 @@ class InflatedChildHandle {
     assert((render != null) != (widget != null), 'Either render or widget should be provided');
 }
 
+/// Signature for a function that inflates widgets during layout.
+typedef _InflationCallback<T extends RenderObject> = T Function(Object, Widget);
+
 /// Mixin for [RenderObject]s that can inflate arbitrary widgets during layout.
 ///
 /// Objects that mixin this class should also use [ContainerRenderObjectMixin]
@@ -86,7 +98,7 @@ mixin InflatingRenderObjectMixin<
   implements ContainerRenderObjectMixin<ChildType, ParentDataType>
 {
   InflatingElement? _context;
-  InflationCallback<ChildType>? _inflater;
+  _InflationCallback<ChildType>? _inflater;
   var _indexedChildCount = 0;
 
   /// The current element that manages this RenderObject.
@@ -111,21 +123,39 @@ mixin InflatingRenderObjectMixin<
 
   final _inflateQueue = <ChildHandleType>[];
 
+  void _allowSubtreeMutation(void Function() callback) {
+    // Take off the training wheels and tell flutter we mean business.
+    invokeLayoutCallback((constraints) {
+      callback();
+    });
+  }
+
   /// Flushes the inflate queue so that newly inflated child handles become
   /// valid.
+  ///
+  /// We use a queue instead of wrapping [performInflatingLayout] in a single
+  /// [BuildOwner.buildScope] because it cannot be called reentrantly, not doing
+  /// layout inside of a scope is important because a descendant [Viewport],
+  /// [CustomBoxy], [LayoutBuilder], etc. will also call it when being layed out.
   ///
   /// Should only be called during layout inside [performInflatingLayout].
   void flushInflateQueue() {
     // For some ungodly reason, eliding this call to buildScope if _inflateQueue
     // is empty causes a duplicate GlobalKey exception, only after inflating a
     // child and then moving it to another place in the tree.
-    context.owner!.buildScope(context, () {
-      for (final child in _inflateQueue) {
-        assert(child._widget != null);
-        final childObject = _inflater!(child.id, child._widget!);
-        child._render = childObject;
-      }
-      _inflateQueue.clear();
+    //
+    // This is a symptom of us not understanding how GlobalKeys work, and/or a
+    // bug in the framework, but we do have exhaustive testing that ensures
+    // nothing is broken *too* badly in this regard.
+    _allowSubtreeMutation(() {
+      context.owner!.buildScope(context, () {
+        for (final child in _inflateQueue) {
+          assert(child._widget != null);
+          final childObject = _inflater!(child.id, child._widget!);
+          child._render = childObject;
+        }
+        _inflateQueue.clear();
+      });
     });
   }
 
@@ -248,25 +278,17 @@ mixin InflatingRenderObjectMixin<
 
     _indexedChildCount = movingIndex;
 
-    // I was tempted a few times to move the call to invokeLayoutCallback into
-    // flushInflateQueue, however it causes 'Duplicate GlobalKey' exceptions in
-    // some of our tests.
-    invokeLayoutCallback((Constraints constraints) {
-      context._wrapInflater<ChildType>((inflater) {
-        _inflater = inflater;
-        try {
-          performInflatingLayout();
-        } finally {
-          flushInflateQueue();
-          _inflater = null;
-        }
-      });
+    context._wrapInflater<ChildType>((inflater) {
+      _inflater = inflater;
+      try {
+        performInflatingLayout();
+      } finally {
+        flushInflateQueue();
+        _inflater = null;
+      }
     });
   }
 }
-
-/// Signature for a function that inflates widgets during layout.
-typedef InflationCallback<T extends RenderObject> = T Function(Object, Widget);
 
 /// An Element that uses a [LayoutInflatingWidget] as its configuration, this is
 /// similar to [MultiChildRenderObjectElement] but allows multiple children to
@@ -294,7 +316,7 @@ class InflatingElement extends RenderObjectElement {
   // Hash map of each entry in _delegateChildren
   final _delegateCache = HashMap<Object, _InflationEntry>();
 
-  void _wrapInflater<T extends RenderObject>(void Function(InflationCallback<T>) callback) {
+  void _wrapInflater<T extends RenderObject>(void Function(_InflationCallback<T>) callback) {
     Set<Object> inflatedIds;
 
     inflatedIds = <Object>{};
@@ -382,21 +404,23 @@ class InflatingElement extends RenderObjectElement {
     // One or more cached children were not inflated, deactivate them.
 
     if (inflatedIds.length != _delegateCache.length) {
-      assert(inflatedIds.length < _delegateCache.length);
-      lastEntry = lastEntry == null ? _delegateChildren.first : lastEntry!.next;
-      while (lastEntry != null) {
-        final next = lastEntry!.next;
-        assert(!inflatedIds.contains(lastEntry!.id));
-        deactivateChild(lastEntry!.element);
-        lastEntry!.unlink();
-        _delegateCache.remove(lastEntry!.id);
-        lastEntry = next;
-      }
+      renderObject._allowSubtreeMutation(() {
+        assert(inflatedIds.length < _delegateCache.length);
+        lastEntry = lastEntry == null ? _delegateChildren.first : lastEntry!.next;
+        while (lastEntry != null) {
+          final next = lastEntry!.next;
+          assert(!inflatedIds.contains(lastEntry!.id));
+          deactivateChild(lastEntry!.element);
+          lastEntry!.unlink();
+          _delegateCache.remove(lastEntry!.id);
+          lastEntry = next;
+        }
+      });
     }
   }
 
-  // We keep a set of forgotten children to avoid O(n^2) work walking children
-  // repeatedly to remove children.
+  /// We keep a set of forgotten children so [updateChildren] can avoid
+  /// O(n^2) work checking if a child is forgotten before deactivating it.
   final Set<Element> _forgottenChildren = HashSet<Element>();
 
   @override
