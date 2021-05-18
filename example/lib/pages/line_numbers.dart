@@ -1,9 +1,9 @@
 import 'dart:math';
 
 import 'package:boxy/boxy.dart';
+import 'package:boxy_gallery/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:boxy_gallery/main.dart';
 import 'package:tuple/tuple.dart';
 
 class LineNumberPage extends StatefulWidget {

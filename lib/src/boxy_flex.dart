@@ -1,9 +1,9 @@
 import 'dart:math' as math;
 
+import 'package:boxy/src/axis_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:boxy/src/axis_utils.dart';
 
 /// A widget that displays its children in a one-dimensional array.
 ///
