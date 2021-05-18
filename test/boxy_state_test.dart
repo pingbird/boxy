@@ -78,6 +78,8 @@ void main() {
   testWidgets('State preservation', (tester) => tester.runAsync(() async {
     final states = <String, StateTestChildState>{};
 
+    var lastParams = const <List<String>>[];
+
     Future<void> testMutate(Set<String> children, Set<String> inflated, Set<String> outside) async {
       await tester.pumpWidget(TestFrame(child: Column(children: [
         CustomBoxy(
@@ -92,6 +94,10 @@ void main() {
         ),
         for (var nm in outside) StateTestChild(key: GlobalObjectKey(nm)),
       ])));
+
+      final params = [[...children], [...inflated], [...outside]];
+      expect(tester.takeException(), isNull, reason: '$lastParams -> $params');
+      lastParams = params;
 
       final allNames = children.union(inflated).union(outside);
 

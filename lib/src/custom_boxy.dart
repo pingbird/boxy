@@ -91,11 +91,7 @@ class _RenderBoxy extends RenderBox with
   void performInflatingLayout() {
     delegate.wrapContext(this, BoxyDelegatePhase.layout, () {
       var resultSize = constraints.smallest;
-      try {
-        resultSize = delegate.layout();
-      } finally {
-        flushInflateQueue();
-      }
+      resultSize = delegate.layout();
       size = constraints.constrain(resultSize);
     });
   }
