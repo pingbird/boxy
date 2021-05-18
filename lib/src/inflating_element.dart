@@ -116,9 +116,9 @@ mixin InflatingRenderObjectMixin<
   ///
   /// Should only be called during layout inside [performInflatingLayout].
   void flushInflateQueue() {
-    if (_inflateQueue.isEmpty)
-      return;
-
+    // For some ungodly reason, eliding this call to buildScope if _inflateQueue
+    // is empty causes a duplicate GlobalKey exception, only after inflating a
+    // child and then moving it to another place in the tree.
     context.owner!.buildScope(context, () {
       for (final child in _inflateQueue) {
         assert(child._widget != null);
@@ -257,6 +257,7 @@ mixin InflatingRenderObjectMixin<
         try {
           performInflatingLayout();
         } finally {
+          flushInflateQueue();
           _inflater = null;
         }
       });
