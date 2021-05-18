@@ -46,7 +46,7 @@ class InflatedChildHandle {
 
   final InflatingRenderObjectMixin _parent;
 
-  /// The RenderObject representing this child.
+  /// The [RenderObject] representing this child.
   ///
   /// This getter is useful to access properties and methods that the child
   /// handle does not provide.
