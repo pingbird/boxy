@@ -2,9 +2,9 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:boxy/slivers.dart';
-import 'package:flutter/material.dart';
-import 'package:boxy_gallery/main.dart';
 import 'package:boxy/utils.dart';
+import 'package:boxy_gallery/main.dart';
+import 'package:flutter/material.dart';
 
 class SliverContainerPage extends StatefulWidget {
   createState() => SliverContainerPageState();

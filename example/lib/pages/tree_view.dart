@@ -1,8 +1,8 @@
 import 'dart:math';
 
 import 'package:boxy/boxy.dart';
-import 'package:flutter/material.dart';
 import 'package:boxy_gallery/main.dart';
+import 'package:flutter/material.dart';
 import 'package:tuple/tuple.dart';
 
 class TreeViewPage extends StatefulWidget {
@@ -251,8 +251,6 @@ class TreeBranch extends TreeNode {
   final List<TreeNode> children;
 
   TreeBranch(this.parent, this.children) :
-    assert(parent != null),
-    assert(children != null),
     assert(children.isNotEmpty);
 
   addTo(widgets) {

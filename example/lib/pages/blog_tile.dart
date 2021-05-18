@@ -1,9 +1,9 @@
 import 'dart:math';
 
 import 'package:boxy/boxy.dart';
+import 'package:boxy_gallery/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:boxy_gallery/main.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:tuple/tuple.dart';
 
@@ -177,16 +177,15 @@ class _BlogDescState extends State<BlogDesc> with TickerProviderStateMixin {
         )), alignment: Alignment.topCenter),
       ),
 
-      AnimatedSize(
-        child: const Padding(child: Text(
+      const AnimatedSize(
+        child: Padding(child: Text(
           loremIpsum,
           style: TextStyle(color: NiceColors.text),
           maxLines: 3,
         ), padding: EdgeInsets.only(
           left: 8,
         )),
-        vsync: this,
-        duration: const Duration(milliseconds: 500),
+        duration: Duration(milliseconds: 500),
         curve: Curves.ease,
         alignment: Alignment.topCenter,
       ),

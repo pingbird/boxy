@@ -1,7 +1,7 @@
 import 'dart:math';
 
-import 'package:boxy/utils.dart';
 import 'package:boxy/src/sliver_card.dart';
+import 'package:boxy/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 

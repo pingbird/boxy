@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:boxy/boxy.dart';
+import 'package:boxy_gallery/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:boxy_gallery/main.dart';
-import 'package:tuple/tuple.dart';
 import 'package:rxdart/rxdart.dart' as rx;
+import 'package:tuple/tuple.dart';
 
 class ProductTitleController {
   var expanded = rx.BehaviorSubject<int?>();
@@ -282,7 +282,6 @@ class SeebInfoState extends State<SeebInfo> with TickerProviderStateMixin {
         ),
         duration: const Duration(milliseconds: 250),
         curve: Curves.ease,
-        vsync: this,
       ), padding: const EdgeInsets.all(16)), onTap: () {
         setState(() {
           expanded = (expanded + 1) % 4;

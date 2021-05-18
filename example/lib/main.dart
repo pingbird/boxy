@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
 import 'package:boxy_gallery/pages/blog_tile.dart';
 import 'package:boxy_gallery/pages/boxy_row.dart';
 import 'package:boxy_gallery/pages/line_numbers.dart';
+import 'package:boxy_gallery/pages/product_tile.dart';
 import 'package:boxy_gallery/pages/product_tile_simple.dart';
 import 'package:boxy_gallery/pages/sliver_container.dart';
-import 'package:boxy_gallery/pages/product_tile.dart';
 import 'package:boxy_gallery/pages/tree_view.dart';
+import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 

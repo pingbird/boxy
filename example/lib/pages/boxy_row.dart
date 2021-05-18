@@ -1,8 +1,8 @@
 import 'dart:ui';
 
 import 'package:boxy/flex.dart';
-import 'package:flutter/material.dart';
 import 'package:boxy_gallery/main.dart';
+import 'package:flutter/material.dart';
 
 class BoxyRowPage extends StatefulWidget {
   createState() => BoxyRowPageState();
