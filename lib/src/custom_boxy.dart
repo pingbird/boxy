@@ -7,23 +7,23 @@ import 'package:flutter/rendering.dart';
 
 /// A widget that uses a delegate to control the layout of multiple children.
 ///
-/// This is basically a much more powerful version of [CustomMultiChildLayout],
+/// This is essentially a more powerful version of [CustomMultiChildLayout],
 /// it allows you to inflate, constrain, and lay out each child manually, it
 /// also allows the size of the widget to depend on the layout of its children.
 ///
-/// In most cases you do not need this much control over layout where some
-/// combination of [Stack], [LayoutBuilder], and [Flow] is more suitable.
+/// In most cases this is overkill, you may want to check if some combination
+/// of [Stack], [LayoutBuilder], [CustomMultiChildLayout], and [Flow] is more
+/// suitable.
 ///
-/// Children can be wrapped in a [LayoutId] widget to give them an arbitrary
-/// [Object] id to be accessed by the [BoxyDelegate], otherwise they are given
-/// an incrementing int id in the order they are provided, for example:
+/// Children can be given an id using [BoxyId], otherwise they are given an
+/// incrementing int id in the provided order, for example:
 ///
 /// ```dart
-/// Boxy(
+/// CustomBoxy(
 ///   delegate: MyBoxyDelegate(),
 ///   children: [
 ///     Container(color: Colors.red)), // Child 0
-///     LayoutId(id: #green, child: Container(color: Colors.green)),
+///     BoxyId(id: #green, child: Container(color: Colors.green)),
 ///     Container(color: Colors.green)), // Child 1
 ///   ],
 /// );
@@ -31,7 +31,7 @@ import 'package:flutter/rendering.dart';
 ///
 /// See also:
 ///
-///  * [BoxyDelegate], the base class of a delegate.
+///  * [BoxyDelegate], the base class of a CustomBoxy delegate.
 class CustomBoxy extends LayoutInflatingWidget {
   /// Constructs a CustomBoxy with a delegate and optional set of children.
   const CustomBoxy({
@@ -171,10 +171,10 @@ class _RenderBoxy extends RenderBox with
   }
 }
 
-/// A handle used by a custom [BoxyDelegate] to lay out, paint, and hit test
-/// its children.
+/// A handle used by [CustomBoxy] widgets to change how it lays out, paints, and
+/// hit tests its children.
 ///
-/// This class cannot be instantiated directly, instead access children with
+/// This class should not be instantiated directly, instead access children with
 /// [BoxyDelegate.getChild].
 ///
 /// See also:
@@ -197,6 +197,14 @@ class BoxyChild extends BaseBoxyChild {
   Matrix4? _dryTransform;
   Size? _drySize;
 
+  /// The [RenderBox] representing this child.
+  ///
+  /// This getter is useful to access properties and methods that the child
+  /// handle does not provide.
+  ///
+  /// Be mindful of using this without checking [BoxyDelegate.isDryLayout]
+  /// first, confusing errors can occur in debug mode as the framework
+  /// continuously validates dry and intrinsic layout methods.
   @override
   RenderBox get render => super.render as RenderBox;
 
@@ -206,13 +214,14 @@ class BoxyChild extends BaseBoxyChild {
     return render.parent as _RenderBoxy;
   }
 
-  /// The offset to this child relative to the parent, set during
-  /// [BoxyDelegate.layout].
+  /// The offset to this child relative to the parent, can be set during layout
+  /// with [position].
   Offset get offset => Offset(transform[12], transform[13]);
 
   set offset(Offset newOffset) => position(offset);
 
-  /// The translation applied to this child while painting.
+  /// The matrix transformation applied to this child, used by [paint] and
+  /// [hitTest].
   Matrix4 get transform => _dryTransform ?? _parentData.transform;
 
   /// Sets the paint [transform] of this child, should only be called during

@@ -501,8 +501,8 @@ class BoxyLayerContext {
 
 /// Base class of child handles managed by [RenderBoxyMixin] clients.
 ///
-/// This typically not used directly, instead obtain a child handle from
-/// BoxyDelegate.getChild.
+/// This should typically not be used directly, instead obtain a child handle
+/// from BoxyDelegate.getChild.
 class BaseBoxyChild extends InflatedChildHandle {
   /// Constructs a handle to children managed by [RenderBoxyMixin] clients.
   BaseBoxyChild({
