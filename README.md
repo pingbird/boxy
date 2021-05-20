@@ -14,6 +14,9 @@ as another child in the list, with boxy this can be achieved trivially using `Bo
 
 ![Visualization of BoxyColumn](https://i.tst.sh/FdoiA.png)
 
+See the documentation of [BoxyRow](https://pub.dev/documentation/boxy/latest/flex/BoxyRow-class.html) and
+[BoxyColumn](https://pub.dev/documentation/boxy/latest/flex/BoxyColumn-class.html) for more information.
+
 ## Custom layouts
 
 One of the pains of implementing custom layouts is learning the `RenderObject` model and how verbose it is, to make this
