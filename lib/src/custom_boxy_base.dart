@@ -65,6 +65,11 @@ mixin RenderBoxyMixin<
     }());
   }
 
+  @override
+  void prepareChild(ChildHandleType child) {
+    child._ignore = false;
+  }
+
   /// Wraps [func] with a new [debugPhase].
   ///
   /// This is used by subclasses to indicate what phase in the render pipeline
