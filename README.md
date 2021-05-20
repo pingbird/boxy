@@ -44,4 +44,4 @@ of axis-dependant methods on `BoxConstraints`, `Size`, `Offset`, and more. These
 layouts significantly less cumbersome.
 
 The [OverflowPadding](https://pub.dev/documentation/boxy/latest/padding/OverflowPadding-class.html) widget is similar to
-Padding but allows the child to overflow when given negative insets.
+`Padding` but allows the child to overflow when given negative insets.
