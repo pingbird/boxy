@@ -301,8 +301,8 @@ class BlogTile extends StatelessWidget {
         ShareButton(icon: icons[i].item1, alt: icons[i].item2),
     ),
     children: [
-      LayoutId(id: #body, child: body),
-      LayoutId(id: #moreButton, child: ShareMoreButton()),
+      BoxyId(id: #body, child: body),
+      BoxyId(id: #moreButton, child: ShareMoreButton()),
     ],
   );
 }

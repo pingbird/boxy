@@ -177,10 +177,10 @@ class LineNumberView extends StatelessWidget {
 
   build(context) => CustomBoxy(
     children: [
-      if (numberBg != null) LayoutId(id: #numBg, child: numberBg!),
-      if (lineBg != null) LayoutId(id: #lineBg, child: lineBg!),
+      if (numberBg != null) BoxyId(id: #numBg, child: numberBg!),
+      if (lineBg != null) BoxyId(id: #lineBg, child: lineBg!),
       for (int i = 0; i < lineCount; i++) ...[
-        LayoutId(id: Tuple2(#num, i), child: buildNumber(context, i)),
+        BoxyId(id: Tuple2(#num, i), child: buildNumber(context, i)),
         buildLine(context, i),
       ],
     ],
