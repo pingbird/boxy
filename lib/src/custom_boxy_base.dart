@@ -53,9 +53,6 @@ mixin RenderBoxyMixin<
   /// The current paint offset, only valid during paint or hit testing.
   Offset? paintOffset;
 
-  /// The current canvas, only valid during paint.
-  Canvas? canvas;
-
   /// The current phase in the render pipeline that this boxy is performing.
   BoxyDelegatePhase get debugPhase => _debugPhase;
   set debugPhase(BoxyDelegatePhase state) {
@@ -176,22 +173,25 @@ mixin RenderBoxyMixin<
   @override
   void paint(PaintingContext context, Offset offset) {
     paintingContext = context;
-    wrapPhase(BoxyDelegatePhase.paint, () {
-      context.canvas.save();
-      context.canvas.translate(offset.dx, offset.dy);
-      paintOffset = Offset.zero;
-      delegate.paint();
-      context.canvas.restore();
-      paintOffset = offset;
-      delegate.paintChildren();
-      context.canvas.save();
-      context.canvas.translate(offset.dx, offset.dy);
-      paintOffset = Offset.zero;
-      delegate.paintForeground();
-      context.canvas.restore();
-    });
-    paintingContext = null;
-    paintOffset = null;
+    try {
+      wrapPhase(BoxyDelegatePhase.paint, () {
+        context.canvas.save();
+        context.canvas.translate(offset.dx, offset.dy);
+        paintOffset = Offset.zero;
+        delegate.paint();
+        context.canvas.restore();
+        paintOffset = offset;
+        delegate.paintChildren();
+        context.canvas.save();
+        context.canvas.translate(offset.dx, offset.dy);
+        paintOffset = Offset.zero;
+        delegate.paintForeground();
+        context.canvas.restore();
+      });
+    } finally {
+      paintingContext = null;
+      paintOffset = null;
+    }
   }
 
   @override
@@ -773,7 +773,7 @@ class BaseBoxyDelegate<LayoutData extends Object, ChildHandleType extends BaseBo
       }
       return true;
     }());
-    return render.canvas!;
+    return paintingContext.canvas;
   }
 
   /// The offset of the current paint context.
