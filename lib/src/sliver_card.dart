@@ -1,5 +1,6 @@
-import 'package:boxy/src/sliver_container.dart';
 import 'package:flutter/material.dart';
+
+import 'sliver_container.dart';
 
 /// A sliver container that makes its child look like its inside of a [Card].
 ///

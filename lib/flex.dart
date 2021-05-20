@@ -1,1 +1,1 @@
-export 'package:boxy/src/boxy_flex.dart';
+export 'src/boxy_flex.dart';

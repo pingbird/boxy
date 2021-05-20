@@ -1,1 +1,1 @@
-export 'package:boxy/src/axis_utils.dart';
+export 'src/axis_utils.dart';
