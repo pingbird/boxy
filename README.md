@@ -36,9 +36,17 @@ See the documentation of [CustomBoxy](https://pub.dev/documentation/boxy/latest/
 ## Slivers
 
 Ever want to give SliverList a box decoration? The [sliver](https://pub.dev/documentation/boxy/latest/sliver) library
-provides `SliverContainer` which allows you to use a box widget as the foreground or background of a sliver:
+provides [SliverContainer](https://pub.dev/documentation/boxy/latest/slivers/SliverContainer-class.html) which allows
+you to use box widgets as the foreground or background of a sliver.
+
+This library also provides [SliverCard](https://pub.dev/documentation/boxy/latest/slivers/SliverCard-class.html), a
+[SliverContainer](https://pub.dev/documentation/boxy/latest/slivers/SliverContainer-class.html) that looks like a card.
 
 ![](https://i.tst.sh/iiyrk.png)
+
+Also check out:
+* [SliverPadding](https://api.flutter.dev/flutter/widgets/SliverPadding-class.html), an underrated built-in widget
+* [sliver_tools](https://pub.dev/packages/sliver_tools), a cool package that does similar things
 
 ## Miscellaneous
 
