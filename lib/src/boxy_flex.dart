@@ -11,9 +11,15 @@ import 'package:flutter/rendering.dart';
 /// children. The default crossAxisAlignment is also
 /// [CrossAxisAlignment.stretch] instead of [CrossAxisAlignment.center].
 ///
-/// If a child is wrapped in a [Dominant] widget, it will be layed out first and
-/// every other child will match its maximum cross axis constraint to the size
-/// of said dominant widget.
+/// During layout this widget searches for a [Dominant] child, if found the
+/// dominant child is layed out first and defines the maximum cross-axis of
+/// every non-dominant child in the flex.
+///
+/// See also:
+///
+///  * [Flex]
+///  * [BoxyRow]
+///  * [BoxyColumn]
 class BoxyFlex extends MultiChildRenderObjectWidget {
   /// Creates a boxy flex layout.
   ///
@@ -197,9 +203,15 @@ class BoxyFlex extends MultiChildRenderObjectWidget {
 /// children. The default crossAxisAlignment is also
 /// [CrossAxisAlignment.stretch] instead of [CrossAxisAlignment.center].
 ///
-/// If a child is wrapped in a [Dominant] widget, it will be layed out first and
-/// every other child will match its maximum height constraint to the size
-/// of said dominant widget.
+/// During layout this widget searches for a [Dominant] child, if found the
+/// dominant child is layed out first and defines the maximum cross-axis of
+/// every non-dominant child in the row.
+///
+/// See also:
+///
+///  * [Row]
+///  * [BoxyColumn]
+///  * [BoxyFlex]
 class BoxyRow extends BoxyFlex {
   /// Creates a horizontal array of children.
   ///
@@ -242,9 +254,13 @@ class BoxyRow extends BoxyFlex {
 /// children. The default crossAxisAlignment is also
 /// [CrossAxisAlignment.stretch] instead of [CrossAxisAlignment.center].
 ///
-/// If a child is wrapped in a [Dominant] widget, it will be layed out first and
-/// every other child will match its maximum width constraint to the size
-/// of said dominant widget.
+/// During layout this widget searches for a [Dominant] child, if found the
+/// dominant child is layed out first and defines the maximum cross-axis of
+/// every non-dominant child in the flex.
+///
+///  * [Column]
+///  * [BoxyRow]
+///  * [BoxyFlex]
 class BoxyColumn extends BoxyFlex {
   /// Creates a vertical array of children.
   ///
