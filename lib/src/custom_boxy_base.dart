@@ -758,8 +758,8 @@ class BaseBoxyDelegate<LayoutData extends Object, ChildHandleType extends BaseBo
   /// Gets the current build context of this boxy.
   BuildContext get buildContext => render.context;
 
-  /// The number of children that have not been given a [LayoutId], this
-  /// guarantees there are child ids between 0 (inclusive) to indexedChildCount
+  /// The number of children that have not been given a [BoxyId], this
+  /// guarantees there are child ids between 0 (inclusive) and indexedChildCount
   /// (exclusive).
   int get indexedChildCount => render.indexedChildCount;
 

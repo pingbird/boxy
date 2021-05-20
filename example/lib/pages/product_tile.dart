@@ -322,9 +322,9 @@ class ProductTile extends StatelessWidget {
   build(context) => CustomBoxy(
     delegate: ProductTileDelegate(style: style),
     children: [
-      LayoutId(id: #title, child: title),
-      LayoutId(id: #info, child: info),
-      LayoutId(id: #seller, child: seller),
+      BoxyId(id: #title, child: title),
+      BoxyId(id: #info, child: info),
+      BoxyId(id: #seller, child: seller),
     ],
   );
 }

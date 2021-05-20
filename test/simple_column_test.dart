@@ -45,12 +45,12 @@ void main() {
       key: const GlobalObjectKey(#boxy),
       delegate: SimpleColumnDelegate(),
       children: [
-        LayoutId(id: #first, child: Container(
+        BoxyId(id: #first, child: Container(
           key: const GlobalObjectKey(#first),
           width: 128,
           height: 64,
         )),
-        LayoutId(id: #second, child: Container(
+        BoxyId(id: #second, child: Container(
           key: const GlobalObjectKey(#second),
           height: 32,
         )),
@@ -71,12 +71,12 @@ void main() {
       key: const GlobalObjectKey(#boxy),
       delegate: SimpleColumnDelegate(),
       children: [
-        LayoutId(id: #first, child: Container(
+        BoxyId(id: #first, child: Container(
           key: const GlobalObjectKey(#first),
           width: 128,
           height: 64,
         )),
-        LayoutId(id: #second, child: Column(children: [
+        BoxyId(id: #second, child: Column(children: [
           Expanded(child: Container(
             key: const GlobalObjectKey(#second),
           )),
