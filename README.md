@@ -1,157 +1,45 @@
-# Boxy - Advanced multi-child layouts in Flutter.
+![boxy, Layout made simple](https://i.tst.sh/zncIM.png)
 
-This library provides several widgets and utilities that enable you to create advanced layouts without
-in-depth knowledge of the framework and minimal boilerplate.
+# Background
+
+Boxy is designed to overcome the limitations of Flutter's built-in layout widgets, it provides utilities for flex,
+custom multi-child layouts, dynamic widget inflation, slivers, and more!
 
 ### Flex layouts
 
-A common pattern is when you need one or more widgets in a `Row` or `Column` to have the same cross axis size
-as another child in the list, you can achieve this layout using `BoxyRow` and `Dominant`, for example:
+A common design problem is when you need one or more children of a `Row` or `Column` to have the same cross-axis size
+as another child in the list, one way to achieve this layout is to use `BoxyRow`, `BoxyColumn` and `Dominant`.
 
-![](https://i.tst.sh/fwkd8.gif)
+![Visualization of BoxyRow](https://i.tst.sh/WDmbR.png)
 
-```dart
-BoxyRow(
-  mainAxisSize: MainAxisSize.min,
-  children: [
-    Child1(),
-    Dominant(child: Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Child2(),
-        Child3(),
-      ],
-    )),
-  ],
-]);
-```
+![Visualization of BoxyColumn](https://i.tst.sh/FdoiA.png)
 
-### Complex custom layouts
+### Custom layouts
 
-For more complex layouts this library provides `CustomBoxy`, a multi-child layout widget that allows you to inflate,
-constrain, lay out, and paint each child manually similar to a `CustomMultiChildLayout`.
+One of the pains of implementing custom layouts is learning the `RenderObject` model and how verbose it is, to solve
+this issue we provide `CustomBoxy`, an extremely simple to use container that delegates layout, paint, and hit testing.
 
-This is useful if you need layouts that no other widget can provide, for example one where a child is positioned
-depending on dynamically sized siblings:
+![Visualization of CustomBoxy. 1. Declare widget 2. Implement delegate](https://i.tst.sh/e0M7b.png)
 
-![](https://i.tst.sh/1gV8Y.png)
+The most powerful feature of `CustomBoxy` is the ability to inflate widgets at layout time, this means widgets can
+depend on the size of others, something previously thought impossible without hacky workarounds.
 
-See the [Product Tile](https://me.tst.sh/git/flutter-boxy/gallery/#product-tile) example for an implementation of this
-layout, and the documentation of [CustomBoxy](https://pub.dev/documentation/boxy/latest/boxy/CustomBoxy-class.html) for
+![Visualization of BoxyDelegate.inflate, lazy-loading children to match the width of a container](https://i.tst.sh/sYQHo.png)
+
+See the documentation of [CustomBoxy](https://pub.dev/documentation/boxy/latest/boxy/CustomBoxy-class.html) for
 more information.
 
-Another powerful feature of `CustomBoxy` is the ability to inflate widgets at layout time, including the content of those widgets
-depending on the size of others:
-
-![](https://i.tst.sh/NqzcA.gif)
-
-You can also achieve something like this, where a list of buttons will expand to match the size of some dynamically
-sized content:
-
-![](https://i.tst.sh/uGuVN.gif)
-
-### Sliver containers
+### Slivers
 
 Ever want to give SliverList a box decoration? The [sliver](https://pub.dev/documentation/boxy/latest/sliver) library
 provides `SliverContainer` which allows you to use a box widget as the foreground or background of a sliver:
 
-![](https://i.tst.sh/ua72L.gif)
+![](https://i.tst.sh/iiyrk.png)
 
-This card effect can be achieved with `SliverCard`:
+### Miscellaneous
 
-```dart
-SliverCard(
-  color: Colors.white,
-  clipBehavior: Clip.antiAlias,
-  sliver: SliverList(...),
-)
-```
+The [utils](https://pub.dev/documentation/boxy/latest/utils/utils-library.html) library provides extensions with dozens of axis-dependant
+method for `BoxConstraints`, `Size`, `Offset`, and more. These extensions make writing directional layouts significantly less cumbersome.
 
-The following example uses `SliverContainer` to give `SliverList` a rounded blue border:
-
-```dart
-SliverContainer(
-  // How far the background will extend off-screen, prevents the border
-  // from shrinking as the sliver is scrolled out of view
-  bufferExtent: 12.0,
-  
-  // The background and foreground are layed out to cover the visible
-  // space of the sliver
-  background: DecoratedBox(
-    border: Border.all(
-      color: Colors.blue,
-      width: 2,
-    ),
-    borderRadius: BorderRadius.circular(12),
-  ),
-
-  margin: EdgeInsets.all(8.0),
-  padding: EdgeInsets.all(8.0),
-  sliver: SliverList(...),
-)
-```
-
-### Utilities
-
-The [utils](https://pub.dev/documentation/boxy/latest/utils) library provides extensions with axis dependant
-methods and constructors for several data types. These extensions make writing direction agnostic math significantly
-easier.
-
-Full list of methods:
-
-```dart
-BoxConstraintsAxisUtil.create
-BoxConstraintsAxisUtil.expand
-BoxConstraintsAxisUtil.tightFor
-BoxConstraintsAxisUtil.tightForFinite
-BoxConstraints.hasTightAxis
-BoxConstraints.hasTightCrossAxis
-BoxConstraints.hasBoundedAxis
-BoxConstraints.hasBoundedCrossAxis
-BoxConstraints.hasInfiniteAxis
-BoxConstraints.hasInfiniteCrossAxis
-BoxConstraints.maxAxis
-BoxConstraints.minAxis
-BoxConstraints.maxCrossAxis
-BoxConstraints.minCrossAxis
-BoxConstraints.tightenAxis
-BoxConstraints.constrainAxisDimensions
-BoxConstraints.constrainAxis
-BoxConstraints.constrainCrossAxis
-BoxConstraints.copyWithAxis
-BoxConstraints.axisConstraints
-BoxConstraints.crossAxisConstraints
-Axis.cross
-Axis.direction
-Axis.crossDirection
-VerticalDirection.reversed
-VerticalDirection.direction
-AxisDirection.axis
-AxisDirection.crossAxis
-AxisDirection.isReverse
-AxisDirection.isForward
-AxisDirection.reversed
-AxisDirection.ccw
-AxisDirection.cw
-AxisDirection.operator+
-AxisDirection.operator-
-RenderBox.getMinIntrinsicAxis
-RenderBox.getMinIntrinsicCrossAxis
-RenderBox.getMaxIntrinsicAxis
-RenderBox.getMaxIntrinsicCrossAxis
-OffsetAxisUtil.create
-OffsetAxisUtil.direction
-Offset.axisOffset
-Offset.crossAxisOffset
-Offset.directionExtent
-SizeAxisUtil.create
-SizeAxisUtil.from
-SizeAxisUtil.crossFrom
-Size.axisSize
-Size.crossAxisSize
-EdgeInsetsAxisUtil.create
-EdgeInsetsAxisUtil.symmetric
-EdgeInsetsAxisUtil.direction
-EdgeInsets.directionExtent
-AxisSizedBox
-```
+The [OverflowPadding](https://pub.dev/documentation/boxy/latest/padding/OverflowPadding-class.html) widget is similar to
+Padding but allows the child to overflow when given negative insets.
