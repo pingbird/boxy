@@ -8,7 +8,7 @@ custom multi-child layouts, dynamic widget inflation, slivers, and more!
 ## Flex layouts
 
 A common design problem is when you need one or more children of a `Row` or `Column` to have the same cross-axis size
-as another child in the list, one way to achieve this layout is to use `BoxyRow`, `BoxyColumn` and `Dominant`.
+as another child in the list, with boxy this can be achieved trivially using `BoxyRow`, `BoxyColumn` and `Dominant`.
 
 ![Visualization of BoxyRow](https://i.tst.sh/WDmbR.png)
 
@@ -39,8 +39,9 @@ provides `SliverContainer` which allows you to use a box widget as the foregroun
 
 ## Miscellaneous
 
-The [utils](https://pub.dev/documentation/boxy/latest/utils/utils-library.html) library provides extensions with dozens of axis-dependant
-method for `BoxConstraints`, `Size`, `Offset`, and more. These extensions make writing directional layouts significantly less cumbersome.
+The [utils](https://pub.dev/documentation/boxy/latest/utils/utils-library.html) library provides extensions with dozens
+of axis-dependant methods on `BoxConstraints`, `Size`, `Offset`, and more. These extensions make writing directional
+layouts significantly less cumbersome.
 
 The [OverflowPadding](https://pub.dev/documentation/boxy/latest/padding/OverflowPadding-class.html) widget is similar to
 Padding but allows the child to overflow when given negative insets.
