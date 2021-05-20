@@ -1,7 +1,8 @@
-import 'package:boxy/src/inflating_element.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+
+import 'inflating_element.dart';
 
 /// Base class for the [ParentData] provided by [RenderBoxyMixin] clients.
 ///

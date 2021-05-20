@@ -1,7 +1,6 @@
 import 'dart:collection';
 import 'dart:math';
 
-import 'package:boxy/boxy.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/rendering.dart';
 
@@ -11,6 +10,10 @@ import 'package:flutter/rendering.dart';
 /// [LayoutBuilder], but allows delegates to inflate multiple widgets at the
 /// same time, in addition to rendering a list of children provided to the
 /// LayoutInflatingWidget.
+///
+/// See also:
+///
+///  * [InflatingElement]
 abstract class LayoutInflatingWidget extends RenderObjectWidget {
   /// Base constructor for a widget that can inflate arbitrary widgets during
   /// layout.
@@ -36,6 +39,10 @@ class _InflationEntry extends LinkedListEntry<_InflationEntry> {
 
 /// Parent data type of [InflatingRenderObjectMixin], provides an id for
 /// the child similar to [MultiChildLayoutParentData].
+///
+/// See also:
+///
+///  * [InflatingElement]
 class InflatingParentData<
   ChildType extends RenderObject
 > extends ParentData with ContainerParentDataMixin<ChildType> {
@@ -48,6 +55,9 @@ class InflatingParentData<
 ///
 /// This class is typically not used directly, instead consider obtaining a
 /// [BoxyChild] through [BaseBoxyDelegate.getChild].
+/// See also:
+///
+///  * [InflatingElement]
 class InflatedChildHandle {
   /// The id of the child, will either be the id given by LayoutId, BoxyId, or
   /// an incrementing int in-order.
@@ -90,6 +100,10 @@ typedef _InflationCallback<T extends RenderObject> = T Function(Object, Widget);
 /// Objects that mixin this class should also use [ContainerRenderObjectMixin]
 /// and be configured by [LayoutInflatingWidget].
 /// [LayoutInflatingWidget],
+///
+/// See also:
+///
+///  * [InflatingElement]
 mixin InflatingRenderObjectMixin<
   ChildType extends RenderObject,
   ParentDataType extends InflatingParentData<ChildType>,
@@ -293,6 +307,12 @@ mixin InflatingRenderObjectMixin<
 /// An Element that uses a [LayoutInflatingWidget] as its configuration, this is
 /// similar to [MultiChildRenderObjectElement] but allows multiple children to
 /// be inflated during layout.
+///
+/// These are the guts that make [BaseBoxyDelegate.inflate] possible.
+///
+/// See also:
+///
+///  * [InflatingRenderObjectMixin]
 class InflatingElement extends RenderObjectElement {
   /// Constructs an InflatingElement using the specified widget.
   InflatingElement(LayoutInflatingWidget widget)

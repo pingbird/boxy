@@ -1,2 +1,2 @@
-export 'package:boxy/src/sliver_card.dart';
-export 'package:boxy/src/sliver_container.dart';
+export 'src/sliver_card.dart';
+export 'src/sliver_container.dart';

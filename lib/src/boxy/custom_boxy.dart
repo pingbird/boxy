@@ -1,10 +1,11 @@
 import 'dart:collection';
 import 'dart:math';
 
-import 'package:boxy/src/custom_boxy_base.dart';
-import 'package:boxy/src/inflating_element.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+
+import 'custom_boxy_base.dart';
+import 'inflating_element.dart';
 
 /// A widget that uses a delegate to control the layout of multiple children.
 ///
