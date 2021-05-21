@@ -334,12 +334,24 @@ extension OffsetAxisUtil on Offset {
     return axis == Axis.vertical ? dx : dy;
   }
 
-  /// Returns the extent towards [direction].
+  /// Returns the extent from origin towards [direction].
   double directionExtent(AxisDirection direction) {
     if (direction == AxisDirection.up) return -dy;
     else if (direction == AxisDirection.right) return dx;
     else if (direction == AxisDirection.down) return dy;
     else return -dx;
+  }
+
+  /// Rotates this offset with [axis] where `dx` becomes the cross axis extent
+  /// and `dy` becomes the main axis extent.
+  Offset rotateWithAxis(Axis axis) {
+    return axis == Axis.vertical ? this : Offset(dy, dx);
+  }
+
+  /// Rotates this offset with [crossAxis] where `dx` becomes the cross axis
+  /// extent and `dy` becomes the main axis extent.
+  Offset rotateWithCrossAxis(Axis crossAxis) {
+    return crossAxis == Axis.horizontal ? this : Offset(dy, dx);
   }
 }
 
