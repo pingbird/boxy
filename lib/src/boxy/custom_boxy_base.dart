@@ -54,6 +54,9 @@ mixin RenderBoxyMixin<
   /// The current paint offset, only valid during paint or hit testing.
   Offset? paintOffset;
 
+  /// The current hit test result, only valid during hit testing.
+  HitTestResult? get hitTestResult;
+
   /// The current phase in the render pipeline that this boxy is performing.
   BoxyDelegatePhase get debugPhase => _debugPhase;
   set debugPhase(BoxyDelegatePhase state) {
@@ -98,6 +101,9 @@ mixin RenderBoxyMixin<
     throw error;
   }
 
+  /// Whether this Boxy is currently performing a dry layout.
+  bool get isDryLayout => false;
+
   @override
   void performLayout() {
     super.performLayout();
@@ -127,6 +133,21 @@ mixin RenderBoxyMixin<
   /// The current delegate of this boxy.
   BaseBoxyDelegate get delegate;
   set delegate(covariant BaseBoxyDelegate newDelegate);
+
+
+  /// Hit tests a [RenderBox] child at [position] with a [transform].
+  bool hitTestBoxChild({
+    required RenderBox child,
+    required Offset position,
+    required Matrix4 transform,
+  });
+
+  /// Hit tests a [RenderSliver] child at [position] with a [transform].
+  bool hitTestSliverChild({
+    required RenderSliver child,
+    required Offset position,
+    required Matrix4 transform,
+  });
 
   /// Marks the object for needing layout, paint, build. or compositing bits
   /// update as a result of the delegate changing.
@@ -549,7 +570,7 @@ class BoxyLayerContext {
 /// If the child was recently inflated with [BaseBoxyDelegate.inflate], the
 /// associated [RenderObject] may not exist yet. Accessing [render] directly or
 /// indirectly will flush the inflation queue and bring it alive.
-class BaseBoxyChild extends InflatedChildHandle {
+abstract class BaseBoxyChild extends InflatedChildHandle {
   /// Constructs a handle to children managed by [RenderBoxyMixin] clients.
   BaseBoxyChild({
     required Object id,
@@ -644,6 +665,19 @@ class BaseBoxyChild extends InflatedChildHandle {
   void ignore([bool value = true]) {
     _ignore = value;
   }
+
+  /// Hit tests this child, returns true if the hit was a success. This should
+  /// only be called in [BoxyDelegate.hitTest].
+  ///
+  /// The [transform] argument overrides the paint transform of the child,
+  /// defaults to [BoxyChild.transform].
+  ///
+  /// The [offset] argument specifies the position of this child relative to the
+  /// boxy, defaults to the offset given to it during layout.
+  ///
+  /// The [position] argument specifies the position of the hit test relative
+  /// to the boxy, defaults to the position given to [BoxyDelegate.hitTest].
+  bool hitTest({Matrix4? transform, Offset? offset, Offset? position});
 
   @override
   String toString() => 'BoxyChild(id: $id)';
@@ -952,7 +986,7 @@ class BaseBoxyDelegate<LayoutData extends Object, ChildHandleType extends BaseBo
 ///  * [CustomBoxy], which can use the data this widget provides.
 ///  * [ParentDataWidget], which has a more technical description of how this
 ///    works.
-class BoxyId<T extends Object> extends ParentDataWidget {
+class BoxyId<T extends Object> extends ParentDataWidget<BaseBoxyParentData> {
   /// The object that identifies the child.
   final Object? id;
 
@@ -992,16 +1026,21 @@ class BoxyId<T extends Object> extends ParentDataWidget {
     assert(renderObject.parentData is BaseBoxyParentData);
     final parentData = renderObject.parentData! as BaseBoxyParentData;
     final parent = renderObject.parent as RenderObject;
-    final dynamic oldData = parentData.userData;
-    if (
-      // Avoid calling shouldRelayout if old data is null
-      (oldData == null && hasData) || shouldRelayout(oldData as T)
-    ) {
+    final dynamic oldUserData = parentData.userData;
+    if (id != parentData.id) {
+      parentData.id = id;
       parent.markNeedsLayout();
-    } else if (shouldRepaint(oldData)) {
-      parent.markNeedsPaint();
+    } else if (hasData) {
+      if (
+        // Avoid calling shouldRelayout if old data is null
+        oldUserData == null || shouldRelayout(oldUserData as T)
+      ) {
+        parent.markNeedsLayout();
+      } else if (shouldRepaint(oldUserData)) {
+        parent.markNeedsPaint();
+      }
+      parentData.userData = data;
     }
-    parentData.userData = data;
   }
 
   @override

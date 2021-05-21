@@ -4,6 +4,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
+import '../axis_utils.dart';
+import 'box_child.dart';
 import 'custom_boxy_base.dart';
 import 'inflating_element.dart';
 
@@ -59,28 +61,24 @@ class CustomBoxy extends LayoutInflatingWidget {
   }
 }
 
-/// An unfortunate design decision made on the first release was to use
-/// the [LayoutId] widget to identify children of the boxy, similar to
-/// [CustomMultiChildLayout]. The issue with using [LayoutId] is that it
-/// requires the child to have [MultiChildLayoutParentData], which extends
-/// [ContainerBoxParentData]<[RenderBox]>, preventing the child from being a
-/// [RenderSliver].
-///
-/// To mitigate this issue we now implement [MultiChildLayoutParentData] on only
-/// the [RenderBox] parentData, and recommend users use [BoxyId] instead of
-/// [LayoutId].
-///
-/// Until [LayoutId] support is removed from boxy, the library will fail to
-/// compile if/when [MultiChildLayoutParentData] adds any new methods :(
-class _BoxyParentData extends BaseBoxyParentData<RenderBox> implements MultiChildLayoutParentData {}
-
 class _RenderBoxy extends RenderBox with
-  RenderBoxyMixin<RenderBox, _BoxyParentData, BoxyChild>,
-  ContainerRenderObjectMixin<RenderBox, _BoxyParentData>,
-  InflatingRenderObjectMixin<RenderBox, _BoxyParentData, BoxyChild> {
+  RenderBoxyMixin<RenderBox, BoxyParentData, BoxyChild>,
+  ContainerRenderObjectMixin<RenderBox, BoxyParentData>,
+  InflatingRenderObjectMixin<RenderBox, BoxyParentData, BoxyChild> {
   BoxConstraints? _dryConstraints;
-  BoxHitTestResult? hitTestResult;
+
   BoxyDelegate _delegate;
+
+  @override
+  BoxHitTestResult? hitTestResult;
+
+  @override
+  void prepareChild(BoxyChild child) {
+    super.prepareChild(child);
+    final parentData = child.render.parentData as BoxyParentData;
+    parentData.drySize = null;
+    parentData.dryTransform = null;
+  }
 
   _RenderBoxy({
     required BoxyDelegate delegate,
@@ -98,8 +96,8 @@ class _RenderBoxy extends RenderBox with
 
   @override
   void setupParentData(RenderBox child) {
-    if (child.parentData is! _BoxyParentData)
-      child.parentData = _BoxyParentData();
+    if (child.parentData is! BoxyParentData)
+      child.parentData = BoxyParentData();
   }
 
   @override
@@ -123,13 +121,16 @@ class _RenderBoxy extends RenderBox with
     Widget? widget,
     RenderObject? render,
   }) {
-    return BoxyChild._(
+    return BoxyChild(
       id: id,
       parent: this,
       widget: widget,
       render: render,
     );
   }
+
+  @override
+  bool get isDryLayout => _dryConstraints != null;
 
   @override
   Size computeDryLayout(BoxConstraints dryConstraints) {
@@ -184,250 +185,30 @@ class _RenderBoxy extends RenderBox with
       paintOffset = null;
     }
   }
-}
 
-/// A handle used by [CustomBoxy] widgets to change how it lays out, paints, and
-/// hit tests its children.
-///
-/// This class should not be instantiated directly, instead access children with
-/// [BoxyDelegate.getChild].
-///
-/// See also:
-///
-///  * [CustomBoxy]
-///  * [BoxyDelegate]
-class BoxyChild extends BaseBoxyChild {
-  BoxyChild._({
-    required Object id,
-    required InflatingRenderObjectMixin parent,
-    RenderObject? render,
-    Widget? widget,
-  }) : super(
-    id: id,
-    parent: parent,
-    render: render,
-    widget: widget,
-  );
-
-  Matrix4? _dryTransform;
-  Size? _drySize;
-
-  /// The [RenderBox] representing this child.
-  ///
-  /// This getter is useful to access properties and methods that the child
-  /// handle does not provide.
-  ///
-  /// Be mindful of using this without checking [BoxyDelegate.isDryLayout]
-  /// first, confusing errors can occur in debug mode as the framework
-  /// continuously validates dry and intrinsic layouts.
   @override
-  RenderBox get render => super.render as RenderBox;
-
-  _BoxyParentData get _parentData => render.parentData as _BoxyParentData;
-
-  _RenderBoxy get _parent {
-    return render.parent as _RenderBoxy;
-  }
-
-  /// The offset to this child relative to the parent, can be set during layout
-  /// or paint with [position].
-  Offset get offset => Offset(transform[12], transform[13]);
-
-  set offset(Offset newOffset) => position(offset);
-
-  /// The matrix transformation applied to this child, used by [paint] and
-  /// [hitTest].
-  Matrix4 get transform => _dryTransform ?? _parentData.transform;
-
-  /// Sets the paint [transform] of this child, should only be called during
-  /// layout or paint.
-  void setTransform(Matrix4 newTransform) {
-    if (_parent._dryConstraints != null) {
-      _dryTransform = newTransform;
-      return;
-    }
-
-    assert(() {
-      if (
-        _parent.debugPhase != BoxyDelegatePhase.layout
-        && _parent.debugPhase != BoxyDelegatePhase.paint
-      ) {
-        throw FlutterError(
-          'The $this boxy delegate tried to position a child outside of the layout or paint methods.\n'
-        );
-      }
-
-      return true;
-    }());
-
-    _parentData.transform = newTransform;
-  }
-
-  /// The size of this child, should only be accessed after calling [layout].
-  ///
-  /// During a dry layout this represents the last size calculated by [layout],
-  /// not the child's actual size.
-  ///
-  /// See also:
-  ///
-  ///  * [offset]
-  ///  * [rect]
-  Size get size => _drySize ?? render.size;
-
-  /// The rect of this child relative to the parent, this is only valid after
-  /// [layout] and [position] have been called.
-  ///
-  /// See also:
-  ///
-  ///  * [offset]
-  ///  * [size]
-  Rect get rect {
-    final offset = this.offset;
-    final size = this.size;
-    return Rect.fromLTWH(
-      offset.dx, offset.dy,
-      size.width, size.height,
+  bool hitTestBoxChild({required RenderBox child, required Offset position, required Matrix4 transform}) {
+    return hitTestResult!.addWithPaintTransform(
+      transform: transform,
+      position: position,
+      hitTest: (result, position) {
+        return child.hitTest(result, position: position);
+      },
     );
   }
 
-  /// Sets the position of this child relative to the parent, this should only
-  /// be called during layout or paint.
-  ///
-  /// See also:
-  ///
-  ///  * [offset]
-  ///  * [rect]
-  void position(Offset newOffset) {
-    setTransform(Matrix4.translationValues(newOffset.dx, newOffset.dy, 0));
-  }
-
-  /// Lays out the child with the specified constraints and returns its size.
-  ///
-  /// If [useSize] is true or absent, this boxy will re-layout when the child
-  /// changes size.
-  ///
-  /// This method should only be called in [BoxyDelegate.layout].
-  ///
-  /// See also:
-  ///
-  ///  * [layoutRect], which positions the child so that it fits in a rect.
-  ///  * [layoutFit], which positions and scales the child given a [BoxFit].
-  Size layout(BoxConstraints constraints, {bool useSize = true}) {
-    if (_parent._dryConstraints != null) {
-      _drySize = render.getDryLayout(constraints);
-      return _drySize!;
-    }
-
-    assert(() {
-      if (_parent.debugPhase != BoxyDelegatePhase.layout) {
-        throw FlutterError(
-          'The $this boxy delegate tried to lay out a child outside of the layout method.\n'
+  @override
+  bool hitTestSliverChild({required RenderSliver child, required Offset position, required Matrix4 transform}) {
+    position = position.rotateWithAxis(child.constraints.axis);
+    return hitTestResult!.addWithPaintTransform(
+      transform: transform,
+      position: position,
+      hitTest: (result, position) {
+        return child.hitTest(
+          SliverHitTestResult.wrap(result),
+          crossAxisPosition: position.dx,
+          mainAxisPosition: position.dy,
         );
-      }
-
-      if (!_parent.debugChildrenNeedingLayout.remove(id)) {
-        throw FlutterError(
-          'The $this boxy delegate tried to lay out the child with id "$id" more than once.\n'
-          'Each child must be laid out exactly once.'
-        );
-      }
-
-      try {
-        assert(constraints.debugAssertIsValid(isAppliedConstraint: true));
-      } on AssertionError catch (exception) {
-        throw FlutterError(
-          'The $this boxy delegate provided invalid box constraints for the child with id "$id".\n'
-          '$exception\n'
-          'The minimum width and height must be greater than or equal to zero.\n'
-          'The maximum width must be greater than or equal to the minimum width.\n'
-          'The maximum height must be greater than or equal to the minimum height.'
-        );
-      }
-
-      return true;
-    }());
-
-    render.layout(constraints, parentUsesSize: useSize);
-
-    return render.size;
-  }
-
-  /// Lays out and positions the child so that it fits in [rect].
-  ///
-  /// If the [alignment] argument is provided, the child is loosely constrained
-  /// and aligned into [rect], otherwise it is tightly constrained.
-  ///
-  /// See also:
-  ///
-  ///  * [layout], which lays out the child given raw [BoxConstraints].
-  ///  * [layoutFit], which positions and scales the child given a [BoxFit].
-  void layoutRect(Rect rect, {Alignment? alignment}) {
-    if (alignment != null) {
-      layout(BoxConstraints.loose(rect.size));
-      position(alignment.inscribe(size, rect).topLeft);
-    } else {
-      layout(BoxConstraints.tight(rect.size));
-      position(rect.topLeft);
-    }
-  }
-
-  /// Lays out, positions, and scales the child so that it fits in [rect]
-  /// provided a [fit] and [alignment].
-  ///
-  ///  * [BoxFit], the enum with each possible fit type.
-  ///  * [FittedBox], a widget that has similar behavior.
-  ///  * [layout], which lays out the child given raw [BoxConstraints].
-  ///  * [layoutRect], which positions the child so that it fits in a rect.
-  void layoutFit(Rect rect, {
-    BoxFit fit = BoxFit.contain,
-    Alignment alignment = Alignment.center,
-  }) {
-    final constraints = BoxConstraints(
-      maxWidth: rect.width,
-      maxHeight: rect.height,
-    );
-
-    final childSize = layout(constraints, useSize: true);
-    final sizes = applyBoxFit(fit, childSize, rect.size);
-    final scaleX = sizes.destination.width / sizes.source.width;
-    final scaleY = sizes.destination.height / sizes.source.height;
-    final sourceRect = alignment.inscribe(sizes.source, Offset.zero & childSize);
-    final destinationRect = alignment.inscribe(sizes.destination, Offset.zero & size);
-
-    setTransform(
-      Matrix4.translationValues(destinationRect.left, destinationRect.top, 0.0)
-        ..scale(scaleX, scaleY, 1.0)
-        ..translate(-sourceRect.left, -sourceRect.top)
-    );
-  }
-
-  /// Hit tests this child, returns true if the hit was a success. This should
-  /// only be called in [BoxyDelegate.hitTest].
-  ///
-  /// The [offset] argument specifies the position of this child relative to the
-  /// boxy, defaults to the offset given to it during layout.
-  ///
-  /// The [position] argument specifies the position of the hit test relative
-  /// to the boxy, defaults to the position given to [BoxyDelegate.hitTest].
-  bool hitTest({Matrix4? transform, Offset? offset, Offset? position}) {
-    if (isIgnored) return false;
-
-    if (offset != null) {
-      assert(transform == null, 'BoxyChild.hitTest only expects either transform or offset to be provided');
-      return _parent.hitTestResult!.addWithPaintOffset(
-        offset: offset,
-        position: position ?? _parent.paintOffset!,
-        hitTest: (BoxHitTestResult result, Offset transformed) {
-          return render.hitTest(result, position: transformed);
-        },
-      );
-    }
-
-    return _parent.hitTestResult!.addWithPaintTransform(
-      transform: transform ?? this.transform,
-      position: position ?? _parent.paintOffset!,
-      hitTest: (BoxHitTestResult result, Offset transformed) {
-        return render.hitTest(result, position: transformed);
       },
     );
   }
@@ -675,7 +456,7 @@ class BoxyDelegate<LayoutData extends Object> extends BaseBoxyDelegate<LayoutDat
   }
 
   /// Whether or not this boxy is performing a dry layout.
-  bool get isDryLayout => render._dryConstraints != null;
+  bool get isDryLayout => render.isDryLayout;
 
   /// Override this method to lay out children and return the final size of the
   /// boxy.
