@@ -315,7 +315,11 @@ mixin BoxBoxyDelegateMixin<
   }
 }
 
-
+/// A delegate that controls the layout and paint of child widgets, used by
+/// [CustomBoxy].
+///
+/// This is identical to [BoxyDelegate], but supports both [BoxyChild] and
+/// [SliverBoxyChild] children.
 class BoxBoxyDelegate<LayoutData extends Object>
   extends BaseBoxyDelegate<LayoutData, BaseBoxyChild>
   with BoxBoxyDelegateMixin<LayoutData, BaseBoxyChild> {
