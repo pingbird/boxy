@@ -17,6 +17,26 @@ import 'sliver_child.dart';
 /// of [Stack], [LayoutBuilder], [CustomMultiChildLayout], and [Flow] is more
 /// suitable.
 ///
+/// Boxy supports both sliver and box render protocols for its own
+/// [RenderObject], and arbitrary children. Which protocols you use is going to
+/// affect the constructor and delegate to implement.
+///
+///  * Use the default constructor and [BoxyDelegate] to create a [RenderBox]
+///  that only has [RenderBox] children.
+///  * Use the [CustomBoxy.box] constructor and [BoxBoxyDelegate] to implement a
+///    [RenderBox] with any child type.
+///  * Use the [CustomBoxy.sliver] constructor and [SliverBoxyDelegate] to
+///    implement a [RenderSliver] with any child type.
+///
+/// When implementing a [BoxBoxyDelegate] or [SliverBoxyDelegate], delegates
+/// can access [BoxyChild] and [SliverBoxyChild] wrappers by passing type
+/// arguments to [BaseBoxyDelegate.getChild], for example:
+///
+/// ```dart
+/// final box = getChild<BoxyChild>(#box);
+/// final sliver = getChild<SliverBoxyChild>(#sliver);
+/// ```
+///
 /// Children can be given an id using [BoxyId], otherwise they are given an
 /// incrementing int id in the provided order, for example:
 ///
@@ -34,32 +54,39 @@ import 'sliver_child.dart';
 /// See also:
 ///
 ///  * [BoxyDelegate], the base class of a CustomBoxy delegate.
-class CustomBoxy extends LayoutInflatingWidget {
-  /// Constructs a CustomBoxy with a delegate and optional set of children.
-  const CustomBoxy({
+abstract class CustomBoxy extends LayoutInflatingWidget {
+  /// Factory function that constructs an appropriate [BaseBoxyChild]
+  /// based on the the generic type argument.
+  ///
+  /// Useful if you have a custom [RenderObject] protocol and want to wrap its
+  /// functionality.
+  final InflatedChildHandleFactory childFactory;
+
+  /// Constructs a CustomBoxy with [BoxyDelegate] that can manage [CustomBoxy]
+  /// children.
+  const factory CustomBoxy({
     Key? key,
-    required this.delegate,
+    required BoxyDelegate delegate,
+    List<Widget> children,
+  }) = _CustomBoxy;
+
+  const CustomBoxy._({
+    Key? key,
     List<Widget> children = const <Widget>[],
+    required this.childFactory,
   }) : super(
     key: key,
     children: children,
   );
 
-  /// The delegate that controls the layout of its children.
-  final BoxyDelegate delegate;
-
-  @override
-  RenderBoxy createRenderObject(BuildContext context) {
-    return RenderBoxy<BoxyChild>(
-      delegate: delegate,
-      childFactory: defaultChildFactory,
-    );
-  }
-
-  @override
-  void updateRenderObject(BuildContext context, RenderBoxy renderObject) {
-    renderObject.delegate = delegate;
-  }
+  /// Constructs a CustomBoxy with [BoxyDelegate] that can manage [CustomBoxy]
+  /// children.
+  const factory CustomBoxy.box({
+    Key? key,
+    required BoxBoxyDelegate delegate,
+    List<Widget> children,
+    InflatedChildHandleFactory childFactory,
+  }) = _BoxCustomBoxy;
 
   /// The default child handle factory for [BaseBoxyChild] subclasses,
   /// constructs an appropriate child based on the the generic type argument.
@@ -112,5 +139,63 @@ class CustomBoxy extends LayoutInflatingWidget {
     }
 
     return handle as T;
+  }
+}
+
+class _CustomBoxy extends CustomBoxy {
+  /// The delegate that controls the layout of its children.
+  final BoxyDelegate delegate;
+
+  /// Constructs a CustomBoxy with a delegate and optional set of children.
+  const _CustomBoxy({
+    Key? key,
+    required this.delegate,
+    List<Widget> children = const <Widget>[],
+    InflatedChildHandleFactory childFactory = CustomBoxy.defaultChildFactory,
+  }) : super._(
+    key: key,
+    children: children,
+    childFactory: childFactory,
+  );
+
+  @override
+  RenderBoxy createRenderObject(BuildContext context) {
+    return RenderBoxy<BoxyChild>(
+      delegate: delegate,
+      childFactory: childFactory,
+    );
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderBoxy renderObject) {
+    renderObject.delegate = delegate;
+  }
+}
+
+class _BoxCustomBoxy extends CustomBoxy {
+  final BoxBoxyDelegate delegate;
+
+  const _BoxCustomBoxy({
+    Key? key,
+    required this.delegate,
+    List<Widget> children = const <Widget>[],
+    InflatedChildHandleFactory childFactory = CustomBoxy.defaultChildFactory,
+  }) : super._(
+    key: key,
+    children: children,
+    childFactory: childFactory,
+  );
+
+  @override
+  RenderBoxy createRenderObject(BuildContext context) {
+    return RenderBoxy<BaseBoxyChild>(
+      delegate: delegate,
+      childFactory: childFactory,
+    );
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderBoxy renderObject) {
+    renderObject.delegate = delegate;
   }
 }
