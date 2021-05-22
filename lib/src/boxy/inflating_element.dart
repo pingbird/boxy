@@ -95,6 +95,15 @@ class InflatedChildHandle {
 /// Signature for a function that inflates widgets during layout.
 typedef _InflationCallback<T extends RenderObject> = T Function(Object, Widget);
 
+/// Signature for constructors of [InflatedChildHandle] subclasses, used for
+/// [InflatingRenderObjectMixin.childFactory].
+typedef InflatedChildHandleFactory = T Function<T extends InflatedChildHandle>({
+  required Object id,
+  required InflatingRenderObjectMixin parent,
+  RenderObject? render,
+  Widget? widget,
+});
+
 /// Mixin for [RenderObject]s that can inflate arbitrary widgets during layout.
 ///
 /// Objects that mixin this class should also use [ContainerRenderObjectMixin]
@@ -175,7 +184,7 @@ mixin InflatingRenderObjectMixin<
 
   /// Dynamically inflates a widget as a child, should only be called during
   /// layout inside [performInflatingLayout].
-  ChildHandleType inflate(Widget widget, {Object? id}) {
+  T inflate<T extends InflatedChildHandle>(Widget widget, {Object? id}) {
     id ??= _indexedChildCount++;
 
     assert(() {
@@ -189,9 +198,9 @@ mixin InflatingRenderObjectMixin<
       return true;
     }());
 
-    final child = createChild(id: id, widget: widget);
+    final child = childFactory<T>(id: id, parent: this, widget: widget);
 
-    _inflateQueue.add(child);
+    _inflateQueue.add(child as ChildHandleType);
     childHandles.add(child);
     childHandleMap[id] = child;
 
@@ -201,19 +210,25 @@ mixin InflatingRenderObjectMixin<
   /// Override to prepare children before layout, setting defaults for example.
   void prepareChild(ChildHandleType child) {}
 
-  /// Override to construct custom [InflatedChildHandle]s.
-  ChildHandleType createChild({
+  /// The default [childFactory], returns a base [InflatedChildHandle] for all
+  /// types.
+  T defaultChildFactory<T extends ChildHandleType>({
     required Object id,
-    Widget? widget,
+    required InflatingRenderObjectMixin parent,
     RenderObject? render,
+    Widget? widget,
   }) {
     return InflatedChildHandle(
       id: id,
       parent: this,
       widget: widget,
       render: render,
-    ) as ChildHandleType;
+    ) as T;
   }
+
+  /// Factory function that constructs an appropriate [InflatedChildHandle]
+  /// based on the the generic type argument.
+  InflatedChildHandleFactory get childFactory;
 
   @override
   void performLayout() {
@@ -275,7 +290,7 @@ mixin InflatingRenderObjectMixin<
         return true;
       }());
 
-      final handle = createChild(id: id, render: child);
+      final handle = childFactory<ChildHandleType>(id: id, parent: this, render: child);
 
       assert(childHandles.length == index);
       index++;
