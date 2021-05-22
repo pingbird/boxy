@@ -227,7 +227,7 @@ mixin RenderBoxyMixin<
   }
 
   @override
-  void applyPaintTransform(RenderBox child, Matrix4 transform) {
+  void applyPaintTransform(RenderObject child, Matrix4 transform) {
     final parentData = child.parentData as BaseBoxyParentData;
     transform.multiply(parentData.transform);
   }
