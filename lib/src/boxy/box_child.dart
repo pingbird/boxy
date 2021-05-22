@@ -1,17 +1,15 @@
-import 'package:boxy/boxy.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 import 'custom_boxy_base.dart';
 import 'inflating_element.dart';
 
-
 /// The [ParentData] used for [RenderBox] children of [CustomBoxy].
 ///
-/// An unfortunate design decision made on the first release was to use
+/// An unfortunate design decision made on the first release was using
 /// the [LayoutId] widget to identify children of the boxy, similar to
 /// [CustomMultiChildLayout]. The issue with using [LayoutId] is that it
-/// requires the child to have [MultiChildLayoutParentData], which extends
+/// requires the child to have [MultiChildLayoutParentData] which extends
 /// [ContainerBoxParentData]<[RenderBox]>, preventing the child from being a
 /// [RenderSliver].
 ///
@@ -21,15 +19,7 @@ import 'inflating_element.dart';
 ///
 /// Until [LayoutId] support is removed from boxy, the library will fail to
 /// compile if/when [MultiChildLayoutParentData] adds any new methods :(
-class BoxyParentData extends BaseBoxyParentData<RenderBox> implements MultiChildLayoutParentData {
-  /// The dry transform of this RenderObject, set during a dry layout by
-  /// [BoxyChild.position] or [BoxyChild.setTransform].
-  Matrix4? dryTransform;
-
-  /// The dry size of this RenderObject, set during a dry layout by
-  /// [BoxyChild.layout].
-  Size? drySize;
-}
+class BoxyParentData extends BaseBoxyParentData<RenderBox> implements MultiChildLayoutParentData {}
 
 /// A handle used by [CustomBoxy] widgets to change how it lays out, paints, and
 /// hit tests its children.
@@ -48,7 +38,7 @@ class BoxyChild extends BaseBoxyChild {
   BoxyChild({
     required Object id,
     required InflatingRenderObjectMixin parent,
-    RenderObject? render,
+    RenderBox? render,
     Widget? widget,
   }) : super(
     id: id,
@@ -74,40 +64,6 @@ class BoxyChild extends BaseBoxyChild {
     return render.parent as RenderBoxyMixin;
   }
 
-  /// The offset to this child relative to the parent, can be set during layout
-  /// or paint with [position].
-  Offset get offset => Offset(transform[12], transform[13]);
-
-  set offset(Offset newOffset) => position(offset);
-
-  /// The matrix transformation applied to this child, used by [paint] and
-  /// [hitTest].
-  Matrix4 get transform => _parentData.dryTransform ?? _parentData.transform;
-
-  /// Sets the paint [transform] of this child, should only be called during
-  /// layout or paint.
-  void setTransform(Matrix4 newTransform) {
-    if (_parent.isDryLayout) {
-      _parentData.dryTransform = newTransform;
-      return;
-    }
-
-    assert(() {
-      if (
-        _parent.debugPhase != BoxyDelegatePhase.layout
-        && _parent.debugPhase != BoxyDelegatePhase.paint
-      ) {
-        throw FlutterError(
-          'The $this boxy delegate tried to position a child outside of the layout or paint methods.\n'
-        );
-      }
-
-      return true;
-    }());
-
-    _parentData.transform = newTransform;
-  }
-
   /// The size of this child, should only be accessed after calling [layout].
   ///
   /// During a dry layout this represents the last size calculated by [layout],
@@ -117,34 +73,8 @@ class BoxyChild extends BaseBoxyChild {
   ///
   ///  * [offset]
   ///  * [rect]
+  @override
   Size get size => _parentData.drySize ?? render.size;
-
-  /// The rect of this child relative to the parent, this is only valid after
-  /// [layout] and [position] have been called.
-  ///
-  /// See also:
-  ///
-  ///  * [offset]
-  ///  * [size]
-  Rect get rect {
-    final offset = this.offset;
-    final size = this.size;
-    return Rect.fromLTWH(
-      offset.dx, offset.dy,
-      size.width, size.height,
-    );
-  }
-
-  /// Sets the position of this child relative to the parent, this should only
-  /// be called during layout or paint.
-  ///
-  /// See also:
-  ///
-  ///  * [offset]
-  ///  * [rect]
-  void position(Offset newOffset) {
-    setTransform(Matrix4.translationValues(newOffset.dx, newOffset.dy, 0));
-  }
 
   /// Lays out the child with the specified constraints and returns its size.
   ///

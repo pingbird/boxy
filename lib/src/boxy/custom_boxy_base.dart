@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -24,6 +26,14 @@ class BaseBoxyParentData<ChildType extends RenderObject>
   /// The paint transform that is used by the default paint, hitTest, and
   /// applyPaintTransform implementations.
   Matrix4 transform = Matrix4.identity();
+
+  /// The dry transform of this RenderObject, set during a dry layout by
+  /// [BoxyChild.position] or [BoxyChild.setTransform].
+  Matrix4? dryTransform;
+
+  /// The dry size of this RenderObject, set during a dry layout by
+  /// [BoxyChild.layout].
+  Size? drySize;
 }
 
 /// Base mixin of [CustomBoxy]'s [RenderObject] logic, this extends
@@ -570,7 +580,7 @@ class BoxyLayerContext {
 /// If the child was recently inflated with [BaseBoxyDelegate.inflate], the
 /// associated [RenderObject] may not exist yet. Accessing [render] directly or
 /// indirectly will flush the inflation queue and bring it alive.
-abstract class BaseBoxyChild extends InflatedChildHandle {
+class BaseBoxyChild extends InflatedChildHandle {
   /// Constructs a handle to children managed by [RenderBoxyMixin] clients.
   BaseBoxyChild({
     required Object id,
@@ -583,8 +593,78 @@ abstract class BaseBoxyChild extends InflatedChildHandle {
 
   bool _ignore = false;
 
-  BaseBoxyParentData get _parentData =>
-    render.parentData as BaseBoxyParentData;
+  BaseBoxyParentData get _parentData => render.parentData as BaseBoxyParentData;
+
+  /// The size of this child in the child's coordinate space, only valid after
+  /// calling [layout].
+  ///
+  /// This method returns Size.zero if this handle is neither a [RenderBox]
+  /// or [RenderSliver], since sizing is dependant on the render protocol.
+  Size get size => Size.zero;
+
+  /// The rect of this child relative to the boxy, this is only valid after
+  /// [layout] and [position] have been called.
+  ///
+  /// This getter may return erroneous values if a [transform] is applied to the
+  /// child since the coordinate space would be skewed.
+  ///
+  /// See also:
+  ///
+  ///  * [offset]
+  ///  * [size]
+  Rect get rect {
+    final offset = this.offset;
+    final size = this.size;
+    return Rect.fromLTWH(
+      offset.dx, offset.dy,
+      size.width, size.height,
+    );
+  }
+
+  /// Sets the position of this child relative to the parent, this should only
+  /// be called during layout or paint.
+  ///
+  /// See also:
+  ///
+  ///  * [offset]
+  ///  * [rect]
+  void position(Offset newOffset) {
+    setTransform(Matrix4.translationValues(newOffset.dx, newOffset.dy, 0));
+  }
+
+  /// The offset to this child relative to the parent, can be set during layout
+  /// or paint with [position].
+  Offset get offset => Offset(transform[12], transform[13]);
+
+  set offset(Offset newOffset) => position(offset);
+
+  /// The matrix transformation applied to this child, used by [paint] and
+  /// [hitTest].
+  Matrix4 get transform => _parentData.transform;
+
+  /// Sets the paint [transform] of this child, should only be called during
+  /// layout or paint.
+  void setTransform(Matrix4 newTransform) {
+    if (_parent.isDryLayout) {
+      _parentData.dryTransform = newTransform;
+      return;
+    }
+
+    assert(() {
+      if (
+        _parent.debugPhase != BoxyDelegatePhase.layout
+        && _parent.debugPhase != BoxyDelegatePhase.paint
+      ) {
+        throw FlutterError(
+          'The $this boxy delegate tried to position a child outside of the layout or paint methods.\n'
+        );
+      }
+
+      return true;
+    }());
+
+    _parentData.transform = newTransform;
+  }
 
   /// A variable that can store arbitrary data by the [BoxyDelegate] during
   /// layout, may also be set by [BoxyId].
@@ -677,7 +757,12 @@ abstract class BaseBoxyChild extends InflatedChildHandle {
   ///
   /// The [position] argument specifies the position of the hit test relative
   /// to the boxy, defaults to the position given to [BoxyDelegate.hitTest].
-  bool hitTest({Matrix4? transform, Offset? offset, Offset? position});
+  ///
+  /// This method returns false if this handle is neither a [RenderBox] or
+  /// [RenderSliver], since hit testing is dependant on the render protocol.
+  bool hitTest({Matrix4? transform, Offset? offset, Offset? position}) {
+    return false;
+  }
 
   @override
   String toString() => 'BoxyChild(id: $id)';
@@ -769,14 +854,22 @@ class BaseBoxyDelegate<LayoutData extends Object, ChildHandleType extends BaseBo
     return _render!;
   }
 
-  /// A list of each [BoxyChild] handle, this should not be modified in any way.
-  List<BaseBoxyChild> get children => render.childHandles;
+  /// A list of each [BoxyChild] handle associated with the boxy, the list
+  /// itself should not be modified by the delegate.
+  List<ChildHandleType> get children {
+    var out = render.childHandles;
+    assert(() {
+      out = UnmodifiableListView(out);
+      return true;
+    }());
+    return out;
+  }
 
   /// Returns true if a child exists with the specified [id].
   bool hasChild(Object id) => render.childHandleMap.containsKey(id);
 
   /// Gets the child handle with the specified [id].
-  ChildHandleType getChild(Object id) {
+  T getChild<T extends ChildHandleType>(Object id) {
     final child = render.childHandleMap[id];
     assert(() {
       if (child == null) {
@@ -787,10 +880,10 @@ class BaseBoxyDelegate<LayoutData extends Object, ChildHandleType extends BaseBo
       }
       return true;
     }());
-    return child!;
+    return child as T;
   }
 
-  /// Gets the current build context of this boxy.
+  /// Gets the [BuildContext] of this boxy.
   BuildContext get buildContext => render.context;
 
   /// The number of children that have not been given a [BoxyId], this
@@ -894,7 +987,7 @@ class BaseBoxyDelegate<LayoutData extends Object, ChildHandleType extends BaseBo
   /// Unlike children passed to the widget, [Key]s cannot be used to move state
   /// from one child id to another. You may hit duplicate [GlobalKey] assertions
   /// from children inflated during the previous layout.
-  ChildHandleType inflate(Widget widget, {Object? id}) {
+  T inflate<T extends ChildHandleType>(Widget widget, {Object? id}) {
     final render = this.render;
     assert(() {
       if (debugPhase == BoxyDelegatePhase.dryLayout) {
@@ -907,7 +1000,7 @@ class BaseBoxyDelegate<LayoutData extends Object, ChildHandleType extends BaseBo
       }
       return true;
     }());
-    return render.inflate(widget, id: id);
+    return render.inflate<T>(widget, id: id);
   }
 
   /// Override this method to return true when the children need to be

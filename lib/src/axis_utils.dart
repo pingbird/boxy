@@ -389,6 +389,18 @@ extension SizeAxisUtil on Size {
   double crossAxisSize(Axis axis) {
     return axis == Axis.vertical ? width : height;
   }
+
+  /// Rotates this size with [axis] where `width` becomes the cross axis extent
+  /// and `height` becomes the main axis extent.
+  Size rotateWithAxis(Axis axis) {
+    return axis == Axis.vertical ? this : Size(height, width);
+  }
+
+  /// Rotates this size with [crossAxis] where `width` becomes the cross axis
+  /// extent and `height` becomes the main axis extent.
+  Size rotateWithCrossAxis(Axis crossAxis) {
+    return crossAxis == Axis.horizontal ? this : Size(height, width);
+  }
 }
 
 /// Extension on [EdgeInsets] that provides various directional utilities.

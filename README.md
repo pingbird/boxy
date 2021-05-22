@@ -10,9 +10,9 @@ custom multi-child layouts, dynamic widget inflation, slivers, and more!
 A common design problem is when you need one or more children of a `Row` or `Column` to have the same cross-axis size
 as another child in the list, with boxy this can be achieved trivially using `BoxyRow`, `BoxyColumn` and `Dominant`.
 
-![Visualization of BoxyRow](https://i.tst.sh/WDmbR.png)
+![Using BoxyRow. A sidebar matches the height of a dynamically sized container](https://i.tst.sh/WDmbR.png)
 
-![Visualization of BoxyColumn](https://i.tst.sh/FdoiA.png)
+![Using BoxyColumn. An underbar matches the width of a dynamically sized container](https://i.tst.sh/FdoiA.png)
 
 See the documentation of [BoxyRow](https://pub.dev/documentation/boxy/latest/flex/BoxyRow-class.html) and
 [BoxyColumn](https://pub.dev/documentation/boxy/latest/flex/BoxyColumn-class.html) for more information.
@@ -20,15 +20,14 @@ See the documentation of [BoxyRow](https://pub.dev/documentation/boxy/latest/fle
 ## Custom layouts
 
 One of the pains of implementing custom layouts is learning the `RenderObject` model and how verbose it is, to make this
-process easier we provide an extremely simple to use container `CustomBoxy` that delegates layout, paint, and hit
-testing.
+process easier we provide an extremely simple container `CustomBoxy` that delegates layout, paint, and hit testing.
 
-![Visualization of CustomBoxy. 1. Declare widget 2. Implement delegate](https://i.tst.sh/e0M7b.png)
+![1. Declare widget using CustomBoxy 2. Implement delegate. Dynamic header and content in a column with an avatar pinned to the center of both](https://i.tst.sh/e0M7b.png)
 
 The most powerful feature of `CustomBoxy` is the ability to inflate arbitrary widgets at layout time, this means widgets
 can depend on the size of others, something previously impossible without hacky workarounds.
 
-![Visualization of BoxyDelegate.inflate, lazy-loading children to match the width of a container](https://i.tst.sh/sYQHo.png)
+![Lazy-loading children with BoxyDelegate.inflate to match the width of a container](https://i.tst.sh/sYQHo.png)
 
 See the documentation of [CustomBoxy](https://pub.dev/documentation/boxy/latest/boxy/CustomBoxy-class.html) and
 [BoxyDelegate](https://pub.dev/documentation/boxy/latest/boxy/BoxyDelegate-class.html) for more information.
@@ -42,7 +41,7 @@ you to use box widgets as the foreground or background of a sliver.
 This library also provides [SliverCard](https://pub.dev/documentation/boxy/latest/slivers/SliverCard-class.html), a
 [SliverContainer](https://pub.dev/documentation/boxy/latest/slivers/SliverContainer-class.html) that looks like a card.
 
-![](https://i.tst.sh/iiyrk.png)
+![Adding a custom card-like background to a SliverList, while still building lazily](https://i.tst.sh/iiyrk.png)
 
 Also check out:
 * [SliverPadding](https://api.flutter.dev/flutter/widgets/SliverPadding-class.html), an underrated built-in widget
