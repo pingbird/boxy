@@ -15,9 +15,9 @@ import 'inflating_element.dart';
 ///   * [CustomBoxy]
 ///   * [BoxyDelegate]
 class RenderBoxy<ChildHandleType extends BaseBoxyChild> extends RenderBox with
-  RenderBoxyMixin<RenderBox, BoxyParentData, ChildHandleType>,
-  ContainerRenderObjectMixin<RenderBox, BoxyParentData>,
-  InflatingRenderObjectMixin<RenderBox, BoxyParentData, ChildHandleType> {
+  RenderBoxyMixin<RenderObject, BoxyParentData, ChildHandleType>,
+  ContainerRenderObjectMixin<RenderObject, BoxyParentData>,
+  InflatingRenderObjectMixin<RenderObject, BoxyParentData, ChildHandleType> {
   BoxBoxyDelegateMixin<Object, ChildHandleType> _delegate;
 
   @override
@@ -53,7 +53,7 @@ class RenderBoxy<ChildHandleType extends BaseBoxyChild> extends RenderBox with
   }
 
   @override
-  void setupParentData(RenderBox child) {
+  void setupParentData(RenderObject child) {
     if (child.parentData is! BoxyParentData)
       child.parentData = BoxyParentData();
   }
@@ -159,8 +159,8 @@ class RenderBoxy<ChildHandleType extends BaseBoxyChild> extends RenderBox with
 
 /// Mixin for the logic shared by [BoxBoxyDelegate] and [BoxyDelegate].
 ///
-/// This mixin should typically not be used directly, consider extending one of
-/// the above classes instead.
+/// This mixin should typically not be used directly, instead consider extending
+/// one of the above classes.
 mixin BoxBoxyDelegateMixin<
   LayoutData extends Object,
   ChildHandleType extends BaseBoxyChild
