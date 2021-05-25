@@ -61,7 +61,11 @@ mixin RenderBoxyMixin<
   /// The current painting context, only valid during paint.
   PaintingContext? paintingContext;
 
-  /// The current paint offset, only valid during paint or hit testing.
+  /// The current paint or hit test offset, only valid during paint or hit
+  /// testing.
+  ///
+  /// During paint, this is the offset passed to [paint]. During hit testing
+  /// this is the position of the hit test.
   Offset? paintOffset;
 
   /// The current hit test result, only valid during hit testing.
@@ -806,7 +810,7 @@ class CannotInflateError<DelegateType extends BaseBoxyDelegate> extends FlutterE
 ///
 ///  * [BaseBoxyChild]
 ///  * [RenderBoxyMixin]
-class BaseBoxyDelegate<LayoutData extends Object, ChildHandleType extends BaseBoxyChild> {
+abstract class BaseBoxyDelegate<LayoutData extends Object, ChildHandleType extends BaseBoxyChild> {
   /// Constructs a BaseBoxyDelegate with optional [relayout] and [repaint]
   /// [Listenable]s.
   BaseBoxyDelegate({
@@ -864,6 +868,9 @@ class BaseBoxyDelegate<LayoutData extends Object, ChildHandleType extends BaseBo
     }());
     return out;
   }
+
+  /// The most recent constraints given to this boxy by its parent.
+  Constraints get constraints;
 
   /// Returns true if a child exists with the specified [id].
   bool hasChild(Object id) => render.childHandleMap.containsKey(id);
@@ -1063,6 +1070,43 @@ class BaseBoxyDelegate<LayoutData extends Object, ChildHandleType extends BaseBo
   ///
   /// You can get the size of the widget with `render.size`.
   void paint() {}
+
+  /// Adds the boxy to [hitTestResult], this should typically be called from
+  /// [hitTest] when a hit succeeds.
+  void addHit();
+
+  /// The current hit test result, should only be accessed from [hitTest].
+  HitTestResult get hitTestResult {
+    assert(() {
+      if (debugPhase != BoxyDelegatePhase.hitTest) {
+        throw FlutterError(
+          'The $this boxy delegate attempted to access hitTestResult outside of the hitTest method.'
+        );
+      }
+      return true;
+    }());
+    return render.hitTestResult!;
+  }
+
+  /// Override this method to change how the boxy gets hit tested.
+  ///
+  /// Return true to indicate a successful hit, false to let the parent continue
+  /// testing other children.
+  ///
+  /// Call [hitTestAdd] to add the boxy to [hitTestResult].
+  ///
+  /// The default behavior is to hit test all children and call [hitTestAdd] if
+  /// any succeeded.
+  bool hitTest(Offset position) {
+    for (final child in children.reversed) {
+      if (child.hitTest()) {
+        addHit();
+        return true;
+      }
+    }
+
+    return false;
+  }
 }
 
 /// Widget that can provide data to the parent [CustomBoxy].
