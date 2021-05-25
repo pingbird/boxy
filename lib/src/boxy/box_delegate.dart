@@ -15,9 +15,9 @@ import 'inflating_element.dart';
 ///   * [CustomBoxy]
 ///   * [BoxyDelegate]
 class RenderBoxy<ChildHandleType extends BaseBoxyChild> extends RenderBox with
-  RenderBoxyMixin<RenderObject, BoxyParentData, ChildHandleType>,
   ContainerRenderObjectMixin<RenderObject, BoxyParentData>,
-  InflatingRenderObjectMixin<RenderObject, BoxyParentData, ChildHandleType> {
+  InflatingRenderObjectMixin<RenderObject, BoxyParentData, ChildHandleType>,
+  RenderBoxyMixin<RenderObject, BoxyParentData, ChildHandleType> {
   BoxBoxyDelegateMixin<Object, ChildHandleType> _delegate;
 
   @override
@@ -61,9 +61,7 @@ class RenderBoxy<ChildHandleType extends BaseBoxyChild> extends RenderBox with
   @override
   void performInflatingLayout() {
     wrapPhase(BoxyDelegatePhase.layout, () {
-      var resultSize = constraints.smallest;
-      resultSize = delegate.layout();
-      size = constraints.constrain(resultSize);
+      size = constraints.constrain(delegate.layout());
     });
   }
 
@@ -165,19 +163,6 @@ mixin BoxBoxyDelegateMixin<
   LayoutData extends Object,
   ChildHandleType extends BaseBoxyChild
 > on BaseBoxyDelegate<LayoutData, ChildHandleType> {
-  /// The current hit test result, should only be accessed from [hitTest].
-  HitTestResult get hitTestResult {
-    assert(() {
-      if (debugPhase != BoxyDelegatePhase.hitTest) {
-        throw FlutterError(
-          'The $this boxy delegate attempted to access hitTestResult outside of the hitTest method.'
-        );
-      }
-      return true;
-    }());
-    return render.hitTestResult!;
-  }
-
   @override
   RenderBoxy<ChildHandleType> get render => super.render as RenderBoxy<ChildHandleType>;
 
@@ -185,6 +170,7 @@ mixin BoxBoxyDelegateMixin<
   ///
   /// During a dry layout, this returns the last constraints given to the boxy's
   /// [RenderBox.getDryLayout].
+  @override
   BoxConstraints get constraints {
     final render = this.render;
     return render._dryConstraints ?? render.constraints;
@@ -211,32 +197,6 @@ mixin BoxBoxyDelegateMixin<
   /// actual orientation. Additionally, the [inflate] method will throw
   /// [CannotInflateError] if called during a dry layout.
   Size layout() => constraints.smallest;
-
-  /// Adds the boxy to [hitTestResult], this should typically be called from
-  /// [hitTest] when a hit succeeds.
-  void addHit() {
-    hitTestResult.add(BoxHitTestEntry(render, render.paintOffset!));
-  }
-
-  /// Override this method to change how the boxy gets hit tested.
-  ///
-  /// Return true to indicate a successful hit, false to let the parent continue
-  /// testing other children.
-  ///
-  /// Call [hitTestAdd] to add the boxy to [hitTestResult].
-  ///
-  /// The default behavior is to hit test all children and call [hitTestAdd] if
-  /// any succeeded.
-  bool hitTest(Offset position) {
-    for (final child in children.reversed) {
-      if (child.hitTest()) {
-        addHit();
-        return true;
-      }
-    }
-
-    return false;
-  }
 
   /// Override to change the minimum width that this box could be without
   /// failing to correctly paint its contents within itself, without clipping.
@@ -312,6 +272,14 @@ mixin BoxBoxyDelegateMixin<
       return true;
     }());
     return 0.0;
+  }
+
+  @override
+  BoxHitTestResult get hitTestResult => super.hitTestResult as BoxHitTestResult;
+
+  @override
+  void addHit() {
+    hitTestResult.add(BoxHitTestEntry(render, render.paintOffset!));
   }
 }
 
