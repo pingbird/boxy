@@ -2,6 +2,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 import '../axis_utils.dart';
+import '../sliver_axis_utils.dart';
 import 'custom_boxy_base.dart';
 import 'inflating_element.dart';
 
@@ -99,12 +100,14 @@ class SliverBoxyChild extends BaseBoxyChild {
   ///  * [offset]
   ///  * [rect]
   @override
-  Size get size {
+  SliverSize get size {
     final constraints = render.constraints;
-    return Size(
-      constraints.crossAxisExtent,
-      geometry.layoutExtent,
-    ).rotateWithAxis(constraints.axis);
+    return _parent.wrapSize(
+      Size(
+        constraints.crossAxisExtent,
+        geometry.layoutExtent,
+      ).rotateWithAxis(constraints.axis)
+    );
   }
 
   /// Lays out the child with the specified constraints and returns its

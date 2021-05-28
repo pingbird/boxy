@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
+import '../sliver_axis_utils.dart';
 import 'inflating_element.dart';
 
 /// Base class for the [ParentData] provided by [RenderBoxyMixin] clients.
@@ -238,6 +239,29 @@ mixin RenderBoxyMixin<
 
   @override
   bool get alwaysNeedsCompositing => delegate.needsCompositing;
+
+  /// Wraps a [Size] into a [SliverSize] using the sliver constraints of this
+  /// boxy.
+  ///
+  /// If this boxy is not a [RenderSliver], assume the axis is vertical.
+  SliverSize wrapSize(Size size) {
+    return SliverSize(size.width, size.height, Axis.vertical);
+  }
+
+  /// Wraps an [Offset] into a [SliverOffset] using the sliver constraints of
+  /// this boxy.
+  ///
+  /// If this boxy is not a [RenderSliver], assume the axis is vertical.
+  SliverOffset wrapOffset(Offset offset, Size size) {
+    return SliverOffset(offset.dx, offset.dy, offset.dx, offset.dy);
+  }
+
+  /// Gets the offset at the specified cross and main axis extents.
+  ///
+  /// If this boxy is not a [RenderSliver], assume the axis is vertical.
+  Offset unwrapOffset(double cross, double main, Size size) {
+    return Offset(cross, main);
+  }
 }
 
 /// The current phase in the render pipeline that the boxy is in.
@@ -604,7 +628,7 @@ class BaseBoxyChild extends InflatedChildHandle {
   ///
   /// This method returns Size.zero if this handle is neither a [RenderBox]
   /// or [RenderSliver], since sizing is dependant on the render protocol.
-  Size get size => Size.zero;
+  SliverSize get size => SliverSize.zero;
 
   /// The rect of this child relative to the boxy, this is only valid after
   /// [layout] and [position] have been called.
@@ -636,9 +660,28 @@ class BaseBoxyChild extends InflatedChildHandle {
     setTransform(Matrix4.translationValues(newOffset.dx, newOffset.dy, 0));
   }
 
+  /// Sets the position of this child relative to the parent, this should only
+  /// be called after layout is called.
+  ///
+  /// See also:
+  ///
+  ///  * [offset]
+  ///  * [rect]
+  void positionOnAxis(double cross, double main) {
+    position(_parent.unwrapOffset(cross, main, size));
+  }
+
   /// The offset to this child relative to the parent, can be set during layout
   /// or paint with [position].
-  Offset get offset => Offset(transform[12], transform[13]);
+  ///
+  /// This getter may return erroneous values if a [transform] is applied to the
+  /// child since the coordinate space would be skewed.
+  ///
+  /// If the parent is not a sliver, the axis direction of the offset is assumed
+  /// to be down, such that dx is the cross axis and dy is the main axis.
+  SliverOffset get offset {
+    return _parent.wrapOffset(Offset(transform[12], transform[13]), size);
+  }
 
   set offset(Offset newOffset) => position(offset);
 
