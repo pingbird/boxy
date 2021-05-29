@@ -2,7 +2,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 import '../axis_utils.dart';
-import '../sliver_axis_utils.dart';
+import '../sliver_offset.dart';
 import 'custom_boxy_base.dart';
 import 'inflating_element.dart';
 

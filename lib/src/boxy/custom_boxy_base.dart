@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-import '../sliver_axis_utils.dart';
+import '../sliver_offset.dart';
 import 'inflating_element.dart';
 
 /// Base class for the [ParentData] provided by [RenderBoxyMixin] clients.

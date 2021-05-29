@@ -1,9 +1,10 @@
 import 'dart:math';
 
-import 'package:boxy/src/sliver_card.dart';
-import 'package:boxy/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+
+import 'axis_utils.dart';
+import 'sliver_card.dart';
 
 /// A sliver container that gives its sliver a foreground or background
 /// consisting of box widgets, this is useful if you want a sliver to look and
