@@ -197,6 +197,16 @@ class RenderSliverBoxy<ChildHandleType extends BaseBoxyChild> extends RenderSliv
 
 /// A delegate that controls the layout and paint of child widgets, used by
 /// [CustomBoxy].
+///
+/// This is similar to [BoxyDelegate], but uses the [RenderSliver] protocol and
+/// supports both [BoxyChild] and [SliverBoxyChild] children.
+///
+/// See also:
+///
+///  * [CustomBoxy], the widget of a boxy.
+///  * [BoxyChild], a child handle for [RenderBox].
+///  * [SliverBoxyChild], a child handle for [RenderSliver].
+///  * [BoxyLayerContext], a wrapper that can push [Layer]s.
 abstract class SliverBoxyDelegate<LayoutData extends Object>
   extends BaseBoxyDelegate<LayoutData, BaseBoxyChild> {
   /// Constructs a BoxyDelegate with optional [relayout] and [repaint]
@@ -221,7 +231,7 @@ abstract class SliverBoxyDelegate<LayoutData extends Object>
   /// Override this method to lay out children and return the final geometry of
   /// the boxy.
   ///
-  /// This method should call [BaseBoxyChild.layout] for each child. It should
+  /// This method should call [BoxyChild.layout] for each child. It should
   /// also specify the position of each child with [BaseBoxyChild.position].
   SliverGeometry layout() {
     return const SliverGeometry();

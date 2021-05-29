@@ -54,7 +54,9 @@ import 'sliver_delegate.dart';
 ///
 /// See also:
 ///
-///  * [BoxyDelegate], the base class of a CustomBoxy delegate.
+///  * [BoxyDelegate], used with the default constructor.
+///  * [BoxBoxyDelegate], used with [CustomBoxy.box].
+///  * [SliverBoxyDelegate], used with [CustomBoxy.sliver].
 abstract class CustomBoxy extends LayoutInflatingWidget {
   /// Factory function that constructs an appropriate [BaseBoxyChild]
   /// based on the the generic type argument.
