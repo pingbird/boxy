@@ -12,7 +12,7 @@ void main() {
       home: CustomBoxy(
         delegate: ProxyBoxy(),
         children: [
-          LayoutId(id: #list, child: CustomScrollView(
+          BoxyId(id: #list, child: CustomScrollView(
             slivers: [
               SliverList(
                 delegate: SliverChildListDelegate([
