@@ -6,6 +6,7 @@ import 'box_delegate.dart';
 import 'custom_boxy_base.dart';
 import 'inflating_element.dart';
 import 'sliver_child.dart';
+import 'sliver_delegate.dart';
 
 /// A widget that uses a delegate to control the layout of multiple children.
 ///
@@ -62,7 +63,7 @@ abstract class CustomBoxy extends LayoutInflatingWidget {
   /// functionality.
   final InflatedChildHandleFactory childFactory;
 
-  /// Constructs a CustomBoxy with [BoxyDelegate] that can manage [CustomBoxy]
+  /// Constructs a CustomBoxy with [BoxyDelegate] that can manage [BoxyChild]
   /// children.
   const factory CustomBoxy({
     Key? key,
@@ -79,14 +80,23 @@ abstract class CustomBoxy extends LayoutInflatingWidget {
     children: children,
   );
 
-  /// Constructs a CustomBoxy with [BoxyDelegate] that can manage [CustomBoxy]
-  /// children.
+  /// Constructs a CustomBoxy with [BoxBoxyDelegate] that can manage both
+  /// [BoxyChild] and [SliverBoxyChild] children.
   const factory CustomBoxy.box({
     Key? key,
     required BoxBoxyDelegate delegate,
     List<Widget> children,
     InflatedChildHandleFactory childFactory,
   }) = _BoxCustomBoxy;
+
+  /// Constructs a CustomBoxy with [SliverBoxyDelegate] that can manage both
+  /// [BoxyChild] and [SliverBoxyChild] children.
+  const factory CustomBoxy.sliver({
+    Key? key,
+    required SliverBoxyDelegate delegate,
+    List<Widget> children,
+    InflatedChildHandleFactory childFactory,
+  }) = _SliverCustomBoxy;
 
   /// The default child handle factory for [BaseBoxyChild] subclasses,
   /// constructs an appropriate child based on the the generic type argument.
@@ -196,6 +206,34 @@ class _BoxCustomBoxy extends CustomBoxy {
 
   @override
   void updateRenderObject(BuildContext context, RenderBoxy renderObject) {
+    renderObject.delegate = delegate;
+  }
+}
+
+class _SliverCustomBoxy extends CustomBoxy {
+  final SliverBoxyDelegate delegate;
+
+  const _SliverCustomBoxy({
+    Key? key,
+    required this.delegate,
+    List<Widget> children = const <Widget>[],
+    InflatedChildHandleFactory childFactory = CustomBoxy.defaultChildFactory,
+  }) : super._(
+    key: key,
+    children: children,
+    childFactory: childFactory,
+  );
+
+  @override
+  RenderSliverBoxy createRenderObject(BuildContext context) {
+    return RenderSliverBoxy<BaseBoxyChild>(
+      delegate: delegate,
+      childFactory: childFactory,
+    );
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderSliverBoxy renderObject) {
     renderObject.delegate = delegate;
   }
 }

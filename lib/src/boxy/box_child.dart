@@ -88,7 +88,7 @@ class BoxyChild extends BaseBoxyChild {
   ///
   ///  * [layoutRect], which positions the child so that it fits in a rect.
   ///  * [layoutFit], which positions and scales the child given a [BoxFit].
-  Size layout(BoxConstraints constraints, {bool useSize = true}) {
+  SliverSize layout(BoxConstraints constraints, {bool useSize = true}) {
     if (_parent.isDryLayout) {
       if (_parentData.drySize != null) {
         throw FlutterError(
@@ -97,7 +97,7 @@ class BoxyChild extends BaseBoxyChild {
         );
       }
       _parentData.drySize = render.getDryLayout(constraints);
-      return _parentData.drySize!;
+      return _parent.wrapSize(_parentData.drySize!);
     }
 
     assert(() {
@@ -131,7 +131,7 @@ class BoxyChild extends BaseBoxyChild {
 
     render.layout(constraints, parentUsesSize: useSize);
 
-    return render.size;
+    return _parent.wrapSize(render.size);
   }
 
   /// Lays out and positions the child so that it fits in [rect].
@@ -184,7 +184,7 @@ class BoxyChild extends BaseBoxyChild {
   }
 
   @override
-  bool hitTest({Matrix4? transform, Offset? offset, Offset? position}) {
+  bool hitTest({Matrix4? transform, Offset? offset, Offset? position, bool checkBounds = true}) {
     if (isIgnored) return false;
 
     if (offset != null) {
@@ -194,8 +194,9 @@ class BoxyChild extends BaseBoxyChild {
 
     return _parent.hitTestBoxChild(
       child: render,
-      position: position ?? _parent.paintOffset!,
+      position: position ?? _parent.hitPosition!,
       transform: transform ?? this.transform,
+      checkBounds: checkBounds,
     );
   }
 }

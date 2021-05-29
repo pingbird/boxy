@@ -163,7 +163,12 @@ class SliverBoxyChild extends BaseBoxyChild {
   }
 
   @override
-  bool hitTest({Matrix4? transform, Offset? offset, Offset? position}) {
+  bool hitTest({
+    Matrix4? transform,
+    Offset? offset,
+    Offset? position,
+    bool checkBounds = true,
+  }) {
     if (isIgnored) return false;
 
     if (offset != null) {
@@ -173,8 +178,9 @@ class SliverBoxyChild extends BaseBoxyChild {
 
     return _parent.hitTestSliverChild(
       child: render,
-      position: position ?? _parent.paintOffset!,
+      position: position ?? _parent.hitPosition!,
       transform: transform ?? this.transform,
+      checkBounds: checkBounds,
     );
   }
 }

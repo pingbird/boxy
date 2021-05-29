@@ -1,4 +1,5 @@
 import 'package:boxy/boxy.dart';
+import 'package:boxy/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -34,23 +35,48 @@ class BoxToSliverAdapterBoxy extends BoxBoxyDelegate {
   }
 }
 
+class SliverToBoxAdapterBoxy extends SliverBoxyDelegate {
+  static const padding = 10.0;
+
+  @override
+  SliverGeometry layout() {
+    final child = getChild<BoxyChild>(0);
+    final size = child.layout(
+      constraints.asBoxConstraints().deflate(const EdgeInsets.all(padding)),
+    );
+    child.position(const Offset(padding, padding));
+    final childExtent = size.main + padding * 2;
+    final paintedChildSize = constraints.paintOffset(0.0, childExtent);
+    final cacheExtent = constraints.cacheOffset(0.0, childExtent);
+    return SliverGeometry(
+      scrollExtent: childExtent,
+      paintExtent: paintedChildSize,
+      cacheExtent: cacheExtent,
+      maxPaintExtent: childExtent,
+      hitTestExtent: paintedChildSize,
+      hasVisualOverflow: childExtent > constraints.remainingPaintExtent || constraints.scrollOffset > 0.0,
+    );
+  }
+}
+
 class TestButton extends StatelessWidget {
-  final void Function(Offset position, int index) setPosition;
-  final int index;
+  static const size = 100.0;
+
+  final void Function(Offset position) setPosition;
 
   const TestButton({
     Key? key,
-    required this.index,
     required this.setPosition,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 50,
+      height: size,
+      width: size,
       child: GestureDetector(
         onTapDown: (details) {
-          setPosition(details.localPosition, index);
+          setPosition(details.localPosition);
         },
       ),
     );
@@ -58,13 +84,18 @@ class TestButton extends StatelessWidget {
 }
 
 void main() {
-  testWidgets('Consistent subtitle', (tester) async {
+  testWidgets('Sliver child of Box', (tester) async {
     Offset? lastPosition;
     int? lastIndex;
 
-    void setPosition(Offset position, int index) {
-      lastPosition = position;
-      lastIndex = index;
+    Widget buildChild(int index) {
+      return TestButton(
+        key: GlobalObjectKey(index),
+        setPosition: (position) {
+          lastPosition = position;
+          lastIndex = index;
+        },
+      );
     }
 
     await tester.pumpWidget(TestFrame(
@@ -76,21 +107,9 @@ void main() {
           children: [
             SliverList(
               delegate: SliverChildListDelegate([
-                TestButton(
-                  key: const GlobalObjectKey(0),
-                  index: 0,
-                  setPosition: setPosition,
-                ),
-                TestButton(
-                  key: const GlobalObjectKey(1),
-                  index: 1,
-                  setPosition: setPosition,
-                ),
-                TestButton(
-                  key: const GlobalObjectKey(2),
-                  index: 2,
-                  setPosition: setPosition,
-                ),
+                buildChild(0),
+                buildChild(1),
+                buildChild(2),
               ]),
             ),
           ],
@@ -110,6 +129,125 @@ void main() {
       final transform = button.getTransformTo(null);
       final topLeft = transform.transform3(Vector3.zero());
       expect(topLeft, Vector3(0, i * 50.0, 0));
+    }
+  });
+
+  testWidgets('Box child of Sliver', (tester) async {
+    Offset? lastPosition;
+    int? lastIndex;
+
+    Widget buildChild(int index, [double padding = 0]) {
+      return Padding(
+        padding: EdgeInsets.all(padding),
+        child: TestButton(
+          key: GlobalObjectKey(index),
+          setPosition: (position) {
+            lastPosition = position;
+            lastIndex = index;
+          },
+        ),
+      );
+    }
+
+    final forwardKey = UniqueKey();
+    const scrollSize = (SliverToBoxAdapterBoxy.padding * 2 + TestButton.size) * 4;
+
+    for (final direction in AxisDirection.values) {
+      Widget buildFrame(List<Widget> slivers) {
+        return TestFrame(
+          child: SizedBox(
+            width: scrollSize,
+            height: scrollSize,
+            child: CustomScrollView(
+              controller: ScrollController(initialScrollOffset: scrollSize / -2),
+              center: forwardKey,
+              scrollDirection: direction.axis,
+              reverse: direction.isReverse,
+              slivers: slivers,
+            ),
+          ),
+        );
+      }
+
+      await tester.pumpWidget(buildFrame([
+        SliverToBoxAdapter(child: buildChild(0, 10)),
+        SliverToBoxAdapter(child: buildChild(1, 10)),
+        SliverToBoxAdapter(child: buildChild(2, 10), key: forwardKey),
+        SliverToBoxAdapter(child: buildChild(3, 10)),
+      ]));
+
+      final testRects = <Rect>[];
+      final testHits = <Offset>[];
+      final testIndices = <int>[];
+      final testPositions = <Offset>[];
+
+      Future<void> addHit(int index, Offset offset) async {
+        testHits.add(offset);
+        lastPosition = null;
+        lastIndex = null;
+        await tester.tapAt(offset);
+        expect(
+          lastIndex,
+          index,
+          reason: 'Expected hit at $offset to be child $index',
+        );
+        testIndices.add(lastIndex!);
+        testPositions.add(lastPosition!);
+      }
+
+      // Test each corner of each child
+      for (var i = 0; i < 4; i++) {
+        final rect = boxRect(keyBox(i));
+        final inner = rect.deflate(10.0);
+        await addHit(i, inner.topLeft);
+        await addHit(i, inner.topRight);
+        await addHit(i, inner.bottomRight);
+        await addHit(i, inner.bottomLeft);
+        testRects.add(rect);
+      }
+
+      await tester.pumpWidget(buildFrame([
+        // Reverse slivers
+        CustomBoxy.sliver(
+          delegate: SliverToBoxAdapterBoxy(),
+          children: [buildChild(0)],
+        ),
+        CustomBoxy.sliver(
+          delegate: SliverToBoxAdapterBoxy(),
+          children: [buildChild(1)],
+        ),
+        // Forward slivers
+        CustomBoxy.sliver(
+          key: forwardKey,
+          delegate: SliverToBoxAdapterBoxy(),
+          children: [buildChild(2)],
+        ),
+        CustomBoxy.sliver(
+          delegate: SliverToBoxAdapterBoxy(),
+          children: [buildChild(3)],
+        ),
+      ]));
+
+      for (var i = 0; i < 4; i++) {
+        final rect = boxRect(keyBox(i));
+        expect(testRects[i], rect);
+      }
+
+      for (var i = 0; i < testHits.length; i++) {
+        lastPosition = null;
+        lastIndex = null;
+        await tester.tapAt(testHits[i]);
+        expect(
+          lastIndex,
+          testIndices[i],
+          reason: 'Expected hit at ${testHits[i]} ($lastPosition) to be child ${testIndices[i]}',
+        );
+        expect(
+          lastPosition,
+          testPositions[i],
+          reason: 'Expected hit at ${testHits[i]} to be ${testPositions[i]} of child ${testIndices[i]}',
+        );
+      }
     }
   });
 }
