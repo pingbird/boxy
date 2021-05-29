@@ -297,7 +297,7 @@ mixin BoxBoxyDelegateMixin<
 
   @override
   void addHit() {
-    hitTestResult.add(BoxHitTestEntry(render, render.paintOffset!));
+    hitTestResult.add(BoxHitTestEntry(render, render.hitPosition!));
   }
 }
 
