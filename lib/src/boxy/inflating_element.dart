@@ -141,7 +141,8 @@ mixin InflatingRenderObjectMixin<
   /// The number of children with an integer id in order.
   int get indexedChildCount => _indexedChildCount;
 
-  /// Override to perform layout where [inflater] is valid.
+  /// Override to perform layout where [flushInflateQueue] can be called to
+  /// inflate child widgets.
   void performInflatingLayout();
 
   final _inflateQueue = <ChildHandleType>[];

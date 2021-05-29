@@ -28,7 +28,7 @@ extension BoxConstraintsAxisUtil on BoxConstraints {
   /// Creates box constraints that expand to fill another box constraints.
   ///
   /// If [cross] or [main] is given, the constraints will require exactly the
-  /// given value in the given dimension.
+  /// given value in the given dimension.SliverConstraintsUtil
   static BoxConstraints expand(Axis axis, {
     double? cross,
     double? main,

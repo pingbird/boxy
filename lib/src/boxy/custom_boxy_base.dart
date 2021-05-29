@@ -361,8 +361,6 @@ class BoxyLayerContext {
   /// Pushes a [Layer] to the compositing tree similar to [push], but can't
   /// paint anything on top of it.
   ///
-  /// {@macro boxy.custom_boxy.BoxyLayerContext.push.bounds}
-  ///
   /// See also:
   ///
   ///  * [PaintingContext.addLayer]
@@ -625,14 +623,14 @@ class BaseBoxyChild extends InflatedChildHandle {
   BaseBoxyParentData get _parentData => render.parentData as BaseBoxyParentData;
 
   /// The size of this child in the child's coordinate space, only valid after
-  /// calling [layout].
+  /// calling [BoxyChild.layout].
   ///
   /// This method returns Size.zero if this handle is neither a [RenderBox]
   /// or [RenderSliver], since sizing is dependant on the render protocol.
   SliverSize get size => SliverSize.zero;
 
   /// The rect of this child relative to the boxy, this is only valid after
-  /// [layout] and [position] have been called.
+  /// [BoxyChild.layout] and [position] have been called.
   ///
   /// This getter may return erroneous values if a [transform] is applied to the
   /// child since the coordinate space would be skewed.
@@ -662,7 +660,7 @@ class BaseBoxyChild extends InflatedChildHandle {
   }
 
   /// Sets the position of this child relative to the parent, this should only
-  /// be called after layout is called.
+  /// be called after [BoxyChild.layout] is called.
   ///
   /// See also:
   ///
@@ -808,7 +806,7 @@ class BaseBoxyChild extends InflatedChildHandle {
   ///
   /// This method returns false if this handle is neither a [RenderBox] or
   /// [RenderSliver], since hit testing is dependant on the render protocol.
-  bool hitTest({Matrix4? transform, Offset? offset, Offset? position}) {
+  bool hitTest({Matrix4? transform, Offset? offset, Offset? position, bool checkBounds = true}) {
     return false;
   }
 
@@ -872,7 +870,7 @@ abstract class BaseBoxyDelegate<LayoutData extends Object, ChildHandleType exten
   BoxyDelegatePhase get debugPhase =>
     _render == null ? BoxyDelegatePhase.none : _render!.debugPhase;
 
-  /// A variable to hold additional data created during [layout] which can be
+  /// A variable to hold additional data created during layout which can be
   /// used while painting and hit testing.
   LayoutData? get layoutData => render.layoutData as LayoutData?;
 
@@ -1024,13 +1022,13 @@ abstract class BaseBoxyDelegate<LayoutData extends Object, ChildHandleType exten
   }
 
   /// Dynamically inflates a widget as a child of this boxy, should only be
-  /// called in [layout].
+  /// called in [BoxyChild.layout].
   ///
   /// If [id] is not provided the resulting child has an id of [indexedChildCount]
   /// which gets incremented.
   ///
   /// After calling this method the child becomes available with [getChild], it
-  /// is removed before the next call to [layout].
+  /// is removed before the next call to [BoxyChild.layout].
   ///
   /// A child's state will only be preserved if inflated with the same id as the
   /// previous layout.
@@ -1137,9 +1135,9 @@ abstract class BaseBoxyDelegate<LayoutData extends Object, ChildHandleType exten
   /// Return true to indicate a successful hit, false to let the parent continue
   /// testing other children.
   ///
-  /// Call [hitTestAdd] to add the boxy to [hitTestResult].
+  /// Call [addHit] to add the boxy to [hitTestResult].
   ///
-  /// The default behavior is to hit test all children and call [hitTestAdd] if
+  /// The default behavior is to hit test all children and call [addHit] if
   /// any succeeded.
   bool hitTest(SliverOffset position) {
     for (final child in children.reversed) {
