@@ -177,17 +177,19 @@ class _BlogDescState extends State<BlogDesc> with TickerProviderStateMixin {
         )), alignment: Alignment.topCenter),
       ),
 
-      const AnimatedSize(
-        child: Padding(child: Text(
+      AnimatedSize(
+        child: const Padding(child: Text(
           loremIpsum,
           style: TextStyle(color: NiceColors.text),
           maxLines: 3,
         ), padding: EdgeInsets.only(
           left: 8,
         )),
-        duration: Duration(milliseconds: 500),
+        duration: const Duration(milliseconds: 500),
         curve: Curves.ease,
         alignment: Alignment.topCenter,
+        // TODO(ping): Remove this argument in the next release of Flutter
+        vsync: this,
       ),
     ]),
 

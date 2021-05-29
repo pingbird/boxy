@@ -282,6 +282,8 @@ class SeebInfoState extends State<SeebInfo> with TickerProviderStateMixin {
         ),
         duration: const Duration(milliseconds: 250),
         curve: Curves.ease,
+        // TODO(ping): Remove this argument in the next release of Flutter
+        vsync: this,
       ), padding: const EdgeInsets.all(16)), onTap: () {
         setState(() {
           expanded = (expanded + 1) % 4;

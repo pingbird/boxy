@@ -306,6 +306,15 @@ mixin BoxBoxyDelegateMixin<
 ///
 /// This is identical to [BoxyDelegate], but supports both [BoxyChild] and
 /// [SliverBoxyChild] children.
+///
+/// See also:
+///
+///  * [CustomBoxy], the widget of a boxy.
+///  * [BoxyChild], a child handle for [RenderBox].
+///  * [SliverBoxyChild], a child handle for [RenderSliver].
+///  * [BoxyLayerContext], a wrapper that can push [Layer]s.
+///  * [BoxyDelegate], a base delegate that supports both [BoxyChild] and
+///    [SliverBoxyChild].
 class BoxBoxyDelegate<LayoutData extends Object>
   extends BaseBoxyDelegate<LayoutData, BaseBoxyChild>
   with BoxBoxyDelegateMixin<LayoutData, BaseBoxyChild> {
@@ -513,6 +522,15 @@ class BoxBoxyDelegate<LayoutData extends Object>
 ///     );
 ///   }
 /// ```
+///
+/// See also:
+///
+///  * [CustomBoxy], the widget of a boxy.
+///  * [BoxyChild], a child handle for [RenderBox].
+///  * [SliverBoxyChild], a child handle for [RenderSliver].
+///  * [BoxyLayerContext], a wrapper that can push [Layer]s.
+///  * [BoxBoxyDelegate], a base delegate that supports both [BoxyChild] and
+///    [SliverBoxyChild].
 abstract class BoxyDelegate<LayoutData extends Object>
   extends BaseBoxyDelegate<LayoutData, BoxyChild>
   with BoxBoxyDelegateMixin<LayoutData, BoxyChild> {
