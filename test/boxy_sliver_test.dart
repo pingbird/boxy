@@ -63,8 +63,12 @@ class TestButton extends StatelessWidget {
   static const size = 100.0;
 
   final void Function(Offset position) setPosition;
+  final double width;
+  final double height;
 
   const TestButton({
+    this.width = size,
+    this.height = size,
     Key? key,
     required this.setPosition,
   }) : super(key: key);
@@ -72,8 +76,8 @@ class TestButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: size,
-      width: size,
+      width: width,
+      height: height,
       child: GestureDetector(
         onTapDown: (details) {
           setPosition(details.localPosition);
@@ -90,6 +94,8 @@ void main() {
 
     Widget buildChild(int index) {
       return TestButton(
+        height: 50.0,
+        width: 100.0,
         key: GlobalObjectKey(index),
         setPosition: (position) {
           lastPosition = position;
