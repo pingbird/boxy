@@ -1,3 +1,4 @@
+import 'package:boxy/boxy.dart';
 import 'package:boxy_gallery/pages/blog_tile.dart';
 import 'package:boxy_gallery/pages/boxy_row.dart';
 import 'package:boxy_gallery/pages/line_numbers.dart';

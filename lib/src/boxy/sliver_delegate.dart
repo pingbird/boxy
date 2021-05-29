@@ -62,6 +62,13 @@ class RenderSliverBoxy<ChildHandleType extends BaseBoxyChild> extends RenderSliv
     });
   }
 
+  /// The current size of the sliver.
+  SliverSize get size => SliverSize.axis(
+    constraints.crossAxisExtent,
+    geometry!.layoutExtent,
+    constraints.axis,
+  );
+
   @override
   bool get isDryLayout => false;
 
@@ -72,19 +79,14 @@ class RenderSliverBoxy<ChildHandleType extends BaseBoxyChild> extends RenderSliv
     required double mainAxisPosition,
   }) {
     hitTestResult = result;
-    paintOffset = Offset(crossAxisPosition, mainAxisPosition);
+    hitPosition = constraints.unwrap(crossAxisPosition, mainAxisPosition, size);
     try {
       return wrapPhase(BoxyDelegatePhase.hitTest, () {
-        return delegate.hitTest(
-          Offset(
-            crossAxisPosition,
-            mainAxisPosition,
-          ).rotateWithAxis(constraints.axis),
-        );
+        return delegate.hitTest(hitPosition!);
       });
     } finally {
       hitTestResult = null;
-      paintOffset = null;
+      hitPosition = null;
     }
   }
 
@@ -93,11 +95,15 @@ class RenderSliverBoxy<ChildHandleType extends BaseBoxyChild> extends RenderSliv
     required RenderBox child,
     required Offset position,
     required Matrix4 transform,
+    required bool checkBounds,
   }) {
     return BoxHitTestResult.wrap(hitTestResult!).addWithPaintTransform(
       transform: transform,
       position: position,
       hitTest: (result, position) {
+        if (checkBounds && !(Offset.zero & child.size).contains(position)) {
+          return false;
+        }
         return child.hitTest(result, position: position);
       },
     );
@@ -108,12 +114,16 @@ class RenderSliverBoxy<ChildHandleType extends BaseBoxyChild> extends RenderSliv
     required RenderSliver child,
     required Offset position,
     required Matrix4 transform,
+    required bool checkBounds,
   }) {
     final sliverResult = _SliverBoxyHitTestResult.wrap(hitTestResult!);
     return sliverResult.addWithPaintTransform(
       transform: transform,
       position: position,
       hitTest: (result, position) {
+        if (checkBounds && !(Offset.zero & child.hitTestSize).contains(position)) {
+          return false;
+        }
         final sliverPosition = wrapOffset(
           position,
           Size(
@@ -221,8 +231,8 @@ abstract class SliverBoxyDelegate<LayoutData extends Object>
     hitTestResult.add(
       SliverHitTestEntry(
         render,
-        crossAxisPosition: render.paintOffset!.dx,
-        mainAxisPosition: render.paintOffset!.dy,
+        crossAxisPosition: render.hitPosition!.cross,
+        mainAxisPosition: render.hitPosition!.main,
       ),
     );
   }

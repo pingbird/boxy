@@ -62,12 +62,11 @@ mixin RenderBoxyMixin<
   /// The current painting context, only valid during paint.
   PaintingContext? paintingContext;
 
-  /// The current paint or hit test offset, only valid during paint or hit
-  /// testing.
-  ///
-  /// During paint, this is the offset passed to [paint]. During hit testing
-  /// this is the position of the hit test.
+  /// The current paint offset passed to [paint], only valid during paint.
   Offset? paintOffset;
+
+  /// The current hit test offset, only valid during hit testing.
+  SliverOffset? hitPosition;
 
   /// The current hit test result, only valid during hit testing.
   HitTestResult? get hitTestResult;
@@ -155,6 +154,7 @@ mixin RenderBoxyMixin<
     required RenderBox child,
     required Offset position,
     required Matrix4 transform,
+    required bool checkBounds,
   });
 
   /// Hit tests a [RenderSliver] child at [position] with a [transform].
@@ -162,6 +162,7 @@ mixin RenderBoxyMixin<
     required RenderSliver child,
     required Offset position,
     required Matrix4 transform,
+    required bool checkBounds,
   });
 
   /// Marks the object for needing layout, paint, build. or compositing bits
@@ -1140,7 +1141,7 @@ abstract class BaseBoxyDelegate<LayoutData extends Object, ChildHandleType exten
   ///
   /// The default behavior is to hit test all children and call [hitTestAdd] if
   /// any succeeded.
-  bool hitTest(Offset position) {
+  bool hitTest(SliverOffset position) {
     for (final child in children.reversed) {
       if (child.hitTest()) {
         addHit();
