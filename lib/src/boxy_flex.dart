@@ -204,6 +204,7 @@ class BoxyFlex extends MultiChildRenderObjectWidget {
       textDirection: getEffectiveTextDirection(context),
       verticalDirection: verticalDirection,
       textBaseline: textBaseline,
+      intrinsicsBehavior: intrinsicsBehavior,
     );
   }
 
@@ -216,7 +217,8 @@ class BoxyFlex extends MultiChildRenderObjectWidget {
       ..crossAxisAlignment = crossAxisAlignment
       ..textDirection = getEffectiveTextDirection(context)
       ..verticalDirection = verticalDirection
-      ..textBaseline = textBaseline;
+      ..textBaseline = textBaseline
+      ..intrinsicsBehavior = intrinsicsBehavior;
   }
 
   @override
