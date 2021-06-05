@@ -39,15 +39,18 @@ class TestFrame extends StatelessWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) => Directionality(
-    child: OverflowBox(
-      alignment: Alignment.topLeft,
-      minWidth: 0,
-      maxWidth: double.infinity,
-      minHeight: 0,
-      maxHeight: double.infinity,
-      child: ConstrainedBox(child: child, constraints: constraints),
+  Widget build(BuildContext context) => DefaultTextStyle(
+    style: Typography.material2014().black.bodyText2!,
+    child: Directionality(
+      child: OverflowBox(
+        alignment: Alignment.topLeft,
+        minWidth: 0,
+        maxWidth: double.infinity,
+        minHeight: 0,
+        maxHeight: double.infinity,
+        child: ConstrainedBox(child: child, constraints: constraints),
+      ),
+      textDirection: TextDirection.ltr,
     ),
-    textDirection: TextDirection.ltr,
   );
 }

@@ -6,6 +6,19 @@ import 'package:flutter/rendering.dart';
 
 import 'axis_utils.dart';
 
+/// The strategy of determining the cross-axis size of a [BoxyFlex] when
+/// intrinsics are required.
+enum BoxyFlexIntrinsicsBehavior {
+  /// Measure the intrinsic main axis of inflexible children with an infinite
+  /// max cross axis size, using it as the max main axis size of the dominant
+  /// child.
+  measureMain,
+
+  /// Measure the intrinsic cross axis of the dominant child with an infinite
+  /// max main axis size.
+  measureCross,
+}
+
 /// A widget that displays its children in a one-dimensional array.
 ///
 /// This is identical to [Flex] but also accepts [BoxyFlexible] and [Dominant]
@@ -44,8 +57,14 @@ class BoxyFlex extends MultiChildRenderObjectWidget {
     this.textDirection,
     this.verticalDirection = VerticalDirection.down,
     this.textBaseline,
+    BoxyFlexIntrinsicsBehavior? intrinsicsBehavior,
     List<Widget> children = const <Widget>[],
-  }) : assert(crossAxisAlignment != CrossAxisAlignment.baseline || textBaseline != null),
+  }) : intrinsicsBehavior = intrinsicsBehavior ?? (
+         direction == Axis.vertical
+         ? BoxyFlexIntrinsicsBehavior.measureCross
+         : BoxyFlexIntrinsicsBehavior.measureMain
+       ),
+       assert(crossAxisAlignment != CrossAxisAlignment.baseline || textBaseline != null),
        super(key: key, children: children);
 
   /// The direction to use as the main axis.
@@ -126,6 +145,21 @@ class BoxyFlex extends MultiChildRenderObjectWidget {
   /// either [CrossAxisAlignment.start] or [CrossAxisAlignment.end], then the
   /// [verticalDirection] must not be null.
   final VerticalDirection verticalDirection;
+
+  /// The strategy of determining the cross-axis size of this flex when
+  /// intrinsics are required.
+  ///
+  /// Intrinsics are required iff the following conditions are met:
+  ///
+  ///  * There is a dominant child
+  ///  * At least one child is flexible
+  ///  * At least one child is inflexible
+  ///
+  /// By default, [BoxyFlexIntrinsicsBehavior.measureMain] is used for
+  /// horizontal layouts, and [BoxyFlexIntrinsicsBehavior.measureMain] is used
+  /// for vertical layouts. These defaults should be sufficient for most
+  /// width-in-height-out layouts such as Text.
+  final BoxyFlexIntrinsicsBehavior intrinsicsBehavior;
 
   /// If aligning items according to their baseline, which baseline to use.
   final TextBaseline? textBaseline;
@@ -236,6 +270,7 @@ class BoxyRow extends BoxyFlex {
     VerticalDirection verticalDirection = VerticalDirection.down,
     TextBaseline? textBaseline,
     List<Widget> children = const <Widget>[],
+    BoxyFlexIntrinsicsBehavior? intrinsicsBehavior,
   }) : super(
     children: children,
     key: key,
@@ -246,6 +281,7 @@ class BoxyRow extends BoxyFlex {
     textDirection: textDirection,
     verticalDirection: verticalDirection,
     textBaseline: textBaseline,
+    intrinsicsBehavior: intrinsicsBehavior,
   );
 }
 
@@ -283,6 +319,7 @@ class BoxyColumn extends BoxyFlex {
     VerticalDirection verticalDirection = VerticalDirection.down,
     TextBaseline? textBaseline,
     List<Widget> children = const <Widget>[],
+    BoxyFlexIntrinsicsBehavior? intrinsicsBehavior,
   }) : super(
     children: children,
     key: key,
@@ -293,6 +330,7 @@ class BoxyColumn extends BoxyFlex {
     textDirection: textDirection,
     verticalDirection: verticalDirection,
     textBaseline: textBaseline,
+    intrinsicsBehavior: intrinsicsBehavior,
   );
 }
 
@@ -302,8 +340,11 @@ class BoxyFlexParentData extends FlexParentData {
   /// other child.
   bool? dominant;
 
-  // Temporary child size used in _computeSizes
+  // Cached child size used in _computeSizes
   Size? _tempSize;
+
+  // Cached main axis intrinsic size used in _computeSizes
+  double? _intrinsicMainSize;
 
   @override
   String toString() => '${super.toString()}; flex=$flex; fit=$fit; dominant=$dominant';
@@ -489,13 +530,19 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
     TextDirection? textDirection,
     VerticalDirection verticalDirection = VerticalDirection.down,
     TextBaseline? textBaseline,
+    BoxyFlexIntrinsicsBehavior? intrinsicsBehavior,
   }) : _direction = direction,
        _mainAxisAlignment = mainAxisAlignment,
        _mainAxisSize = mainAxisSize,
        _crossAxisAlignment = crossAxisAlignment,
        _textDirection = textDirection,
        _verticalDirection = verticalDirection,
-       _textBaseline = textBaseline {
+       _textBaseline = textBaseline,
+       _intrinsicsBehavior = intrinsicsBehavior ?? (
+         direction == Axis.vertical
+         ? BoxyFlexIntrinsicsBehavior.measureCross
+         : BoxyFlexIntrinsicsBehavior.measureMain
+       ) {
     addAll(children);
   }
 
@@ -629,6 +676,17 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
     assert(_crossAxisAlignment != CrossAxisAlignment.baseline || value != null);
     if (_textBaseline != value) {
       _textBaseline = value;
+      markNeedsLayout();
+    }
+  }
+
+  /// The strategy of determining the cross-axis size of this flex when
+  /// intrinsics are required.
+  BoxyFlexIntrinsicsBehavior get intrinsicsBehavior => _intrinsicsBehavior;
+  BoxyFlexIntrinsicsBehavior _intrinsicsBehavior;
+  set intrinsicsBehavior(BoxyFlexIntrinsicsBehavior value) {
+    if (_intrinsicsBehavior != value) {
+      _intrinsicsBehavior = value;
       markNeedsLayout();
     }
   }
@@ -917,7 +975,7 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
             ErrorDescription(
               'If this message did not help you determine the problem, consider using debugDumpRenderTree():\n'
               '  https://flutter.dev/debugging/#rendering-layer\n'
-              '  http://api.flutter.dev/flutter/rendering/debugDumpRenderTree.html'
+              '  https://api.flutter.dev/flutter/rendering/debugDumpRenderTree.html'
             ),
             describeForError('The affected RenderBoxyFlex is', style: DiagnosticsTreeStyle.errorProperty),
             DiagnosticsProperty<dynamic>('The creator information is set to', debugCreator, style: DiagnosticsTreeStyle.errorProperty),
@@ -1051,7 +1109,7 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
             ErrorDescription(
               'If this message did not help you determine the problem, consider using debugDumpRenderTree():\n'
               '  https://flutter.dev/debugging/#rendering-layer\n'
-              '  http://api.flutter.dev/flutter/rendering/debugDumpRenderTree.html'
+              '  https://api.flutter.dev/flutter/rendering/debugDumpRenderTree.html'
             ),
             describeForError('The affected RenderBoxyFlex is', style: DiagnosticsTreeStyle.errorProperty),
             DiagnosticsProperty<dynamic>('The creator information is set to', debugCreator, style: DiagnosticsTreeStyle.errorProperty),
@@ -1071,9 +1129,11 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
       child = childParentData.nextSibling;
     }
 
-    double maxCrossSize;
+    double maxCrossSize = constraints.maxCrossAxis(_direction);
     double crossSize = 0.0;
     double allocatedSize = 0.0;
+    bool didLayoutDominant = false;
+    bool useIntrinsicMain = false;
 
     if (dominantChild == null) {
       maxCrossSize = constraints.maxCrossAxis(_direction);
@@ -1081,9 +1141,19 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
       final flex = _getFlex(dominantChild);
       if (flex > 0) {
         if (hasInflexible) {
-          maxCrossSize = constraints.constrainCrossAxis(_direction,
-            dominantChild.getMaxIntrinsicCrossAxis(_direction, double.infinity),
-          );
+          switch (intrinsicsBehavior) {
+            case BoxyFlexIntrinsicsBehavior.measureMain:
+              useIntrinsicMain = true;
+              break;
+            case BoxyFlexIntrinsicsBehavior.measureCross:
+              maxCrossSize = constraints.constrainCrossAxis(_direction,
+                dominantChild.getMaxIntrinsicCrossAxis(
+                  _direction,
+                  maxCrossSize,
+                ),
+              );
+              break;
+          }
         } else {
           final freeSpace = math.max(0.0, (canFlex ? maxMainSize : 0.0) - allocatedSize);
           final mainSize = (freeSpace / totalFlex) * flex;
@@ -1094,6 +1164,7 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
           );
           final size = layoutChild(dominantChild, childConstraints);
           maxCrossSize = crossSize = size.crossAxisSize(_direction);
+          didLayoutDominant = true;
         }
       } else {
         final size = layoutChild(dominantChild, constraints.crossAxisConstraints(_direction));
@@ -1102,11 +1173,38 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
       }
     }
 
-    if (hasInflexible) {
+    if (useIntrinsicMain) {
+      // Measure the intrinsic main-axis size and use that to determine the
+      // constraints of the dominant child.
+      child = firstChild;
+      while (child != null) {
+        final BoxyFlexParentData childParentData = child.parentData as BoxyFlexParentData;
+        final int flex = _getFlex(child);
+        if (flex == 0 && child != dominantChild) {
+          final mainSize = child.getMaxIntrinsicAxis(_direction, maxCrossSize);
+          childParentData._intrinsicMainSize = mainSize;
+          allocatedSize += mainSize;
+        }
+        child = childParentData.nextSibling;
+      }
+
+      final freeSpace = math.max(0.0, (canFlex ? maxMainSize : 0.0) - allocatedSize);
+      final mainSize = (freeSpace / totalFlex) * _getFlex(dominantChild!);
+      final size = layoutChild(dominantChild, BoxConstraintsAxisUtil.create(
+        _direction,
+        minCross: 0,
+        maxCross: maxCrossSize,
+        minMain: _getFit(dominantChild) == FlexFit.tight ? mainSize : 0.0,
+        maxMain: mainSize,
+      ));
+      maxCrossSize = crossSize = size.crossAxisSize(_direction);
+    } else if (hasInflexible) {
+      // Lay out inflexible children to calculate the allocatedSize, giving
+      // flexible children their available main axis size.
       final innerConstraints = BoxConstraintsAxisUtil.create(
         _direction,
-        minCross: crossAxisAlignment == CrossAxisAlignment.stretch ?
-        maxCrossSize : 0.0,
+        minCross: crossAxisAlignment == CrossAxisAlignment.stretch
+          ? maxCrossSize : 0.0,
         maxCross: maxCrossSize,
       ); // Sum of the sizes of the non-flexible children.
       child = firstChild;
@@ -1118,7 +1216,6 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
           allocatedSize += size.axisSize(_direction);
           crossSize = math.max(crossSize, size.crossAxisSize(_direction));
         }
-        assert(child.parentData == childParentData);
         child = childParentData.nextSibling;
       }
     }
@@ -1145,7 +1242,7 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
               break;
           }
 
-          if (child != dominantChild || hasInflexible) {
+          if (child != dominantChild || !didLayoutDominant) {
             BoxConstraints flexConstraints;
 
             if (child == dominantChild) {
@@ -1157,8 +1254,8 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
               );
             } else {
               flexConstraints = BoxConstraintsAxisUtil.create(_direction,
-                minCross: crossAxisAlignment == CrossAxisAlignment.stretch ?
-                maxCrossSize : 0.0,
+                minCross: crossAxisAlignment == CrossAxisAlignment.stretch
+                  ? maxCrossSize : 0.0,
                 maxCross: maxCrossSize,
                 minMain: minChildExtent,
                 maxMain: maxChildExtent,
@@ -1178,6 +1275,18 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
           allocatedSize += childSize;
           allocatedFlexSpace += maxChildExtent;
           crossSize = math.max(crossSize, childParentData._tempSize!.crossAxisSize(_direction));
+        } else if (useIntrinsicMain) {
+          // Lay out inflexible children late, since we used the last pass to
+          // measure their intrinsic main axis size.
+          final mainSize = childParentData._intrinsicMainSize!;
+          layoutChild(child, BoxConstraintsAxisUtil.create(
+            _direction,
+            minCross: crossAxisAlignment == CrossAxisAlignment.stretch
+              ? maxCrossSize : 0.0,
+            maxCross: maxCrossSize,
+            minMain: mainSize,
+            maxMain: mainSize,
+          ));
         }
         child = childParentData.nextSibling;
       }

@@ -66,10 +66,11 @@ void main() {
             flex: 1,
             child: Container(
               key: const GlobalObjectKey(#first),
+              width: 50.0,
+              height: 50.0,
             ),
           ),
-          BoxyFlexible(
-            dominant: true,
+          Dominant.expanded(
             flex: 2,
             child: AxisSizedBox(
               axis: direction,
@@ -77,8 +78,7 @@ void main() {
               cross: 150,
             ),
           ),
-          BoxyFlexible(
-            flex: 1,
+          Expanded(
             child: Container(
               key: const GlobalObjectKey(#third),
             ),
@@ -90,26 +90,44 @@ void main() {
         maxMain: 400,
       )));
 
-      final flex = boxRect(keyBox(#flex));
-      final first = boxRect(keyBox(#first));
-      final second = boxRect(keyBox(#second));
-      final third = boxRect(keyBox(#third));
+      final flexBox = keyBox(#flex);
+      final firstBox = keyBox(#first);
+      final secondBox = keyBox(#second);
+      final thirdBox = keyBox(#third);
 
-      expect(flex, equals(
+      expect(firstBox.constraints, BoxConstraintsAxisUtil.create(
+        direction,
+        maxMain: 100.0,
+        minCross: 150.0,
+        maxCross: 150.0,
+      ));
+
+      expect(secondBox.constraints, BoxConstraintsAxisUtil.tightFor(
+        direction,
+        main: 200.0,
+      ));
+
+      expect(thirdBox.constraints, BoxConstraintsAxisUtil.tightFor(
+        direction,
+        main: 100.0,
+        cross: 150.0,
+      ));
+
+      expect(boxRect(flexBox), equals(
         Offset.zero & SizeAxisUtil.create(direction, 150, 400),
       ));
 
-      expect(first, equals(
-        Offset.zero & SizeAxisUtil.create(direction, 150, 100),
+      expect(boxRect(firstBox), equals(
+        Offset.zero & SizeAxisUtil.create(direction, 150, 50),
       ));
 
-      expect(second, equals(
-        OffsetAxisUtil.create(direction, 0, 100) &
-        SizeAxisUtil.create(direction, 150, 200),
+      expect(boxRect(secondBox), equals(
+        OffsetAxisUtil.create(direction, 0, 50) &
+          SizeAxisUtil.create(direction, 150, 200),
       ));
 
-      expect(third, equals(
-        OffsetAxisUtil.create(direction, 0, 300) &
+      expect(boxRect(thirdBox), equals(
+        OffsetAxisUtil.create(direction, 0, 250) &
         SizeAxisUtil.create(direction, 150, 100),
       ));
     }
@@ -206,9 +224,7 @@ void main() {
         ],
       )));
 
-      final flexBox = keyBox(#flex);
-
-      final flex = boxRect(flexBox);
+      final flex = boxRect(keyBox(#flex));
       final first = boxRect(keyBox(#first));
       final second = boxRect(keyBox(#second));
 
@@ -225,5 +241,77 @@ void main() {
         SizeAxisUtil.create(direction, 300, 100),
       ));
     }
+  });
+
+  testWidgets('BoxyFlexIntrinsicsBehavior.measureMain (Horizontal)', (tester) async {
+    await tester.pumpWidget(
+      TestFrame(
+        child: SizedBox(
+          width: 100,
+          child: BoxyRow(
+            key: const GlobalObjectKey(#flex),
+            children: const [
+              SizedBox(
+                key: GlobalObjectKey(#first),
+                width: 50,
+                height: 50,
+              ),
+              Dominant.expanded(
+                key: GlobalObjectKey(#second),
+                child: Text('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    final flexBox = keyBox(#flex);
+    final firstBox = keyBox(#first);
+    final secondBox = keyBox(#second);
+
+    final height = secondBox.getMaxIntrinsicHeight(50);
+
+    expect(flexBox.size.height, equals(height));
+    expect(firstBox.size, equals(Size(50, height)));
+    expect(secondBox.size, equals(Size(50, height)));
+  });
+
+  testWidgets('BoxyFlexIntrinsicsBehavior.measureMain (Vertical)', (tester) async {
+    await tester.pumpWidget(
+      TestFrame(
+        child: SizedBox(
+          height: 100,
+          child: BoxyColumn(
+            key: const GlobalObjectKey(#flex),
+            children: const [
+              SizedBox(
+                key: GlobalObjectKey(#first),
+                width: 50,
+                height: 50,
+              ),
+              Dominant.expanded(
+                key: GlobalObjectKey(#second),
+                child: RotatedBox(
+                  child: Text('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
+                  quarterTurns: 1,
+                ),
+              ),
+            ],
+            intrinsicsBehavior: BoxyFlexIntrinsicsBehavior.measureMain,
+          ),
+        ),
+      ),
+    );
+
+    final flexBox = keyBox(#flex);
+    final firstBox = keyBox(#first);
+    final secondBox = keyBox(#second);
+
+    final width = secondBox.getMaxIntrinsicWidth(50);
+
+    expect(flexBox.size.width, equals(width));
+    expect(firstBox.size, equals(Size(width, 50)));
+    expect(secondBox.size, equals(Size(width, 50)));
   });
 }
