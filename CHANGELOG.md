@@ -1,3 +1,7 @@
+## [2.0.1]
+* Added `BoxyFlexIntrinsicsBehavior`
+* Fixed an issue with the intrinsic sizing of `BoxyFlex`
+
 ## [2.0.0]
 * Added sliver support to `CustomBoxy`
 * Added `BoxyId`, a replacement of `LayoutId`
