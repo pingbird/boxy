@@ -169,8 +169,10 @@ class BoxyFlex extends MultiChildRenderObjectWidget {
       case Axis.horizontal:
         return true; // because it affects the layout order.
       case Axis.vertical:
-        return crossAxisAlignment == CrossAxisAlignment.start
-            || crossAxisAlignment == CrossAxisAlignment.end;
+      // We could normally check if the crossAxisAlignment is start or end,
+      // but with BoxyFlexible.crossAxisAlignment it is no longer possible to
+      // know which alignments will be in use at build time
+        return false;
     }
   }
 
@@ -342,6 +344,10 @@ class BoxyFlexParentData extends FlexParentData {
   /// other child.
   bool? dominant;
 
+  /// The cross axis alignment of this child, overrides the default alignment
+  /// specified by the [BoxyFlex].
+  CrossAxisAlignment? crossAxisAlignment;
+
   // Cached child size used in _computeSizes
   Size? _tempSize;
 
@@ -368,6 +374,18 @@ class BoxyFlexible extends ParentDataWidget<FlexParentData> {
     this.flex = 1,
     this.fit = FlexFit.loose,
     this.dominant = false,
+    this.crossAxisAlignment,
+    required Widget child,
+  }) : super(key: key, child: child);
+
+  /// Same as the default constructor but has a [flex] factor of 0, and makes
+  /// [crossAxisAlignment] a required argument.
+  const BoxyFlexible.align({
+    Key? key,
+    this.flex = 0,
+    this.fit = FlexFit.loose,
+    this.dominant = false,
+    required this.crossAxisAlignment,
     required Widget child,
   }) : super(key: key, child: child);
 
@@ -392,10 +410,23 @@ class BoxyFlexible extends ParentDataWidget<FlexParentData> {
   /// other child.
   final bool dominant;
 
+  /// The cross axis alignment of this child, overrides the default alignment
+  /// specified by the [BoxyFlex].
+  final CrossAxisAlignment? crossAxisAlignment;
+
   @override
   void applyParentData(RenderObject renderObject) {
-    assert(renderObject.parentData is FlexParentData);
-    final parentData = renderObject.parentData as FlexParentData;
+    final FlexParentData currentParentData = renderObject.parentData as FlexParentData;
+    final BoxyFlexParentData parentData;
+    if (currentParentData is BoxyFlexParentData) {
+      parentData = currentParentData;
+    } else {
+      parentData = BoxyFlexParentData()
+        ..flex = currentParentData.flex
+        ..fit = currentParentData.fit;
+      renderObject.parentData = parentData;
+    }
+
     bool needsLayout = false;
 
     if (parentData.flex != flex) {
@@ -408,12 +439,14 @@ class BoxyFlexible extends ParentDataWidget<FlexParentData> {
       needsLayout = true;
     }
 
-    if (parentData is BoxyFlexParentData) {
-      final parentData = renderObject.parentData as BoxyFlexParentData;
-      if (parentData.dominant != dominant) {
-        parentData.dominant = dominant;
-        needsLayout = true;
-      }
+    if (parentData.dominant != dominant) {
+      parentData.dominant = dominant;
+      needsLayout = true;
+    }
+
+    if (parentData.crossAxisAlignment != crossAxisAlignment) {
+      parentData.crossAxisAlignment = crossAxisAlignment;
+      needsLayout = true;
     }
 
     if (needsLayout) {
@@ -914,6 +947,14 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
     return childParentData.dominant ?? false;
   }
 
+  CrossAxisAlignment _getCrossAxisAlignment(RenderBox child) {
+    final parentData = child.parentData;
+    if (parentData is BoxyFlexParentData) {
+      return parentData.crossAxisAlignment ?? crossAxisAlignment;
+    }
+    return crossAxisAlignment;
+  }
+
   FlutterError? _debugCheckConstraints({required BoxConstraints constraints, required bool reportParentConstraints}) {
     FlutterError? result;
     assert(() {
@@ -1027,7 +1068,7 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
       constraints: constraints,
     );
 
-    switch (_direction) {
+    switch(_direction) {
       case Axis.horizontal:
         return constraints.constrain(Size(sizes.mainSize, sizes.crossSize));
       case Axis.vertical:
@@ -1394,11 +1435,12 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
     while (child != null) {
       final FlexParentData childParentData = child.parentData as FlexParentData;
       final double childCrossPosition;
-      switch (_crossAxisAlignment) {
+      final childCrossAxisAlignment = _getCrossAxisAlignment(child);
+      switch (childCrossAxisAlignment) {
         case CrossAxisAlignment.start:
         case CrossAxisAlignment.end:
           childCrossPosition = _startIsTopLeft(flipAxis(direction), textDirection!, verticalDirection)
-              == (_crossAxisAlignment == CrossAxisAlignment.start)
+              == (childCrossAxisAlignment == CrossAxisAlignment.start)
               ? 0.0
               : crossSize - child.size.crossAxisSize(_direction);
           break;

@@ -314,4 +314,55 @@ void main() {
     expect(firstBox.size, equals(Size(width, 50)));
     expect(secondBox.size, equals(Size(width, 50)));
   });
+
+  testWidgets('BoxyFlexible.align', (tester) async {
+    const blockSize = 100.0;
+    const rowHeight = blockSize * 3;
+    const alignmentOffsets = <CrossAxisAlignment, double>{
+      CrossAxisAlignment.start: 0.0,
+      CrossAxisAlignment.center: rowHeight / 2 - blockSize / 2,
+      CrossAxisAlignment.end: rowHeight - blockSize,
+      CrossAxisAlignment.stretch: 0.0,
+    };
+
+    for (final alignmentOffset in alignmentOffsets.entries) {
+      await tester.pumpWidget(
+        TestFrame(
+          child: SizedBox(
+            width: 400,
+            height: 300,
+            child: BoxyRow(
+              crossAxisAlignment: alignmentOffset.key,
+              children: [
+                for (final childAlignmentOffset in alignmentOffsets.entries)
+                  BoxyFlexible.align(
+                    crossAxisAlignment: childAlignmentOffset.key,
+                    child: SizedBox(
+                      key: GlobalObjectKey(childAlignmentOffset.key),
+                      width: blockSize,
+                      height: blockSize,
+                    ),
+                  ),
+                const SizedBox(
+                  key: GlobalObjectKey(#last),
+                  width: blockSize,
+                  height: blockSize,
+                )
+              ],
+            ),
+          ),
+        ),
+      );
+
+      final flexBox = keyBox(#flex);
+      final firstBox = keyBox(#first);
+      final secondBox = keyBox(#second);
+
+      final width = secondBox.getMaxIntrinsicWidth(50);
+
+      expect(flexBox.size.width, equals(width));
+      expect(firstBox.size, equals(Size(width, 50)));
+      expect(secondBox.size, equals(Size(width, 50)));
+    }
+  });
 }
