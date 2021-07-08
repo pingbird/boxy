@@ -1087,6 +1087,7 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
     RenderBox? dominantChild;
     RenderBox? child = firstChild;
     bool hasInflexible = false;
+    bool needsBaseline = false;
     RenderBox? lastFlexChild;
 
     while (child != null) {
@@ -1096,6 +1097,10 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
       if (_getDominant(child)) {
         assert(dominantChild == null);
         dominantChild = child;
+      }
+
+      if (_getCrossAxisAlignment(child) == CrossAxisAlignment.baseline) {
+        needsBaseline = true;
       }
 
       if (flex > 0) {
@@ -1173,7 +1178,7 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
     }
 
     double maxCrossSize = constraints.maxCrossAxis(_direction);
-    double crossSize = 0.0;
+    double crossSize = constraints.minCrossAxis(_direction);
     double allocatedSize = 0.0;
     bool didLayoutDominant = false;
     bool useIntrinsicMain = false;
@@ -1244,18 +1249,19 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
     } else if (hasInflexible) {
       // Lay out inflexible children to calculate the allocatedSize, giving
       // flexible children their available main axis size.
-      final innerConstraints = BoxConstraintsAxisUtil.create(
-        _direction,
-        minCross: crossAxisAlignment == CrossAxisAlignment.stretch
-          ? maxCrossSize : 0.0,
-        maxCross: maxCrossSize,
-      ); // Sum of the sizes of the non-flexible children.
       child = firstChild;
       while (child != null) {
         final FlexParentData childParentData = child.parentData as FlexParentData;
         final int flex = _getFlex(child);
         if (flex == 0 && child != dominantChild) {
-          final size = layoutChild(child, innerConstraints);
+          final childConstraints = BoxConstraintsAxisUtil.create(
+            _direction,
+            minCross: _getCrossAxisAlignment(child) == CrossAxisAlignment.stretch
+              ? maxCrossSize
+              : 0.0,
+            maxCross: maxCrossSize,
+          );
+          final size = layoutChild(child, childConstraints);
           allocatedSize += size.axisSize(_direction);
           crossSize = math.max(crossSize, size.crossAxisSize(_direction));
         }
@@ -1266,7 +1272,7 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
     // Distribute free space to flexible children, and determine baseline.
     var allocatedFlexSpace = 0.0;
     final freeSpace = math.max(0.0, (canFlex ? maxMainSize : 0.0) - allocatedSize);
-    if (totalFlex > 0 || crossAxisAlignment == CrossAxisAlignment.baseline) {
+    if (totalFlex > 0 || needsBaseline) {
       final spacePerFlex = canFlex && totalFlex > 0 ? (freeSpace / totalFlex) : double.nan;
       child = firstChild;
       while (child != null) {
@@ -1297,7 +1303,7 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
               );
             } else {
               flexConstraints = BoxConstraintsAxisUtil.create(_direction,
-                minCross: crossAxisAlignment == CrossAxisAlignment.stretch
+                minCross: _getCrossAxisAlignment(child) == CrossAxisAlignment.stretch
                   ? maxCrossSize : 0.0,
                 maxCross: maxCrossSize,
                 minMain: minChildExtent,
@@ -1324,7 +1330,7 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
           final mainSize = childParentData._intrinsicMainSize!;
           layoutChild(child, BoxConstraintsAxisUtil.create(
             _direction,
-            minCross: crossAxisAlignment == CrossAxisAlignment.stretch
+            minCross: _getCrossAxisAlignment(child) == CrossAxisAlignment.stretch
               ? maxCrossSize : 0.0,
             maxCross: maxCrossSize,
             minMain: mainSize,
@@ -1339,6 +1345,7 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
       mainSize: canFlex && mainAxisSize == MainAxisSize.max ? maxMainSize : allocatedSize,
       crossSize: crossSize,
       allocatedSize: allocatedSize,
+      needsBaseline: needsBaseline,
     );
   }
 
@@ -1359,7 +1366,7 @@ class RenderBoxyFlex extends RenderBox with ContainerRenderObjectMixin<RenderBox
 
     var crossSize = _sizes.crossSize;
     var maxBaselineDistance = 0.0;
-    if (crossAxisAlignment == CrossAxisAlignment.baseline) {
+    if (_sizes.needsBaseline) {
       var child = firstChild;
       double maxSizeAboveBaseline = 0;
       double maxSizeBelowBaseline = 0;
@@ -1572,9 +1579,11 @@ class _LayoutSizes {
     required this.mainSize,
     required this.crossSize,
     required this.allocatedSize,
+    required this.needsBaseline,
   });
 
   final double mainSize;
   final double crossSize;
   final double allocatedSize;
+  final bool needsBaseline;
 }
