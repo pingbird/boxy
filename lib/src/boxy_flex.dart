@@ -246,6 +246,8 @@ class BoxyFlex extends MultiChildRenderObjectWidget {
 /// dominant child is layed out first and defines the maximum cross-axis of
 /// every non-dominant child in the row.
 ///
+/// Children can override their cross-axis alignment using [BoxyFlexible.align].
+///
 /// See also:
 ///
 ///  * [Row]
@@ -298,6 +300,8 @@ class BoxyRow extends BoxyFlex {
 /// During layout this widget searches for a [Dominant] child, if found the
 /// dominant child is layed out first and defines the maximum cross-axis of
 /// every non-dominant child in the flex.
+///
+/// Children can override their cross-axis alignment using [BoxyFlexible.align].
 ///
 ///  * [Column]
 ///  * [BoxyRow]
@@ -361,7 +365,7 @@ class BoxyFlexParentData extends FlexParentData {
 /// A widget that controls how a child of a [BoxyRow], [BoxyColumn], or
 /// [BoxyFlex] flexes.
 ///
-/// This is the same as [Flexible] but has a [dominant] flag.
+/// This is the same as [Flexible] but adds [dominant] and [crossAxisAlignment].
 ///
 /// See also:
 ///

@@ -1,6 +1,6 @@
 name: boxy
 description: Layout made simple. Overcomes many limitations by the framework regarding layout
-version: 2.0.1
+version: 2.0.2
 homepage: https://github.com/PixelToast/flutter-boxy
 
 environment:
