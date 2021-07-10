@@ -329,9 +329,9 @@ void main() {
       await tester.pumpWidget(
         TestFrame(
           child: SizedBox(
-            width: 400,
-            height: 300,
+            height: rowHeight,
             child: BoxyRow(
+              key: const GlobalObjectKey(#flex),
               crossAxisAlignment: alignmentOffset.key,
               children: [
                 for (final childAlignmentOffset in alignmentOffsets.entries)
@@ -354,15 +354,25 @@ void main() {
         ),
       );
 
-      final flexBox = keyBox(#flex);
-      final firstBox = keyBox(#first);
-      final secondBox = keyBox(#second);
+      for (final childAlignmentOffset in alignmentOffsets.entries) {
+        final alignBox = keyBox(childAlignmentOffset.key);
+        final alignRect = boxRect(alignBox);
+        expect(alignRect.top, childAlignmentOffset.value);
+        if (childAlignmentOffset.key == CrossAxisAlignment.stretch) {
+          expect(alignBox.size, const Size(blockSize, rowHeight));
+        } else {
+          expect(alignBox.size, const Size(blockSize, blockSize));
+        }
+      }
 
-      final width = secondBox.getMaxIntrinsicWidth(50);
-
-      expect(flexBox.size.width, equals(width));
-      expect(firstBox.size, equals(Size(width, 50)));
-      expect(secondBox.size, equals(Size(width, 50)));
+      final lastBox = keyBox(#last);
+      final lastRect = boxRect(lastBox);
+      expect(lastRect.top, alignmentOffset.value);
+      if (alignmentOffset.key == CrossAxisAlignment.stretch) {
+        expect(lastBox.size, const Size(blockSize, rowHeight));
+      } else {
+        expect(lastBox.size, const Size(blockSize, blockSize));
+      }
     }
   });
 }

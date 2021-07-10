@@ -1,3 +1,6 @@
+## [2.0.2]
+* Added the `BoxyFlexible.align` constructor
+
 ## [2.0.1]
 * Added `BoxyFlexIntrinsicsBehavior`
 * Fixed an issue with the intrinsic sizing of `BoxyFlex`

@@ -14,6 +14,8 @@ as another child in the list, with boxy this can be achieved trivially using `Bo
 
 ![Using BoxyColumn. An underbar matches the width of a dynamically sized container](https://i.tst.sh/FdoiA.png)
 
+![Using BoxyColumn and BoxyFlexible.align; The top child has a custom cross axis alignment from the others](https://i.tst.sh/Bn42V.png)
+
 See the documentation of [BoxyRow](https://pub.dev/documentation/boxy/latest/flex/BoxyRow-class.html) and
 [BoxyColumn](https://pub.dev/documentation/boxy/latest/flex/BoxyColumn-class.html) for more information.
 

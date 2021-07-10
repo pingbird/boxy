@@ -1,7 +1,6 @@
 name: boxy_gallery
 description: Examples for the boxy package.
 version: 1.0.0
-author: Andre Lipke <andre.lipke@gmail.com>
 homepage: https://github.com/PixelToast/flutter-boxy
 
 environment:
