@@ -1,3 +1,6 @@
+## [2.0.3]
+* Fixed an issue with accessing `CustomBoxy` children during intrinsic layout
+
 ## [2.0.2]
 * Added the `BoxyFlexible.align` constructor
 
