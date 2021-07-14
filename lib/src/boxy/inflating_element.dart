@@ -231,14 +231,39 @@ mixin InflatingRenderObjectMixin<
   /// based on the the generic type argument.
   InflatedChildHandleFactory get childFactory;
 
-  @override
-  void performLayout() {
-    childHandleMap.clear();
-
+  void _addChildHandle(RenderObject child, Object id) {
     assert(() {
-      debugChildrenNeedingLayout.clear();
+      if (childHandleMap.containsKey(id)) {
+        throw FlutterError.fromParts(<DiagnosticsNode>[
+          ErrorSummary('The Boxy was given children with duplicate ids.'),
+          child.describeForError('The following id was given to multiple children "$id"'),
+        ]);
+      }
       return true;
     }());
+
+    final handle = childFactory<ChildHandleType>(id: id, parent: this, render: child);
+
+    childHandleMap[id] = handle;
+    childHandles.add(handle);
+
+    assert(() {
+      debugChildrenNeedingLayout.add(id);
+      return true;
+    }());
+  }
+
+  /// Ensures [childHandles] and [childHandleMap] are ready to use outside of
+  /// performLayout, useful for calculating intrinsic sizes.
+  void updateChildHandles({bool doingLayout = false}) {
+    if (doingLayout) {
+      // We don't care about childHandleMap outside of performLayout
+      childHandleMap.clear();
+      assert(() {
+        debugChildrenNeedingLayout.clear();
+        return true;
+      }());
+    }
 
     int index = 0;
     int movingIndex = 0;
@@ -256,14 +281,17 @@ mixin InflatingRenderObjectMixin<
       // Assign the child an incrementing index if it does not already have one.
       id ??= movingIndex++;
 
-      assert(() {
-        debugChildrenNeedingLayout.add(id!);
-        return true;
-      }());
-
       final handle = childHandles[index++];
-      childHandleMap[id] = handle;
-      prepareChild(handle);
+
+      if (doingLayout) {
+        assert(() {
+          debugChildrenNeedingLayout.add(id!);
+          return true;
+        }());
+        childHandleMap[id] = handle;
+        prepareChild(handle);
+      }
+
       child = parentData.nextSibling;
     }
 
@@ -276,38 +304,19 @@ mixin InflatingRenderObjectMixin<
     // Create new child handles
     while (child != null && index < context._children!.length) {
       final parentData = child.parentData as ParentDataType;
-      var id = parentData.id;
-
       // Assign the child an incrementing index if it does not already have one.
-      id ??= movingIndex++;
+      _addChildHandle(child, parentData.id ?? movingIndex++);
 
-      assert(() {
-        if (childHandleMap.containsKey(id)) {
-          throw FlutterError.fromParts(<DiagnosticsNode>[
-            ErrorSummary('The Boxy was given children with duplicate ids.'),
-            child!.describeForError('The following id was given to multiple children "$id"'),
-          ]);
-        }
-        return true;
-      }());
-
-      final handle = childFactory<ChildHandleType>(id: id, parent: this, render: child);
-
-      assert(childHandles.length == index);
       index++;
-      childHandleMap[id] = handle;
-      childHandles.add(handle);
-
-      assert(() {
-        debugChildrenNeedingLayout.add(id!);
-        return true;
-      }());
-
       child = parentData.nextSibling;
     }
 
     _indexedChildCount = movingIndex;
+  }
 
+  @override
+  void performLayout() {
+    updateChildHandles(doingLayout: true);
     context._wrapInflater<ChildType>((inflater) {
       _inflater = inflater;
       try {

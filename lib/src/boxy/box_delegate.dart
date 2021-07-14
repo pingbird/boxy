@@ -78,6 +78,7 @@ class RenderBoxy<ChildHandleType extends BaseBoxyChild> extends RenderBox with
 
   @override
   Size computeDryLayout(BoxConstraints constraints) {
+    updateChildHandles();
     _dryConstraints = constraints;
     Size? resultSize;
     try {
@@ -94,24 +95,36 @@ class RenderBoxy<ChildHandleType extends BaseBoxyChild> extends RenderBox with
   }
 
   @override
-  double computeMinIntrinsicWidth(double height) => wrapPhase(
-    BoxyDelegatePhase.intrinsics, () => delegate.minIntrinsicWidth(height)
-  );
+  double computeMinIntrinsicWidth(double height) {
+    updateChildHandles();
+    return wrapPhase(
+      BoxyDelegatePhase.intrinsics, () => delegate.minIntrinsicWidth(height)
+    );
+  }
 
   @override
-  double computeMaxIntrinsicWidth(double height) => wrapPhase(
-    BoxyDelegatePhase.intrinsics, () => delegate.maxIntrinsicWidth(height)
-  );
+  double computeMaxIntrinsicWidth(double height) {
+    updateChildHandles();
+    return wrapPhase(
+      BoxyDelegatePhase.intrinsics, () => delegate.maxIntrinsicWidth(height)
+    );
+  }
 
   @override
-  double computeMinIntrinsicHeight(double width) => wrapPhase(
-    BoxyDelegatePhase.intrinsics, () => delegate.minIntrinsicHeight(width)
-  );
+  double computeMinIntrinsicHeight(double width) {
+    updateChildHandles();
+    return wrapPhase(
+      BoxyDelegatePhase.intrinsics, () => delegate.minIntrinsicHeight(width)
+    );
+  }
 
   @override
-  double computeMaxIntrinsicHeight(double width) => wrapPhase(
-    BoxyDelegatePhase.intrinsics, () => delegate.maxIntrinsicHeight(width)
-  );
+  double computeMaxIntrinsicHeight(double width) {
+    updateChildHandles();
+    return wrapPhase(
+      BoxyDelegatePhase.intrinsics, () => delegate.maxIntrinsicHeight(width)
+    );
+  }
 
   @override
   bool hitTest(BoxHitTestResult result, {required Offset position}) {

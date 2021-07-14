@@ -35,6 +35,18 @@ class StateTestChildState extends State<StateTestChild> {
   Widget build(context) => Container(width: 10, height: 10);
 }
 
+class CheckIntrinsicsDelegate extends BoxyDelegate {
+  @override
+  Size layout() {
+    final child = children.single;
+    expect(
+      child.render.getMaxIntrinsicHeight(100),
+      equals(200),
+    );
+    return child.layout(constraints);
+  }
+}
+
 class StateTestDelegate extends BoxyDelegate {
   final int numChildren;
   final List<String> inflatedNames;
@@ -72,6 +84,13 @@ class StateTestDelegate extends BoxyDelegate {
 
   @override
   bool shouldRelayout(StateTestDelegate old) => true;
+
+  @override
+  double maxIntrinsicHeight(double width) {
+    // Intrinsics should have access to children before layout.
+    expect(children.length, equals(numChildren));
+    return 200.0;
+  }
 }
 
 void main() {
@@ -81,19 +100,30 @@ void main() {
     var lastParams = const <List<String>>[];
 
     Future<void> testMutate(Set<String> children, Set<String> inflated, Set<String> outside) async {
-      await tester.pumpWidget(TestFrame(child: Column(children: [
-        CustomBoxy(
-          key: const GlobalObjectKey(#boxy),
-          delegate: StateTestDelegate(
-            numChildren: children.length,
-            inflatedNames: inflated.toList(),
+      await tester.pumpWidget(
+        TestFrame(
+          child: Column(
+            children: [
+              CustomBoxy(
+                delegate: CheckIntrinsicsDelegate(),
+                children: [
+                  CustomBoxy(
+                    key: const GlobalObjectKey(#boxy),
+                    delegate: StateTestDelegate(
+                      numChildren: children.length,
+                      inflatedNames: inflated.toList(),
+                    ),
+                    children: [
+                      for (var nm in children) StateTestChild(key: GlobalObjectKey(nm)),
+                    ],
+                  ),
+                ],
+              ),
+              for (var nm in outside) StateTestChild(key: GlobalObjectKey(nm)),
+            ],
           ),
-          children: [
-            for (var nm in children) StateTestChild(key: GlobalObjectKey(nm)),
-          ],
         ),
-        for (var nm in outside) StateTestChild(key: GlobalObjectKey(nm)),
-      ])));
+      );
 
       final params = [[...children], [...inflated], [...outside]];
       expect(tester.takeException(), isNull, reason: '$lastParams -> $params');
