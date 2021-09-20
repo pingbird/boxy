@@ -1,3 +1,6 @@
+## [2.0.4]
+* Fixed an issue with `BoxyId.data` not being applied before first layout
+
 ## [2.0.3]
 * Fixed an issue with accessing `CustomBoxy` children during intrinsic layout
 
