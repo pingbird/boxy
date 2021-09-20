@@ -983,7 +983,7 @@ abstract class BaseBoxyDelegate<LayoutData extends Object, ChildHandleType exten
   }
 
   BoxyLayerContext? _layers;
-  
+
   /// The current layer context, useful for pushing [Layer]s to the scene during
   /// [paintChildren].
   ///
@@ -1209,6 +1209,9 @@ class BoxyId<T extends Object> extends ParentDataWidget<BaseBoxyParentData> {
     if (id != parentData.id) {
       parentData.id = id;
       parent.markNeedsLayout();
+      if (hasData) {
+        parentData.userData = data;
+      }
     } else if (hasData) {
       if (
         // Avoid calling shouldRelayout if old data is null
