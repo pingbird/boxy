@@ -90,6 +90,9 @@ class InflatedChildHandle {
     _render = render,
     _widget = widget,
     assert((render != null) != (widget != null), 'Either render or widget should be provided');
+
+  /// The child widget.
+  Widget get widget => _widget!;
 }
 
 /// Signature for a function that inflates widgets during layout.
