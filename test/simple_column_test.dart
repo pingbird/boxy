@@ -18,15 +18,11 @@ class SimpleColumnDelegate extends BoxyDelegate {
     firstChild.position(Offset.zero);
 
     // Lay out the second child
-    final secondSize = secondChild.layout(
-      constraints.deflate(
+    final secondSize = secondChild.layout(constraints.deflate(
         // Subtract height consumed by the first child from the constraints
-        EdgeInsets.only(top: firstSize.height)
-      ).tighten(
+        EdgeInsets.only(top: firstSize.height)).tighten(
         // Force width to be the same as the first child
-        width: firstSize.width
-      )
-    );
+        width: firstSize.width));
 
     // Position the second child below the first
     secondChild.position(Offset(0, firstSize.height));
@@ -41,19 +37,24 @@ class SimpleColumnDelegate extends BoxyDelegate {
 
 void main() {
   testWidgets('Consistent dimensions', (tester) async {
-    await tester.pumpWidget(TestFrame(child: CustomBoxy(
+    await tester.pumpWidget(TestFrame(
+        child: CustomBoxy(
       key: const GlobalObjectKey(#boxy),
       delegate: SimpleColumnDelegate(),
       children: [
-        BoxyId(id: #first, child: Container(
-          key: const GlobalObjectKey(#first),
-          width: 128,
-          height: 64,
-        )),
-        BoxyId(id: #second, child: Container(
-          key: const GlobalObjectKey(#second),
-          height: 32,
-        )),
+        BoxyId(
+            id: #first,
+            child: Container(
+              key: const GlobalObjectKey(#first),
+              width: 128,
+              height: 64,
+            )),
+        BoxyId(
+            id: #second,
+            child: Container(
+              key: const GlobalObjectKey(#second),
+              height: 32,
+            )),
       ],
     )));
 
@@ -67,22 +68,29 @@ void main() {
   });
 
   testWidgets('Height constraints', (tester) async {
-    await tester.pumpWidget(TestFrame(child: CustomBoxy(
-      key: const GlobalObjectKey(#boxy),
-      delegate: SimpleColumnDelegate(),
-      children: [
-        BoxyId(id: #first, child: Container(
-          key: const GlobalObjectKey(#first),
-          width: 128,
-          height: 64,
-        )),
-        BoxyId(id: #second, child: Column(children: [
-          Expanded(child: Container(
-            key: const GlobalObjectKey(#second),
-          )),
-        ])),
-      ],
-    ), constraints: const BoxConstraints(maxHeight: 128)));
+    await tester.pumpWidget(TestFrame(
+        child: CustomBoxy(
+          key: const GlobalObjectKey(#boxy),
+          delegate: SimpleColumnDelegate(),
+          children: [
+            BoxyId(
+                id: #first,
+                child: Container(
+                  key: const GlobalObjectKey(#first),
+                  width: 128,
+                  height: 64,
+                )),
+            BoxyId(
+                id: #second,
+                child: Column(children: [
+                  Expanded(
+                      child: Container(
+                    key: const GlobalObjectKey(#second),
+                  )),
+                ])),
+          ],
+        ),
+        constraints: const BoxConstraints(maxHeight: 128)));
 
     final boxyRect = boxRect(keyBox(#boxy));
     final firstRect = boxRect(keyBox(#first));

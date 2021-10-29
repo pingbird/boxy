@@ -14,10 +14,13 @@ import 'inflating_element.dart';
 /// See also:
 ///   * [CustomBoxy]
 ///   * [BoxyDelegate]
-class RenderSliverBoxy<ChildHandleType extends BaseBoxyChild> extends RenderSliver with
-  ContainerRenderObjectMixin<RenderObject, BoxyParentData>,
-  InflatingRenderObjectMixin<RenderObject, BoxyParentData, ChildHandleType>,
-  RenderBoxyMixin<RenderObject, BoxyParentData, ChildHandleType> {
+class RenderSliverBoxy<ChildHandleType extends BaseBoxyChild>
+    extends RenderSliver
+    with
+        ContainerRenderObjectMixin<RenderObject, BoxyParentData>,
+        InflatingRenderObjectMixin<RenderObject, BoxyParentData,
+            ChildHandleType>,
+        RenderBoxyMixin<RenderObject, BoxyParentData, ChildHandleType> {
   SliverBoxyDelegate<Object> _delegate;
 
   @override
@@ -65,10 +68,10 @@ class RenderSliverBoxy<ChildHandleType extends BaseBoxyChild> extends RenderSliv
 
   /// The current size of the sliver.
   SliverSize get size => SliverSize.axis(
-    constraints.crossAxisExtent,
-    geometry!.layoutExtent,
-    constraints.axis,
-  );
+        constraints.crossAxisExtent,
+        geometry!.layoutExtent,
+        constraints.axis,
+      );
 
   @override
   bool get isDryLayout => false;
@@ -122,7 +125,8 @@ class RenderSliverBoxy<ChildHandleType extends BaseBoxyChild> extends RenderSliv
       transform: transform,
       position: position,
       hitTest: (result, position) {
-        if (checkBounds && !(Offset.zero & child.hitTestSize).contains(position)) {
+        if (checkBounds &&
+            !(Offset.zero & child.hitTestSize).contains(position)) {
           return false;
         }
         final sliverPosition = wrapOffset(
@@ -208,19 +212,20 @@ class RenderSliverBoxy<ChildHandleType extends BaseBoxyChild> extends RenderSliv
 ///  * [SliverBoxyChild], a child handle for [RenderSliver].
 ///  * [BoxyLayerContext], a wrapper that can push [Layer]s.
 abstract class SliverBoxyDelegate<LayoutData extends Object>
-  extends BaseBoxyDelegate<LayoutData, BaseBoxyChild> {
+    extends BaseBoxyDelegate<LayoutData, BaseBoxyChild> {
   /// Constructs a BoxyDelegate with optional [relayout] and [repaint]
   /// [Listenable]s.
   SliverBoxyDelegate({
     Listenable? relayout,
     Listenable? repaint,
   }) : super(
-    relayout: relayout,
-    repaint: repaint,
-  );
+          relayout: relayout,
+          repaint: repaint,
+        );
 
   @override
-  RenderSliverBoxy<BaseBoxyChild> get render => super.render as RenderSliverBoxy<BaseBoxyChild>;
+  RenderSliverBoxy<BaseBoxyChild> get render =>
+      super.render as RenderSliverBoxy<BaseBoxyChild>;
 
   /// The most recent constraints given to this boxy by its parent.
   @override
@@ -249,7 +254,8 @@ abstract class SliverBoxyDelegate<LayoutData extends Object>
   }
 }
 
-typedef _HitTestCallback = bool Function(_SliverBoxyHitTestResult result, Offset position);
+typedef _HitTestCallback = bool Function(
+    _SliverBoxyHitTestResult result, Offset position);
 
 /// [SliverHitTestResult] is missing [BoxHitTestResult.addWithPaintTransform],
 /// [HitTestResult.pushTransform] is also protected, oof.
@@ -261,8 +267,9 @@ class _SliverBoxyHitTestResult extends SliverHitTestResult {
     required Offset position,
     required _HitTestCallback hitTest,
   }) {
-    final Offset transformedPosition = transform == null ?
-      position : MatrixUtils.transformPoint(transform, position);
+    final Offset transformedPosition = transform == null
+        ? position
+        : MatrixUtils.transformPoint(transform, position);
     if (transform != null) {
       pushTransform(transform);
     }
@@ -279,7 +286,8 @@ class _SliverBoxyHitTestResult extends SliverHitTestResult {
     required _HitTestCallback hitTest,
   }) {
     if (transform != null) {
-      transform = Matrix4.tryInvert(PointerEvent.removePerspectiveTransform(transform));
+      transform =
+          Matrix4.tryInvert(PointerEvent.removePerspectiveTransform(transform));
       if (transform == null) {
         // Objects are not visible on screen and cannot be hit-tested.
         return false;

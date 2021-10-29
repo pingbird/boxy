@@ -28,6 +28,7 @@ linter:
     - avoid_types_as_parameter_names
     - avoid_unused_constructor_parameters
     - avoid_void_async
+    - avoid_print
     - await_only_futures
     - camel_case_extensions
     - camel_case_types

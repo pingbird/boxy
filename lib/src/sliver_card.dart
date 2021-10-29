@@ -53,12 +53,14 @@ class SliverCard extends StatelessWidget {
     final textDirection = Directionality.of(context);
     final cardTheme = CardTheme.of(context);
     final appliedClip = clipBehavior ?? cardTheme.clipBehavior ?? Clip.none;
-    final appliedMargin = (
-      margin ?? cardTheme.margin ?? const EdgeInsets.all(4.0)
-    ).resolve(textDirection);
-    final appliedShape = shape ?? cardTheme.shape ?? const RoundedRectangleBorder(
-      borderRadius: BorderRadius.all(Radius.circular(4.0)),
-    );
+    final appliedMargin =
+        (margin ?? cardTheme.margin ?? const EdgeInsets.all(4.0))
+            .resolve(textDirection);
+    final appliedShape = shape ??
+        cardTheme.shape ??
+        const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(4.0)),
+        );
     final appliedBufferExtent = bufferExtent ?? 12.0;
 
     final card = Material(
@@ -74,7 +76,9 @@ class SliverCard extends StatelessWidget {
       sliver: sliver,
       background: card,
       margin: appliedMargin,
-      clipper: appliedClip == Clip.none ? null : ShapeBorderClipper(shape: appliedShape),
+      clipper: appliedClip == Clip.none
+          ? null
+          : ShapeBorderClipper(shape: appliedShape),
       clipSliverOnly: true,
     );
   }

@@ -69,15 +69,15 @@ extension SliverConstraintsUtil on SliverConstraints {
 extension RenderSliverUtil on RenderSliver {
   /// The current layout size of this sliver.
   SliverSize get layoutSize => SliverSize.axis(
-    constraints.crossAxisExtent,
-    geometry!.layoutExtent,
-    constraints.axis,
-  );
+        constraints.crossAxisExtent,
+        geometry!.layoutExtent,
+        constraints.axis,
+      );
 
   /// The current hit testing size of this sliver.
   SliverSize get hitTestSize => SliverSize.axis(
-    constraints.crossAxisExtent,
-    geometry!.hitTestExtent,
-    constraints.axis,
-  );
+        constraints.crossAxisExtent,
+        geometry!.hitTestExtent,
+        constraints.axis,
+      );
 }

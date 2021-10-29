@@ -11,35 +11,43 @@ class BlogTilePage extends StatefulWidget {
   createState() => BlogTilePageState();
 }
 
-const loremIpsum = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco...';
+const loremIpsum =
+    'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco...';
 
 class BlogTilePageState extends State<BlogTilePage> {
   build(BuildContext context) => Scaffold(
-    appBar: const GalleryAppBar(
-      ['Boxy Gallery', 'Blog Tile'],
-      source: 'https://github.com/PixelToast/flutter-boxy/blob/master/example/lib/pages/blog_tile.dart',
-    ),
-    backgroundColor: NiceColors.primary,
-    body: Column(children: [
-      Separator(),
-      Expanded(child: Container(child: ListView(children: [
-        const Padding(padding: EdgeInsets.only(top: 64)),
-        Center(child: ConstrainedBox(child: const BlogTile(
-          body: BlogDesc(
-            author: 'Cicero',
-          ),
-          icons: [
-            Tuple2(MdiIcons.shareVariant, null),
-            Tuple2(MdiIcons.starOutline, MdiIcons.star),
-            Tuple2(MdiIcons.heartOutline, MdiIcons.heart),
-            Tuple2(MdiIcons.chatOutline, null),
-          ],
-        ), constraints: const BoxConstraints(maxWidth: 450))),
-        const Padding(padding: EdgeInsets.only(top: 64)),
-      ], physics: const BouncingScrollPhysics()), color: NiceColors.background)),
-      Separator(),
-    ]),
-  );
+        appBar: const GalleryAppBar(
+          ['Boxy Gallery', 'Blog Tile'],
+          source:
+              'https://github.com/PixelToast/flutter-boxy/blob/master/example/lib/pages/blog_tile.dart',
+        ),
+        backgroundColor: NiceColors.primary,
+        body: Column(children: [
+          Separator(),
+          Expanded(
+              child: Container(
+                  child: ListView(children: [
+                    const Padding(padding: EdgeInsets.only(top: 64)),
+                    Center(
+                        child: ConstrainedBox(
+                            child: const BlogTile(
+                              body: BlogDesc(
+                                author: 'Cicero',
+                              ),
+                              icons: [
+                                Tuple2(MdiIcons.shareVariant, null),
+                                Tuple2(MdiIcons.starOutline, MdiIcons.star),
+                                Tuple2(MdiIcons.heartOutline, MdiIcons.heart),
+                                Tuple2(MdiIcons.chatOutline, null),
+                              ],
+                            ),
+                            constraints: const BoxConstraints(maxWidth: 450))),
+                    const Padding(padding: EdgeInsets.only(top: 64)),
+                  ], physics: const BouncingScrollPhysics()),
+                  color: NiceColors.background)),
+          Separator(),
+        ]),
+      );
 }
 
 class ExpandButton extends StatefulWidget {
@@ -54,13 +62,15 @@ class ExpandButton extends StatefulWidget {
   createState() => _ExpandButtonState();
 }
 
-class _ExpandButtonState extends State<ExpandButton> with SingleTickerProviderStateMixin {
+class _ExpandButtonState extends State<ExpandButton>
+    with SingleTickerProviderStateMixin {
   late AnimationController controller;
 
   @override
   initState() {
     super.initState();
-    controller = AnimationController(vsync: this, value: widget.expanded ? 1 : 0);
+    controller =
+        AnimationController(vsync: this, value: widget.expanded ? 1 : 0);
     controller.addListener(() => setState(() {}));
   }
 
@@ -82,23 +92,29 @@ class _ExpandButtonState extends State<ExpandButton> with SingleTickerProviderSt
 
   static const size = 42.0;
 
-  build(context) => SizedBox(child: Material(
-    borderRadius: BorderRadius.circular(size / 2),
-    color: Colors.transparent,
-    child: InkWell(child: Center(
-      child: Transform.rotate(child: const Icon(
-        Icons.arrow_drop_down,
-        size: 24,
-        color: NiceColors.text,
-      ), angle: pi * controller.value),
-    ),
-      onTap: widget.onPressed,
-      hoverColor: Colors.blueGrey.withOpacity(0.1),
-      focusColor: Colors.blueGrey.withOpacity(0.2),
-      highlightColor: Colors.blueGrey.withOpacity(0.3),
-      splashColor: Colors.blueGrey.shade200.withOpacity(0.3),
-    ),
-  ), width: size, height: size);
+  build(context) => SizedBox(
+      child: Material(
+        borderRadius: BorderRadius.circular(size / 2),
+        color: Colors.transparent,
+        child: InkWell(
+          child: Center(
+            child: Transform.rotate(
+                child: const Icon(
+                  Icons.arrow_drop_down,
+                  size: 24,
+                  color: NiceColors.text,
+                ),
+                angle: pi * controller.value),
+          ),
+          onTap: widget.onPressed,
+          hoverColor: Colors.blueGrey.withOpacity(0.1),
+          focusColor: Colors.blueGrey.withOpacity(0.2),
+          highlightColor: Colors.blueGrey.withOpacity(0.3),
+          splashColor: Colors.blueGrey.shade200.withOpacity(0.3),
+        ),
+      ),
+      width: size,
+      height: size);
 }
 
 class BlogDesc extends StatefulWidget {
@@ -116,90 +132,98 @@ class _BlogDescState extends State<BlogDesc> with TickerProviderStateMixin {
   bool expandText = false;
 
   build(BuildContext context) => Stack(children: [
-    Column(children: [
-      AnimatedContainer(
-        margin: EdgeInsets.only(left: 8, bottom: expandDesc ? 4 : 0),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(4),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.blueGrey.shade700.withOpacity(expandDesc ? 1 : 0),
-              Colors.blueGrey.shade800.withOpacity(expandDesc ? 1 : 0),
-            ],
-          ),
-        ),
-        duration: const Duration(milliseconds: 1000),
-        curve: Curves.ease,
-        height: expandDesc ? 200 : 42,
-        child: Align(child: Padding(child: Row(children: [
-          const Padding(child: Icon(
-            MdiIcons.rssBox,
-            color: NiceColors.text,
-          ), padding: EdgeInsets.only(right: 8)),
-          Text(
-            widget.author,
-            style: const TextStyle(
-              color: NiceColors.text,
-              fontSize: 18,
-            ),
-          ),
-          Container(
-            height: 2,
-            width: 4,
-            color: NiceColors.text.withOpacity(0.3),
-            margin: const EdgeInsets.symmetric(horizontal: 8),
-          ),
-          const Text(
-            '1h',
-            style: TextStyle(
-              color: NiceColors.text,
-              fontSize: 15,
-            ),
-          ),
-          Expanded(child: Container(
-            height: 2,
+        Column(children: [
+          AnimatedContainer(
+            margin: EdgeInsets.only(left: 8, bottom: expandDesc ? 4 : 0),
             decoration: BoxDecoration(
-              gradient: LinearGradient(colors: [
-                NiceColors.text.withOpacity(0.1),
-                NiceColors.text.withOpacity(0.3),
-                NiceColors.text.withOpacity(0.1),
-              ]),
+              borderRadius: BorderRadius.circular(4),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.blueGrey.shade700.withOpacity(expandDesc ? 1 : 0),
+                  Colors.blueGrey.shade800.withOpacity(expandDesc ? 1 : 0),
+                ],
+              ),
             ),
-            margin: const EdgeInsets.only(left: 12),
-          )),
-        ]), padding: const EdgeInsets.only(
-          right: 42,
-          top: 8,
-          bottom: 8,
-          left: 8,
-        )), alignment: Alignment.topCenter),
-      ),
-
-      AnimatedSize(
-        child: const Padding(child: Text(
-          loremIpsum,
-          style: TextStyle(color: NiceColors.text),
-          maxLines: 3,
-        ), padding: EdgeInsets.only(
-          left: 8,
-        )),
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.ease,
-        alignment: Alignment.topCenter,
-        // TODO(ping): Remove this argument in the next release of Flutter
-        vsync: this,
-      ),
-    ]),
-
-    Positioned(child: ExpandButton(
-      onPressed: () => setState(() {
-        expandDesc = !expandDesc;
-      }),
-      expanded: expandDesc,
-    ), top: 0, right: 0),
-  ]);
+            duration: const Duration(milliseconds: 1000),
+            curve: Curves.ease,
+            height: expandDesc ? 200 : 42,
+            child: Align(
+                child: Padding(
+                    child: Row(children: [
+                      const Padding(
+                          child: Icon(
+                            MdiIcons.rssBox,
+                            color: NiceColors.text,
+                          ),
+                          padding: EdgeInsets.only(right: 8)),
+                      Text(
+                        widget.author,
+                        style: const TextStyle(
+                          color: NiceColors.text,
+                          fontSize: 18,
+                        ),
+                      ),
+                      Container(
+                        height: 2,
+                        width: 4,
+                        color: NiceColors.text.withOpacity(0.3),
+                        margin: const EdgeInsets.symmetric(horizontal: 8),
+                      ),
+                      const Text(
+                        '1h',
+                        style: TextStyle(
+                          color: NiceColors.text,
+                          fontSize: 15,
+                        ),
+                      ),
+                      Expanded(
+                          child: Container(
+                        height: 2,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(colors: [
+                            NiceColors.text.withOpacity(0.1),
+                            NiceColors.text.withOpacity(0.3),
+                            NiceColors.text.withOpacity(0.1),
+                          ]),
+                        ),
+                        margin: const EdgeInsets.only(left: 12),
+                      )),
+                    ]),
+                    padding: const EdgeInsets.only(
+                      right: 42,
+                      top: 8,
+                      bottom: 8,
+                      left: 8,
+                    )),
+                alignment: Alignment.topCenter),
+          ),
+          const AnimatedSize(
+            child: Padding(
+                child: Text(
+                  loremIpsum,
+                  style: TextStyle(color: NiceColors.text),
+                  maxLines: 3,
+                ),
+                padding: EdgeInsets.only(
+                  left: 8,
+                )),
+            duration: Duration(milliseconds: 500),
+            curve: Curves.ease,
+            alignment: Alignment.topCenter,
+          ),
+        ]),
+        Positioned(
+            child: ExpandButton(
+              onPressed: () => setState(() {
+                expandDesc = !expandDesc;
+              }),
+              expanded: expandDesc,
+            ),
+            top: 0,
+            right: 0),
+      ]);
 }
 
 const kButtonSize = 50.0;
@@ -216,76 +240,80 @@ class ShareButton extends StatefulWidget {
   createState() => _ShareButtonState();
 }
 
-class _ShareButtonState extends State<ShareButton> with SingleTickerProviderStateMixin {
+class _ShareButtonState extends State<ShareButton>
+    with SingleTickerProviderStateMixin {
   bool showAlt = false;
 
   static final borderRadius = BorderRadius.circular(16);
 
-
-  build(context) => SizedBox(child: Material(
-    color: Colors.transparent,
-    child: InkWell(child: Container(
-      decoration: BoxDecoration(
-        border: Border.all(
-          width: 3,
-          color: NiceColors.divider.withOpacity(0.5),
+  build(context) => SizedBox(
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  width: 3,
+                  color: NiceColors.divider.withOpacity(0.5),
+                ),
+                borderRadius: borderRadius,
+              ),
+              child: Align(
+                  child: Icon(
+                (showAlt && widget.alt != null) ? widget.alt : widget.icon,
+                color: Colors.blueGrey.shade200,
+              )),
+            ),
+            onTap: () => setState(() {
+              showAlt = !showAlt;
+            }),
+            hoverColor: Colors.blueGrey.withOpacity(0.1),
+            focusColor: Colors.blueGrey.withOpacity(0.2),
+            highlightColor: Colors.blueGrey.withOpacity(0.3),
+            splashColor: Colors.blueGrey.shade200.withOpacity(0.3),
+          ),
+          clipBehavior: Clip.antiAlias,
+          borderRadius: borderRadius,
         ),
-        borderRadius: borderRadius,
-      ),
-      child: Align(child: Icon((
-        showAlt && widget.alt != null) ?
-          widget.alt : widget.icon,
-        color: Colors.blueGrey.shade200,
-      )),
-    ), onTap: () => setState(() {
-      showAlt = !showAlt;
-    }),
-      hoverColor: Colors.blueGrey.withOpacity(0.1),
-      focusColor: Colors.blueGrey.withOpacity(0.2),
-      highlightColor: Colors.blueGrey.withOpacity(0.3),
-      splashColor: Colors.blueGrey.shade200.withOpacity(0.3),
-    ),
-    clipBehavior: Clip.antiAlias,
-    borderRadius: borderRadius,
-  ),
-    width: kButtonSize,
-    height: kButtonSize,
-  );
+        width: kButtonSize,
+        height: kButtonSize,
+      );
 }
 
 class ShareMoreButton extends StatelessWidget {
   static final borderRadius = BorderRadius.circular(16);
 
   build(context) => Material(
-    color: Colors.transparent,
-    child: InkWell(child: AnimatedContainer(
-      decoration: BoxDecoration(
-        border: Border.all(
-          width: 3,
-          color: NiceColors.divider.withOpacity(0.5),
+        color: Colors.transparent,
+        child: InkWell(
+          child: AnimatedContainer(
+            decoration: BoxDecoration(
+              border: Border.all(
+                width: 3,
+                color: NiceColors.divider.withOpacity(0.5),
+              ),
+              borderRadius: borderRadius,
+            ),
+            width: kButtonSize,
+            height: 30,
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.ease,
+            child: Align(
+                child: Icon(
+              Icons.more_horiz,
+              color: Colors.blueGrey.shade200,
+            )),
+          ),
+          onTap: () {},
+          hoverColor: Colors.blueGrey.withOpacity(0.1),
+          focusColor: Colors.blueGrey.withOpacity(0.2),
+          highlightColor: Colors.blueGrey.withOpacity(0.3),
+          splashColor: Colors.blueGrey.shade200.withOpacity(0.3),
         ),
+        clipBehavior: Clip.antiAlias,
         borderRadius: borderRadius,
-      ),
-      width: kButtonSize,
-      height: 30,
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.ease,
-      child: Align(child: Icon(
-        Icons.more_horiz,
-        color: Colors.blueGrey.shade200,
-      )),
-    ),
-      onTap: () {},
-      hoverColor: Colors.blueGrey.withOpacity(0.1),
-      focusColor: Colors.blueGrey.withOpacity(0.2),
-      highlightColor: Colors.blueGrey.withOpacity(0.3),
-      splashColor: Colors.blueGrey.shade200.withOpacity(0.3),
-    ),
-    clipBehavior: Clip.antiAlias,
-    borderRadius: borderRadius,
-  );
+      );
 }
-
 
 class BlogTile extends StatelessWidget {
   final Widget body;
@@ -297,16 +325,16 @@ class BlogTile extends StatelessWidget {
   });
 
   build(context) => CustomBoxy(
-    delegate: BlogTileDelegate(
-      numButtons: icons.length,
-      buttonBuilder: (context, i) =>
-        ShareButton(icon: icons[i].item1, alt: icons[i].item2),
-    ),
-    children: [
-      BoxyId(id: #body, child: body),
-      BoxyId(id: #moreButton, child: ShareMoreButton()),
-    ],
-  );
+        delegate: BlogTileDelegate(
+          numButtons: icons.length,
+          buttonBuilder: (context, i) =>
+              ShareButton(icon: icons[i].item1, alt: icons[i].item2),
+        ),
+        children: [
+          BoxyId(id: #body, child: body),
+          BoxyId(id: #moreButton, child: ShareMoreButton()),
+        ],
+      );
 }
 
 class BlogTileDelegate extends BoxyDelegate {
@@ -330,7 +358,8 @@ class BlogTileDelegate extends BoxyDelegate {
     body.position(Offset(moreButtonSize.width, 0));
 
     const margin = 8.0;
-    final buttonConstraints = BoxConstraints.tightFor(width: moreButtonSize.width);
+    final buttonConstraints =
+        BoxConstraints.tightFor(width: moreButtonSize.width);
     var offset = 0.0;
     final limit = bodySize.height - moreButtonSize.height;
     var finished = false;

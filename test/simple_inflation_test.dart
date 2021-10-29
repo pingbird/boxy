@@ -12,22 +12,20 @@ class SimpleInflationDelegate extends BoxyDelegate {
     final firstSize = firstChild.layout(constraints);
     firstChild.position(Offset.zero);
 
-    final text = Padding(child: Text(
-      '^ This guy is ${firstSize.width} x ${firstSize.height}',
-      key: const GlobalObjectKey(#subtitle),
-      textAlign: TextAlign.center,
-    ), padding: const EdgeInsets.all(8));
+    final text = Padding(
+        child: Text(
+          '^ This guy is ${firstSize.width} x ${firstSize.height}',
+          key: const GlobalObjectKey(#subtitle),
+          textAlign: TextAlign.center,
+        ),
+        padding: const EdgeInsets.all(8));
 
     // Inflate the text widget
     final secondChild = inflate(text, id: #subtitle);
 
-    final secondSize = secondChild.layout(
-      constraints.deflate(
-        EdgeInsets.only(top: firstSize.height)
-      ).tighten(
-        width: firstSize.width
-      )
-    );
+    final secondSize = secondChild.layout(constraints
+        .deflate(EdgeInsets.only(top: firstSize.height))
+        .tighten(width: firstSize.width));
 
     secondChild.position(Offset(0, firstSize.height));
 
@@ -40,7 +38,8 @@ class SimpleInflationDelegate extends BoxyDelegate {
 
 void main() {
   testWidgets('Consistent subtitle', (tester) async {
-    await tester.pumpWidget(TestFrame(child: CustomBoxy(
+    await tester.pumpWidget(TestFrame(
+        child: CustomBoxy(
       key: const GlobalObjectKey(#boxy),
       delegate: SimpleInflationDelegate(),
       children: [

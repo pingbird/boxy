@@ -43,9 +43,8 @@ class _InflationEntry extends LinkedListEntry<_InflationEntry> {
 /// See also:
 ///
 ///  * [InflatingElement]
-class InflatingParentData<
-  ChildType extends RenderObject
-> extends ParentData with ContainerParentDataMixin<ChildType> {
+class InflatingParentData<ChildType extends RenderObject> extends ParentData
+    with ContainerParentDataMixin<ChildType> {
   /// An id that can be optionally set using a [ParentDataWidget].
   Object? id;
 }
@@ -65,6 +64,9 @@ class InflatedChildHandle {
 
   final InflatingRenderObjectMixin _parent;
 
+  RenderObject? _render;
+  Element? _context;
+
   /// The [RenderObject] representing this child.
   ///
   /// This getter is useful to access properties and methods that the child
@@ -75,7 +77,14 @@ class InflatedChildHandle {
     assert(_render != null);
     return _render!;
   }
-  RenderObject? _render;
+
+  /// The [Element] aka [BuildContext] representing this child.
+  Element get context {
+    if (_context != null) return _context!;
+    _parent.flushInflateQueue();
+    assert(_context != null);
+    return _context!;
+  }
 
   final Widget? _widget;
 
@@ -85,15 +94,19 @@ class InflatedChildHandle {
     required InflatingRenderObjectMixin parent,
     RenderObject? render,
     Widget? widget,
-  }) :
-    _parent = parent,
-    _render = render,
-    _widget = widget,
-    assert((render != null) != (widget != null), 'Either render or widget should be provided');
+    Element? context,
+  })  : _parent = parent,
+        _render = render,
+        _widget = widget,
+        _context = context,
+        assert((render != null) != (widget != null),
+            'Either render or widget should be provided'),
+        assert(render == null || context != null,
+            "If render is not null, context can't be null");
 }
 
 /// Signature for a function that inflates widgets during layout.
-typedef _InflationCallback<T extends RenderObject> = T Function(Object, Widget);
+typedef _InflationCallback = Element Function(Object, Widget);
 
 /// Signature for constructors of [InflatedChildHandle] subclasses, used for
 /// [InflatingRenderObjectMixin.childFactory].
@@ -101,6 +114,7 @@ typedef InflatedChildHandleFactory = T Function<T extends InflatedChildHandle>({
   required Object id,
   required InflatingRenderObjectMixin parent,
   RenderObject? render,
+  Element? context,
   Widget? widget,
 });
 
@@ -114,14 +128,12 @@ typedef InflatedChildHandleFactory = T Function<T extends InflatedChildHandle>({
 ///
 ///  * [InflatingElement]
 mixin InflatingRenderObjectMixin<
-  ChildType extends RenderObject,
-  ParentDataType extends InflatingParentData<ChildType>,
-  ChildHandleType extends InflatedChildHandle
-> on RenderObject
-  implements ContainerRenderObjectMixin<ChildType, ParentDataType>
-{
+        ChildType extends RenderObject,
+        ParentDataType extends InflatingParentData<ChildType>,
+        ChildHandleType extends InflatedChildHandle> on RenderObject
+    implements ContainerRenderObjectMixin<ChildType, ParentDataType> {
   InflatingElement? _context;
-  _InflationCallback<ChildType>? _inflater;
+  _InflationCallback? _inflater;
   var _indexedChildCount = 0;
 
   /// The current element that manages this RenderObject.
@@ -175,8 +187,9 @@ mixin InflatingRenderObjectMixin<
       context.owner!.buildScope(context, () {
         for (final child in _inflateQueue) {
           assert(child._widget != null);
-          final childObject = _inflater!(child.id, child._widget!);
-          child._render = childObject;
+          final element = _inflater!(child.id, child._widget!);
+          child._render = element.renderObject!;
+          child._context = element;
         }
         _inflateQueue.clear();
       });
@@ -191,9 +204,8 @@ mixin InflatingRenderObjectMixin<
     assert(() {
       if (childHandleMap.containsKey(id)) {
         throw FlutterError(
-          'This boxy attempted to inflate a widget with a duplicate id.\n'
-          'There is already a child with the id "$id"'
-        );
+            'This boxy attempted to inflate a widget with a duplicate id.\n'
+            'There is already a child with the id "$id"');
       }
       debugChildrenNeedingLayout.add(id!);
       return true;
@@ -231,18 +243,24 @@ mixin InflatingRenderObjectMixin<
   /// based on the the generic type argument.
   InflatedChildHandleFactory get childFactory;
 
-  void _addChildHandle(RenderObject child, Object id) {
+  void _addChildHandle(RenderObject child, Element context, Object id) {
     assert(() {
       if (childHandleMap.containsKey(id)) {
         throw FlutterError.fromParts(<DiagnosticsNode>[
           ErrorSummary('The Boxy was given children with duplicate ids.'),
-          child.describeForError('The following id was given to multiple children "$id"'),
+          child.describeForError(
+              'The following id was given to multiple children "$id"'),
         ]);
       }
       return true;
     }());
 
-    final handle = childFactory<ChildHandleType>(id: id, parent: this, render: child);
+    final handle = childFactory<ChildHandleType>(
+      id: id,
+      parent: this,
+      render: child,
+      context: context,
+    );
 
     childHandleMap[id] = handle;
     childHandles.add(handle);
@@ -305,7 +323,9 @@ mixin InflatingRenderObjectMixin<
     while (child != null && index < context._children!.length) {
       final parentData = child.parentData as ParentDataType;
       // Assign the child an incrementing index if it does not already have one.
-      _addChildHandle(child, parentData.id ?? movingIndex++);
+      final childContext = context._children![index];
+      assert(childContext.renderObject == child);
+      _addChildHandle(child, childContext, parentData.id ?? movingIndex++);
 
       index++;
       child = parentData.nextSibling;
@@ -317,7 +337,7 @@ mixin InflatingRenderObjectMixin<
   @override
   void performLayout() {
     updateChildHandles(doingLayout: true);
-    context._wrapInflater<ChildType>((inflater) {
+    context._wrapInflater((inflater) {
       _inflater = inflater;
       try {
         performInflatingLayout();
@@ -341,14 +361,15 @@ mixin InflatingRenderObjectMixin<
 class InflatingElement extends RenderObjectElement {
   /// Constructs an InflatingElement using the specified widget.
   InflatingElement(LayoutInflatingWidget widget)
-    : assert(!debugChildrenHaveDuplicateKeys(widget, widget.children)),
-      super(widget);
+      : assert(!debugChildrenHaveDuplicateKeys(widget, widget.children)),
+        super(widget);
 
   @override
   LayoutInflatingWidget get widget => super.widget as LayoutInflatingWidget;
 
   @override
-  InflatingRenderObjectMixin get renderObject => super.renderObject as InflatingRenderObjectMixin;
+  InflatingRenderObjectMixin get renderObject =>
+      super.renderObject as InflatingRenderObjectMixin;
 
   // Elements of children explicitly passed to the widget.
   List<Element>? _children;
@@ -356,12 +377,13 @@ class InflatingElement extends RenderObjectElement {
   // Elements of widgets inflated at layout time, this is separate from
   // _children so we can leverage the performance of updateChildren without
   // touching ones inflated by the delegate.
-  final LinkedList<_InflationEntry> _delegateChildren = LinkedList<_InflationEntry>();
+  final LinkedList<_InflationEntry> _delegateChildren =
+      LinkedList<_InflationEntry>();
 
   // Hash map of each entry in _delegateChildren
   final _delegateCache = HashMap<Object, _InflationEntry>();
 
-  void _wrapInflater<T extends RenderObject>(void Function(_InflationCallback<T>) callback) {
+  void _wrapInflater(void Function(_InflationCallback) callback) {
     Set<Object> inflatedIds;
 
     inflatedIds = <Object>{};
@@ -369,7 +391,7 @@ class InflatingElement extends RenderObjectElement {
     int index = 0;
     _InflationEntry? lastEntry;
 
-    T inflateChild(Object id, Widget widget) {
+    Element inflateChild(Object id, Widget widget) {
       final slotIndex = index++;
 
       inflatedIds.add(id);
@@ -380,10 +402,13 @@ class InflatingElement extends RenderObjectElement {
 
       void pushChild(Widget widget) {
         final newSlot = IndexedSlot(
-          slotIndex, lastEntry == null ?
-            (children.isEmpty ? null : children.last) : lastEntry!.element,
+          slotIndex,
+          lastEntry == null
+              ? (children.isEmpty ? null : children.last)
+              : lastEntry!.element,
         );
-        final newEntry = _InflationEntry(id, updateChild(null, widget, newSlot)!);
+        final newEntry =
+            _InflationEntry(id, updateChild(null, widget, newSlot)!);
         entry = newEntry;
         _delegateCache[id] = newEntry;
         if (lastEntry == null) {
@@ -396,14 +421,17 @@ class InflatingElement extends RenderObjectElement {
       try {
         if (entry != null) {
           final movedTop = lastEntry == null && entry!.previous != null;
-          final moved = movedTop || (lastEntry != null && entry!.previous?.id != lastEntry!.id);
+          final moved = movedTop ||
+              (lastEntry != null && entry!.previous?.id != lastEntry!.id);
 
-          final newSlot = IndexedSlot(slotIndex, moved ?
-            (movedTop ?
-              (children.isEmpty ? null : children.last) :
-              lastEntry!.element) :
-            entry!.previous?.element ??
-              (children.isEmpty ? null : children.last));
+          final newSlot = IndexedSlot(
+              slotIndex,
+              moved
+                  ? (movedTop
+                      ? (children.isEmpty ? null : children.last)
+                      : lastEntry!.element)
+                  : entry!.previous?.element ??
+                      (children.isEmpty ? null : children.last));
 
           entry!.element = updateChild(entry!.element, widget, newSlot)!;
 
@@ -423,14 +451,13 @@ class InflatingElement extends RenderObjectElement {
         }
       } catch (e, stack) {
         final details = FlutterErrorDetails(
-          context: ErrorDescription('building $widget'),
-          exception: e,
-          library: 'boxy library',
-          stack: stack,
-          informationCollector: () sync* {
-            yield DiagnosticsDebugCreator(DebugCreator(this));
-          }
-        );
+            context: ErrorDescription('building $widget'),
+            exception: e,
+            library: 'boxy library',
+            stack: stack,
+            informationCollector: () sync* {
+              yield DiagnosticsDebugCreator(DebugCreator(this));
+            });
 
         FlutterError.reportError(details);
 
@@ -441,7 +468,7 @@ class InflatingElement extends RenderObjectElement {
 
       assert(entry!.element.renderObject != null);
 
-      return entry!.element.renderObject as T;
+      return entry!.element;
     }
 
     callback(inflateChild);
@@ -451,7 +478,8 @@ class InflatingElement extends RenderObjectElement {
     if (inflatedIds.length != _delegateCache.length) {
       renderObject._allowSubtreeMutation(() {
         assert(inflatedIds.length < _delegateCache.length);
-        lastEntry = lastEntry == null ? _delegateChildren.first : lastEntry!.next;
+        lastEntry =
+            lastEntry == null ? _delegateChildren.first : lastEntry!.next;
         while (lastEntry != null) {
           final next = lastEntry!.next;
           assert(!inflatedIds.contains(lastEntry!.id));
@@ -469,7 +497,8 @@ class InflatingElement extends RenderObjectElement {
   final Set<Element> _forgottenChildren = HashSet<Element>();
 
   @override
-  void insertRenderObjectChild(RenderObject child, IndexedSlot<Element?>? slot) {
+  void insertRenderObjectChild(
+      RenderObject child, IndexedSlot<Element?>? slot) {
     final renderObject = this.renderObject;
     assert(renderObject.debugValidateChild(child));
     renderObject.insert(child, after: slot?.value?.renderObject);
@@ -489,7 +518,8 @@ class InflatingElement extends RenderObjectElement {
   }
 
   @override
-  void removeRenderObjectChild(RenderObject child, IndexedSlot<Element?>? slot) {
+  void removeRenderObjectChild(
+      RenderObject child, IndexedSlot<Element?>? slot) {
     final renderObject = this.renderObject;
     assert(child.parent == renderObject);
     renderObject.remove(child);
@@ -499,8 +529,7 @@ class InflatingElement extends RenderObjectElement {
   @override
   void visitChildren(ElementVisitor visitor) {
     for (final child in _children!) {
-      if (!_forgottenChildren.contains(child))
-        visitor(child);
+      if (!_forgottenChildren.contains(child)) visitor(child);
     }
 
     for (final child in _delegateChildren) {
@@ -566,9 +595,9 @@ class InflatingElement extends RenderObjectElement {
     _forgottenChildren.clear();
 
     if (_delegateChildren.isNotEmpty) {
-      final newSlot = children.isEmpty ?
-        const IndexedSlot(0, null) :
-        IndexedSlot(children.length, children.last);
+      final newSlot = children.isEmpty
+          ? const IndexedSlot(0, null)
+          : IndexedSlot(children.length, children.last);
       final childElement = _delegateChildren.first.element;
       if (childElement.slot != newSlot) {
         updateSlotForChild(childElement, newSlot);
@@ -581,6 +610,7 @@ class InflatingElement extends RenderObjectElement {
     // This gets called if markNeedsBuild() is called on us.
     // That might happen if, e.g., our delegate inflates InheritedWidgets.
     renderObject.markNeedsLayout();
-    super.performRebuild(); // Calls widget.updateRenderObject (a no-op in this case).
+    super
+        .performRebuild(); // Calls widget.updateRenderObject (a no-op in this case).
   }
 }

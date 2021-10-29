@@ -9,7 +9,7 @@ class NotifyClipper extends CustomClipper<Path> {
   final ValueNotifier<Path> notifier;
 
   NotifyClipper(this.notifier) : super(reclip: notifier);
-  
+
   int listeners = 0;
 
   @override
@@ -28,7 +28,8 @@ class NotifyClipper extends CustomClipper<Path> {
   Path getClip(Size size) => notifier.value;
 
   @override
-  bool shouldReclip(NotifyClipper oldClipper) => notifier != oldClipper.notifier;
+  bool shouldReclip(NotifyClipper oldClipper) =>
+      notifier != oldClipper.notifier;
 }
 
 class TestClipper extends CustomClipper<Path> {
@@ -56,10 +57,10 @@ class TestSliverChild extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SliverList(
-    delegate: SliverChildListDelegate([
-      const Placeholder(fallbackWidth: 100, fallbackHeight: 100),
-    ]),
-  );
+        delegate: SliverChildListDelegate([
+          const Placeholder(fallbackWidth: 100, fallbackHeight: 100),
+        ]),
+      );
 }
 
 void main() {
@@ -68,8 +69,7 @@ void main() {
       ..moveTo(0, 0)
       ..lineTo(10, 0)
       ..lineTo(10, 10)
-      ..close()
-    );
+      ..close());
 
     await tester.pumpWidget(TestFrame(
       child: CustomScrollView(
@@ -85,17 +85,20 @@ void main() {
       constraints: const BoxConstraints(maxWidth: 400, maxHeight: 400),
     ));
 
-    expect(keySliver(#container).paint, paints
-      ..save()
-      ..clipPath(pathMatcher: isPathThat(includes: [
-        const Offset(0, 0),
-        const Offset(10, 0),
-        const Offset(10, 10),
-      ]))
-      ..save()
-      ..path() // Placeholder
-      ..restore()
-      ..restore(),
+    expect(
+      keySliver(#container).paint,
+      paints
+        ..save()
+        ..clipPath(
+            pathMatcher: isPathThat(includes: [
+          const Offset(0, 0),
+          const Offset(10, 0),
+          const Offset(10, 10),
+        ]))
+        ..save()
+        ..path() // Placeholder
+        ..restore()
+        ..restore(),
     );
     expect(clipper1.wasCalled, true);
 
@@ -125,8 +128,7 @@ void main() {
       ..moveTo(5, 5)
       ..lineTo(15, 5)
       ..lineTo(15, 15)
-      ..close()
-    );
+      ..close());
 
     await tester.pumpWidget(TestFrame(
       child: CustomScrollView(
@@ -142,29 +144,30 @@ void main() {
       constraints: const BoxConstraints(maxWidth: 400, maxHeight: 400),
     ));
 
-    expect(keySliver(#container).paint, paints
-      ..save()
-      ..clipPath(pathMatcher: isPathThat(includes: [
-        const Offset(5, 5),
-        const Offset(15, 5),
-        const Offset(15, 15),
-      ]))
-      ..save()
-      ..path() // Placeholder
-      ..restore()
-      ..restore(),
+    expect(
+      keySliver(#container).paint,
+      paints
+        ..save()
+        ..clipPath(
+            pathMatcher: isPathThat(includes: [
+          const Offset(5, 5),
+          const Offset(15, 5),
+          const Offset(15, 15),
+        ]))
+        ..save()
+        ..path() // Placeholder
+        ..restore()
+        ..restore(),
     );
     expect(clipper2.wasCalled, true);
   });
 
   testWidgets('Reclips when notifyListeners is called', (tester) async {
-    final notifier = ValueNotifier(
-      Path()
-        ..moveTo(0, 0)
-        ..lineTo(10, 0)
-        ..lineTo(10, 10)
-        ..close()
-    );
+    final notifier = ValueNotifier(Path()
+      ..moveTo(0, 0)
+      ..lineTo(10, 0)
+      ..lineTo(10, 10)
+      ..close());
 
     final clipper = NotifyClipper(notifier);
 
@@ -182,17 +185,20 @@ void main() {
       constraints: const BoxConstraints(maxWidth: 400, maxHeight: 400),
     ));
 
-    expect(keySliver(#container).paint, paints
-      ..save()
-      ..clipPath(pathMatcher: isPathThat(includes: [
-        const Offset(0, 0),
-        const Offset(10, 0),
-        const Offset(10, 10),
-      ]))
-      ..save()
-      ..path() // Placeholder
-      ..restore()
-      ..restore(),
+    expect(
+      keySliver(#container).paint,
+      paints
+        ..save()
+        ..clipPath(
+            pathMatcher: isPathThat(includes: [
+          const Offset(0, 0),
+          const Offset(10, 0),
+          const Offset(10, 10),
+        ]))
+        ..save()
+        ..path() // Placeholder
+        ..restore()
+        ..restore(),
     );
 
     // Should reclip if clipper is notified.
@@ -205,17 +211,20 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    expect(keySliver(#container).paint, paints
-      ..save()
-      ..clipPath(pathMatcher: isPathThat(includes: [
-        const Offset(5, 5),
-        const Offset(15, 5),
-        const Offset(15, 15),
-      ]))
-      ..save()
-      ..path() // Placeholder
-      ..restore()
-      ..restore(),
+    expect(
+      keySliver(#container).paint,
+      paints
+        ..save()
+        ..clipPath(
+            pathMatcher: isPathThat(includes: [
+          const Offset(5, 5),
+          const Offset(15, 5),
+          const Offset(15, 15),
+        ]))
+        ..save()
+        ..path() // Placeholder
+        ..restore()
+        ..restore(),
     );
 
     // Should remove listeners when unmounted

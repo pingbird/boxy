@@ -27,18 +27,17 @@ class CannotLayoutSliverError extends FlutterError {
     required this.render,
     required this.child,
   }) : super.fromParts([
-    ErrorSummary(
-      'The $delegate boxy attempted to lay out a sliver during a dry layout.'
-    ),
-    ErrorDescription(
-      'Slivers in Flutter do not support dry layouts, so it is not possible to '
-      'lay them out during a dry layout pass.',
-    ),
-    ErrorDescription(
-      'If your boxy\'s size does not depend on the size of the sliver you '
-      'can skip calling layout when `isDryLayout` is true.',
-    ),
-  ]);
+          ErrorSummary(
+              'The $delegate boxy attempted to lay out a sliver during a dry layout.'),
+          ErrorDescription(
+            'Slivers in Flutter do not support dry layouts, so it is not possible to '
+            'lay them out during a dry layout pass.',
+          ),
+          ErrorDescription(
+            'If your boxy\'s size does not depend on the size of the sliver you '
+            'can skip calling layout when `isDryLayout` is true.',
+          ),
+        ]);
 }
 
 /// The [ParentData] used for [RenderSliver] children of [CustomBoxy].
@@ -64,13 +63,15 @@ class SliverBoxyChild extends BaseBoxyChild {
     required Object id,
     required InflatingRenderObjectMixin parent,
     RenderSliver? render,
+    Element? context,
     Widget? widget,
   }) : super(
-    id: id,
-    parent: parent,
-    render: render,
-    widget: widget,
-  );
+          id: id,
+          parent: parent,
+          render: render,
+          context: context,
+          widget: widget,
+        );
 
   /// The [RenderBox] representing this child.
   ///
@@ -102,12 +103,10 @@ class SliverBoxyChild extends BaseBoxyChild {
   @override
   SliverSize get size {
     final constraints = render.constraints;
-    return _parent.wrapSize(
-      Size(
-        constraints.crossAxisExtent,
-        geometry.layoutExtent,
-      ).rotateWithAxis(constraints.axis)
-    );
+    return _parent.wrapSize(Size(
+      constraints.crossAxisExtent,
+      geometry.layoutExtent,
+    ).rotateWithAxis(constraints.axis));
   }
 
   /// Lays out the child with the specified constraints and returns its
@@ -131,27 +130,24 @@ class SliverBoxyChild extends BaseBoxyChild {
     assert(() {
       if (_parent.debugPhase != BoxyDelegatePhase.layout) {
         throw FlutterError(
-          'The ${_parent.delegate} boxy delegate tried to lay out a child outside of the layout method.\n'
-        );
+            'The ${_parent.delegate} boxy delegate tried to lay out a child outside of the layout method.\n');
       }
 
       if (!_parent.debugChildrenNeedingLayout.remove(id)) {
         throw FlutterError(
-          'The ${_parent.delegate} boxy delegate tried to lay out the child with id "$id" more than once.\n'
-          'Each child must be laid out exactly once.'
-        );
+            'The ${_parent.delegate} boxy delegate tried to lay out the child with id "$id" more than once.\n'
+            'Each child must be laid out exactly once.');
       }
 
       try {
         assert(constraints.debugAssertIsValid(isAppliedConstraint: true));
       } on AssertionError catch (exception) {
         throw FlutterError(
-          'The ${_parent.delegate} boxy delegate provided invalid box constraints for the child with id "$id".\n'
-          '$exception\n'
-          'The minimum width and height must be greater than or equal to zero.\n'
-          'The maximum width must be greater than or equal to the minimum width.\n'
-          'The maximum height must be greater than or equal to the minimum height.'
-        );
+            'The ${_parent.delegate} boxy delegate provided invalid box constraints for the child with id "$id".\n'
+            '$exception\n'
+            'The minimum width and height must be greater than or equal to zero.\n'
+            'The maximum width must be greater than or equal to the minimum width.\n'
+            'The maximum height must be greater than or equal to the minimum height.');
       }
 
       return true;
@@ -172,7 +168,8 @@ class SliverBoxyChild extends BaseBoxyChild {
     if (isIgnored) return false;
 
     if (offset != null) {
-      assert(transform == null, 'BoxyChild.hitTest only expects either transform or offset to be provided');
+      assert(transform == null,
+          'BoxyChild.hitTest only expects either transform or offset to be provided');
       transform = Matrix4.translationValues(offset.dx, offset.dy, 0.0);
     }
 

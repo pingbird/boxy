@@ -78,9 +78,9 @@ abstract class CustomBoxy extends LayoutInflatingWidget {
     List<Widget> children = const <Widget>[],
     required this.childFactory,
   }) : super(
-    key: key,
-    children: children,
-  );
+          key: key,
+          children: children,
+        );
 
   /// Constructs a CustomBoxy with [BoxBoxyDelegate] that can manage both
   /// [BoxyChild] and [SliverBoxyChild] children.
@@ -106,6 +106,7 @@ abstract class CustomBoxy extends LayoutInflatingWidget {
     required Object id,
     required InflatingRenderObjectMixin parent,
     RenderObject? render,
+    Element? context,
     Widget? widget,
   }) {
     R? expectType<R extends RenderObject>() {
@@ -113,7 +114,7 @@ abstract class CustomBoxy extends LayoutInflatingWidget {
         if (render != null && render is! R) {
           throw FlutterError(
             'A ${parent.context.widget} widget was given a child of the wrong type: $render\n'
-            'Expected child of the type $R\n'
+            'Expected child of type $R\n',
           );
         }
         return true;
@@ -128,6 +129,7 @@ abstract class CustomBoxy extends LayoutInflatingWidget {
         parent: parent,
         widget: widget,
         render: expectType(),
+        context: context,
       );
     } else if (render is RenderSliver || T == SliverBoxyChild) {
       handle = SliverBoxyChild(
@@ -135,6 +137,7 @@ abstract class CustomBoxy extends LayoutInflatingWidget {
         parent: parent,
         widget: widget,
         render: expectType(),
+        context: context,
       );
     } else if (T == BaseBoxyChild) {
       handle = BaseBoxyChild(
@@ -142,12 +145,12 @@ abstract class CustomBoxy extends LayoutInflatingWidget {
         parent: parent,
         widget: widget,
         render: render,
+        context: context,
       );
     } else {
       throw FlutterError(
-        'A ${parent.context.widget} widget was given a child with an unknown type: $render\n'
-        'No child factory is available for $T\n'
-      );
+          'A ${parent.context.widget} widget was given a child with an unknown type: $render\n'
+          'No child factory is available for $T\n');
     }
 
     return handle as T;
@@ -165,10 +168,10 @@ class _CustomBoxy extends CustomBoxy {
     List<Widget> children = const <Widget>[],
     InflatedChildHandleFactory childFactory = CustomBoxy.defaultChildFactory,
   }) : super._(
-    key: key,
-    children: children,
-    childFactory: childFactory,
-  );
+          key: key,
+          children: children,
+          childFactory: childFactory,
+        );
 
   @override
   RenderBoxy createRenderObject(BuildContext context) {
@@ -193,10 +196,10 @@ class _BoxCustomBoxy extends CustomBoxy {
     List<Widget> children = const <Widget>[],
     InflatedChildHandleFactory childFactory = CustomBoxy.defaultChildFactory,
   }) : super._(
-    key: key,
-    children: children,
-    childFactory: childFactory,
-  );
+          key: key,
+          children: children,
+          childFactory: childFactory,
+        );
 
   @override
   RenderBoxy createRenderObject(BuildContext context) {
@@ -221,10 +224,10 @@ class _SliverCustomBoxy extends CustomBoxy {
     List<Widget> children = const <Widget>[],
     InflatedChildHandleFactory childFactory = CustomBoxy.defaultChildFactory,
   }) : super._(
-    key: key,
-    children: children,
-    childFactory: childFactory,
-  );
+          key: key,
+          children: children,
+          childFactory: childFactory,
+        );
 
   @override
   RenderSliverBoxy createRenderObject(BuildContext context) {

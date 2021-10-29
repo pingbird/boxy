@@ -54,7 +54,8 @@ class SliverToBoxAdapterBoxy extends SliverBoxyDelegate {
       cacheExtent: cacheExtent,
       maxPaintExtent: childExtent,
       hitTestExtent: paintedChildSize,
-      hasVisualOverflow: childExtent > constraints.remainingPaintExtent || constraints.scrollOffset > 0.0,
+      hasVisualOverflow: childExtent > constraints.remainingPaintExtent ||
+          constraints.scrollOffset > 0.0,
     );
   }
 }
@@ -156,7 +157,8 @@ void main() {
     }
 
     final forwardKey = UniqueKey();
-    const scrollSize = (SliverToBoxAdapterBoxy.padding * 2 + TestButton.size) * 4;
+    const scrollSize =
+        (SliverToBoxAdapterBoxy.padding * 2 + TestButton.size) * 4;
 
     for (final direction in AxisDirection.values) {
       Widget buildFrame(List<Widget> slivers) {
@@ -165,7 +167,8 @@ void main() {
             width: scrollSize,
             height: scrollSize,
             child: CustomScrollView(
-              controller: ScrollController(initialScrollOffset: scrollSize / -2),
+              controller:
+                  ScrollController(initialScrollOffset: scrollSize / -2),
               center: forwardKey,
               scrollDirection: direction.axis,
               reverse: direction.isReverse,
@@ -246,12 +249,14 @@ void main() {
         expect(
           lastIndex,
           testIndices[i],
-          reason: 'Expected hit at ${testHits[i]} ($lastPosition) to be child ${testIndices[i]}',
+          reason:
+              'Expected hit at ${testHits[i]} ($lastPosition) to be child ${testIndices[i]}',
         );
         expect(
           lastPosition,
           testPositions[i],
-          reason: 'Expected hit at ${testHits[i]} to be ${testPositions[i]} of child ${testIndices[i]}',
+          reason:
+              'Expected hit at ${testHits[i]} to be ${testPositions[i]} of child ${testIndices[i]}',
         );
       }
     }

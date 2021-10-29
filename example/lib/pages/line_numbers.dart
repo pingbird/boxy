@@ -17,28 +17,33 @@ class LineNumberPageState extends State<LineNumberPage> {
   double exponent = 1.0;
   var numberAlignment = Alignment.topRight;
 
-  Widget buildSettings(Widget child) => LayoutBuilder(builder: (ctx, cns) =>
-    cns.maxWidth < settingsWidth ? child : Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [ConstrainedBox(
-        child: child,
-        constraints: const BoxConstraints.tightFor(width: settingsWidth),
-      )],
-    ),
-  );
+  Widget buildSettings(Widget child) => LayoutBuilder(
+        builder: (ctx, cns) => cns.maxWidth < settingsWidth
+            ? child
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ConstrainedBox(
+                    child: child,
+                    constraints:
+                        const BoxConstraints.tightFor(width: settingsWidth),
+                  )
+                ],
+              ),
+      );
 
   Widget buildTitle(String name) => Padding(
-    child: Text(
-      name,
-      style: const TextStyle(
-        color: NiceColors.text,
-      ),
-    ),
-    padding: const EdgeInsets.only(
-      left: 24,
-      top: 8,
-    ),
-  );
+        child: Text(
+          name,
+          style: const TextStyle(
+            color: NiceColors.text,
+          ),
+        ),
+        padding: const EdgeInsets.only(
+          left: 24,
+          top: 8,
+        ),
+      );
 
   build(BuildContext context) {
     Widget view = LineNumberView(
@@ -76,23 +81,29 @@ class LineNumberPageState extends State<LineNumberPage> {
     return Scaffold(
       appBar: const GalleryAppBar(
         ['Boxy Gallery', 'Line Numbers'],
-        source: 'https://github.com/PixelToast/flutter-boxy/blob/master/example/lib/pages/line_numbers.dart',
+        source:
+            'https://github.com/PixelToast/flutter-boxy/blob/master/example/lib/pages/line_numbers.dart',
       ),
       backgroundColor: NiceColors.primary,
       body: Column(children: [
         Separator(),
-        Expanded(child: Container(child: ListView(children: [
-          const Padding(padding: EdgeInsets.only(top: 64)),
-          Center(child: DecoratedBox(
-            child: ClipRect(child: view),
-            decoration: BoxDecoration(
-              border: Border.all(color: NiceColors.divider, width: 1),
-            ),
-          )),
-          const Padding(padding: EdgeInsets.only(top: 64)),
-        ], physics: const BouncingScrollPhysics()), color: NiceColors.background)),
+        Expanded(
+            child: Container(
+                child: ListView(children: [
+                  const Padding(padding: EdgeInsets.only(top: 64)),
+                  Center(
+                      child: DecoratedBox(
+                    child: ClipRect(child: view),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: NiceColors.divider, width: 1),
+                    ),
+                  )),
+                  const Padding(padding: EdgeInsets.only(top: 64)),
+                ], physics: const BouncingScrollPhysics()),
+                color: NiceColors.background)),
         Separator(),
-        buildSettings(Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        buildSettings(
+            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           const Padding(padding: EdgeInsets.only(top: 8)),
           buildTitle('Constrain width'),
           Row(children: [
@@ -103,20 +114,24 @@ class LineNumberPageState extends State<LineNumberPage> {
                 constrainWidth = b;
               }),
             ),
-            Expanded(child: Slider(
+            Expanded(
+                child: Slider(
               label: '${maxWidth}px',
               value: maxWidth,
               min: 50,
               max: 600,
-              onChanged: constrainWidth ? (v) => setState(() {
-                maxWidth = v;
-              }) : null,
+              onChanged: constrainWidth
+                  ? (v) => setState(() {
+                        maxWidth = v;
+                      })
+                  : null,
             )),
           ]),
           const Padding(padding: EdgeInsets.only(top: 8)),
           buildTitle('Align number'),
           Row(children: [
-            Expanded(child: Slider(
+            Expanded(
+                child: Slider(
               label: 'x: ${numberAlignment.x.toStringAsFixed(1)}',
               value: numberAlignment.x,
               min: -1,
@@ -126,7 +141,8 @@ class LineNumberPageState extends State<LineNumberPage> {
                 numberAlignment = Alignment(v, numberAlignment.y);
               }),
             )),
-            Expanded(child: Slider(
+            Expanded(
+                child: Slider(
               label: 'y: ${numberAlignment.y.toStringAsFixed(1)}',
               value: numberAlignment.y,
               min: -1,
@@ -176,20 +192,20 @@ class LineNumberView extends StatelessWidget {
   });
 
   build(context) => CustomBoxy(
-    children: [
-      if (numberBg != null) BoxyId(id: #numBg, child: numberBg!),
-      if (lineBg != null) BoxyId(id: #lineBg, child: lineBg!),
-      for (int i = 0; i < lineCount; i++) ...[
-        BoxyId(id: Tuple2(#num, i), child: buildNumber(context, i)),
-        buildLine(context, i),
-      ],
-    ],
-    delegate: LineNumberDelegate(
-      lineCount: lineCount,
-      numberAlignment: numberAlignment,
-      lineAlignment: lineAlignment,
-    ),
-  );
+        children: [
+          if (numberBg != null) BoxyId(id: #numBg, child: numberBg!),
+          if (lineBg != null) BoxyId(id: #lineBg, child: lineBg!),
+          for (int i = 0; i < lineCount; i++) ...[
+            BoxyId(id: Tuple2(#num, i), child: buildNumber(context, i)),
+            buildLine(context, i),
+          ],
+        ],
+        delegate: LineNumberDelegate(
+          lineCount: lineCount,
+          numberAlignment: numberAlignment,
+          lineAlignment: lineAlignment,
+        ),
+      );
 }
 
 class LineNumberDelegate extends BoxyDelegate {
@@ -234,13 +250,16 @@ class LineNumberDelegate extends BoxyDelegate {
 
       final height = max(size.height, numHeight);
       final halfHeightDelta = (height - size.height) / 2.0;
-      final lineOffset = offset + halfHeightDelta + lineAlignment * halfHeightDelta;
+      final lineOffset =
+          offset + halfHeightDelta + lineAlignment * halfHeightDelta;
 
       lineChild.position(Offset(numWidth, lineOffset));
-      numChild.position(numberAlignment.inscribe(
-        numChild.render.size,
-        Offset(0, offset) & Size(numWidth, height),
-      ).topLeft);
+      numChild.position(numberAlignment
+          .inscribe(
+            numChild.render.size,
+            Offset(0, offset) & Size(numWidth, height),
+          )
+          .topLeft);
 
       offset += height;
       lineWidth = max(lineWidth, size.width);
@@ -251,7 +270,8 @@ class LineNumberDelegate extends BoxyDelegate {
     }
 
     if (hasChild(#lineBg)) {
-      getChild(#lineBg).layoutRect(Rect.fromLTWH(numWidth, 0, lineWidth, offset));
+      getChild(#lineBg)
+          .layoutRect(Rect.fromLTWH(numWidth, 0, lineWidth, offset));
     }
 
     return Size(
@@ -262,7 +282,7 @@ class LineNumberDelegate extends BoxyDelegate {
 
   @override
   shouldRelayout(LineNumberDelegate old) =>
-    old.lineCount != lineCount ||
-    old.lineAlignment != lineAlignment ||
-    old.numberAlignment != numberAlignment;
+      old.lineCount != lineCount ||
+      old.lineAlignment != lineAlignment ||
+      old.numberAlignment != numberAlignment;
 }

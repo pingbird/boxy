@@ -20,7 +20,8 @@ import 'inflating_element.dart';
 ///
 /// Until [LayoutId] support is removed from boxy, the library will fail to
 /// compile if/when [MultiChildLayoutParentData] adds any new methods :(
-class BoxyParentData extends BaseBoxyParentData<RenderBox> implements MultiChildLayoutParentData {}
+class BoxyParentData extends BaseBoxyParentData<RenderBox>
+    implements MultiChildLayoutParentData {}
 
 /// A handle used by [CustomBoxy] widgets to change how it lays out, paints, and
 /// hit tests its children.
@@ -41,12 +42,14 @@ class BoxyChild extends BaseBoxyChild {
     required InflatingRenderObjectMixin parent,
     RenderBox? render,
     Widget? widget,
+    Element? context,
   }) : super(
-    id: id,
-    parent: parent,
-    render: render,
-    widget: widget,
-  );
+          id: id,
+          parent: parent,
+          render: render,
+          widget: widget,
+          context: context,
+        );
 
   /// The [RenderBox] representing this child.
   ///
@@ -92,9 +95,8 @@ class BoxyChild extends BaseBoxyChild {
     if (_parent.isDryLayout) {
       if (_parentData.drySize != null) {
         throw FlutterError(
-          'The ${_parent.delegate} boxy delegate tried to lay out the child with id "$id" more than once.\n'
-          'Each child must be laid out exactly once.'
-        );
+            'The ${_parent.delegate} boxy delegate tried to lay out the child with id "$id" more than once.\n'
+            'Each child must be laid out exactly once.');
       }
       _parentData.drySize = render.getDryLayout(constraints);
       return _parent.wrapSize(_parentData.drySize!);
@@ -103,27 +105,24 @@ class BoxyChild extends BaseBoxyChild {
     assert(() {
       if (_parent.debugPhase != BoxyDelegatePhase.layout) {
         throw FlutterError(
-          'The ${_parent.delegate} boxy delegate tried to lay out a child outside of the layout method.\n'
-        );
+            'The ${_parent.delegate} boxy delegate tried to lay out a child outside of the layout method.\n');
       }
 
       if (!_parent.debugChildrenNeedingLayout.remove(id)) {
         throw FlutterError(
-          'The ${_parent.delegate} boxy delegate tried to lay out the child with id "$id" more than once.\n'
-          'Each child must be laid out exactly once.'
-        );
+            'The ${_parent.delegate} boxy delegate tried to lay out the child with id "$id" more than once.\n'
+            'Each child must be laid out exactly once.');
       }
 
       try {
         assert(constraints.debugAssertIsValid(isAppliedConstraint: true));
       } on AssertionError catch (exception) {
         throw FlutterError(
-          'The ${_parent.delegate} boxy delegate provided invalid box constraints for the child with id "$id".\n'
-          '$exception\n'
-          'The minimum width and height must be greater than or equal to zero.\n'
-          'The maximum width must be greater than or equal to the minimum width.\n'
-          'The maximum height must be greater than or equal to the minimum height.'
-        );
+            'The ${_parent.delegate} boxy delegate provided invalid box constraints for the child with id "$id".\n'
+            '$exception\n'
+            'The minimum width and height must be greater than or equal to zero.\n'
+            'The maximum width must be greater than or equal to the minimum width.\n'
+            'The maximum height must be greater than or equal to the minimum height.');
       }
 
       return true;
@@ -160,7 +159,8 @@ class BoxyChild extends BaseBoxyChild {
   ///  * [FittedBox], a widget that has similar behavior.
   ///  * [layout], which lays out the child given raw [BoxConstraints].
   ///  * [layoutRect], which positions the child so that it fits in a rect.
-  void layoutFit(Rect rect, {
+  void layoutFit(
+    Rect rect, {
     BoxFit fit = BoxFit.contain,
     Alignment alignment = Alignment.center,
   }) {
@@ -173,22 +173,28 @@ class BoxyChild extends BaseBoxyChild {
     final sizes = applyBoxFit(fit, childSize, rect.size);
     final scaleX = sizes.destination.width / sizes.source.width;
     final scaleY = sizes.destination.height / sizes.source.height;
-    final sourceRect = alignment.inscribe(sizes.source, Offset.zero & childSize);
-    final destinationRect = alignment.inscribe(sizes.destination, Offset.zero & size);
+    final sourceRect =
+        alignment.inscribe(sizes.source, Offset.zero & childSize);
+    final destinationRect =
+        alignment.inscribe(sizes.destination, Offset.zero & size);
 
-    setTransform(
-      Matrix4.translationValues(destinationRect.left, destinationRect.top, 0.0)
-        ..scale(scaleX, scaleY, 1.0)
-        ..translate(-sourceRect.left, -sourceRect.top)
-    );
+    setTransform(Matrix4.translationValues(
+        destinationRect.left, destinationRect.top, 0.0)
+      ..scale(scaleX, scaleY, 1.0)
+      ..translate(-sourceRect.left, -sourceRect.top));
   }
 
   @override
-  bool hitTest({Matrix4? transform, Offset? offset, Offset? position, bool checkBounds = true}) {
+  bool hitTest(
+      {Matrix4? transform,
+      Offset? offset,
+      Offset? position,
+      bool checkBounds = true}) {
     if (isIgnored) return false;
 
     if (offset != null) {
-      assert(transform == null, 'BoxyChild.hitTest only expects either transform or offset to be provided');
+      assert(transform == null,
+          'BoxyChild.hitTest only expects either transform or offset to be provided');
       transform = Matrix4.translationValues(offset.dx, offset.dy, 0.0);
     }
 

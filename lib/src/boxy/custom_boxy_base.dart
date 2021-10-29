@@ -15,8 +15,8 @@ import 'inflating_element.dart';
 ///  * [BoxyId]
 ///  * [BaseBoxyDelegate]
 class BaseBoxyParentData<ChildType extends RenderObject>
-  extends ContainerBoxParentData<ChildType>
-  implements InflatingParentData<ChildType> {
+    extends ContainerBoxParentData<ChildType>
+    implements InflatingParentData<ChildType> {
   /// An id provided by [BoxyId] or inflation methods on the delegate.
   @override
   Object? id;
@@ -47,13 +47,12 @@ class BaseBoxyParentData<ChildType extends RenderObject>
 ///  * [BaseBoxyParentData]
 ///  * [BoxyId]
 mixin RenderBoxyMixin<
-  ChildType extends RenderObject,
-  ParentDataType extends BaseBoxyParentData<ChildType>,
-  ChildHandleType extends BaseBoxyChild
-> on RenderObject implements
-  ContainerRenderObjectMixin<ChildType, ParentDataType>,
-  InflatingRenderObjectMixin<ChildType, ParentDataType, ChildHandleType>
-{
+        ChildType extends RenderObject,
+        ParentDataType extends BaseBoxyParentData<ChildType>,
+        ChildHandleType extends BaseBoxyChild> on RenderObject
+    implements
+        ContainerRenderObjectMixin<ChildType, ParentDataType>,
+        InflatingRenderObjectMixin<ChildType, ParentDataType, ChildHandleType> {
   BoxyDelegatePhase _debugPhase = BoxyDelegatePhase.none;
 
   /// A variable that can be used by [delegate] to store data between layout.
@@ -125,16 +124,14 @@ mixin RenderBoxyMixin<
       if (debugChildrenNeedingLayout.isNotEmpty) {
         if (debugChildrenNeedingLayout.length > 1) {
           throw FlutterError(
-            'The $delegate boxy delegate forgot to lay out the following children:\n'
-            '  ${debugChildrenNeedingLayout.map(debugDescribeChild).join("\n  ")}\n'
-            'Each child must be laid out exactly once.'
-          );
+              'The $delegate boxy delegate forgot to lay out the following children:\n'
+              '  ${debugChildrenNeedingLayout.map(debugDescribeChild).join("\n  ")}\n'
+              'Each child must be laid out exactly once.');
         } else {
           throw FlutterError(
-            'The $delegate boxy delegate forgot to lay out the following child:\n'
-            '  ${debugDescribeChild(debugChildrenNeedingLayout.single)}\n'
-            'Each child must be laid out exactly once.'
-          );
+              'The $delegate boxy delegate forgot to lay out the following child:\n'
+              '  ${debugDescribeChild(debugChildrenNeedingLayout.single)}\n'
+              'Each child must be laid out exactly once.');
         }
       }
       return true;
@@ -142,12 +139,12 @@ mixin RenderBoxyMixin<
   }
 
   /// Describes a child managed by this boxy.
-  String debugDescribeChild(Object id) => 'BoxyChild($id: ${childHandleMap[id]!.id})';
+  String debugDescribeChild(Object id) =>
+      'BoxyChild($id: ${childHandleMap[id]!.id})';
 
   /// The current delegate of this boxy.
   BaseBoxyDelegate get delegate;
   set delegate(covariant BaseBoxyDelegate newDelegate);
-
 
   /// Hit tests a [RenderBox] child at [position] with a [transform].
   bool hitTestBoxChild({
@@ -168,15 +165,12 @@ mixin RenderBoxyMixin<
   /// Marks the object for needing layout, paint, build. or compositing bits
   /// update as a result of the delegate changing.
   void notifyChangedDelegate(BaseBoxyDelegate oldDelegate) {
-    if (delegate == oldDelegate)
-      return;
+    if (delegate == oldDelegate) return;
 
     final neededCompositing = oldDelegate.needsCompositing;
 
-    if (
-      delegate.runtimeType != oldDelegate.runtimeType
-      || delegate.shouldRelayout(oldDelegate)
-    ) {
+    if (delegate.runtimeType != oldDelegate.runtimeType ||
+        delegate.shouldRelayout(oldDelegate)) {
       markNeedsLayout();
     } else if (delegate.shouldRepaint(oldDelegate)) {
       markNeedsPaint();
@@ -540,7 +534,11 @@ class BoxyLayerContext {
       );
       key?.layer = layer;
     }
-    push(layer: layer, paint: paint, offset: -_render.paintOffset!, bounds: bounds);
+    push(
+        layer: layer,
+        paint: paint,
+        offset: -_render.paintOffset!,
+        bounds: bounds);
   }
 
   /// Pushes an [OpacityLayer] to the compositing tree, calling [paint] to paint
@@ -613,10 +611,16 @@ class BaseBoxyChild extends InflatedChildHandle {
     required Object id,
     required InflatingRenderObjectMixin parent,
     RenderObject? render,
+    Element? context,
     Widget? widget,
-  }) :
-    assert(render == null || render.parentData != null),
-    super(id: id, parent: parent, render: render, widget: widget);
+  })  : assert(render == null || render.parentData != null),
+        super(
+          id: id,
+          parent: parent,
+          render: render,
+          widget: widget,
+          context: context,
+        );
 
   bool _ignore = false;
 
@@ -643,8 +647,10 @@ class BaseBoxyChild extends InflatedChildHandle {
     final offset = this.offset;
     final size = this.size;
     return Rect.fromLTWH(
-      offset.dx, offset.dy,
-      size.width, size.height,
+      offset.dx,
+      offset.dy,
+      size.width,
+      size.height,
     );
   }
 
@@ -697,13 +703,10 @@ class BaseBoxyChild extends InflatedChildHandle {
     }
 
     assert(() {
-      if (
-        _parent.debugPhase != BoxyDelegatePhase.layout
-        && _parent.debugPhase != BoxyDelegatePhase.paint
-      ) {
+      if (_parent.debugPhase != BoxyDelegatePhase.layout &&
+          _parent.debugPhase != BoxyDelegatePhase.paint) {
         throw FlutterError(
-          'The $this boxy delegate tried to position a child outside of the layout or paint methods.\n'
-        );
+            'The $this boxy delegate tried to position a child outside of the layout or paint methods.\n');
       }
 
       return true;
@@ -748,8 +751,7 @@ class BaseBoxyChild extends InflatedChildHandle {
     assert(() {
       if (_parent.debugPhase != BoxyDelegatePhase.paint) {
         throw FlutterError(
-          'The $this boxy delegate tried to paint a child outside of the paint method.'
-        );
+            'The $this boxy delegate tried to paint a child outside of the paint method.');
       }
 
       return true;
@@ -806,7 +808,11 @@ class BaseBoxyChild extends InflatedChildHandle {
   ///
   /// This method returns false if this handle is neither a [RenderBox] or
   /// [RenderSliver], since hit testing is dependant on the render protocol.
-  bool hitTest({Matrix4? transform, Offset? offset, Offset? position, bool checkBounds = true}) {
+  bool hitTest(
+      {Matrix4? transform,
+      Offset? offset,
+      Offset? position,
+      bool checkBounds = true}) {
     return false;
   }
 
@@ -816,7 +822,8 @@ class BaseBoxyChild extends InflatedChildHandle {
 
 /// An error that indicates [BaseBoxyDelegate.inflate] was called during a dry
 /// layout.
-class CannotInflateError<DelegateType extends BaseBoxyDelegate> extends FlutterError {
+class CannotInflateError<DelegateType extends BaseBoxyDelegate>
+    extends FlutterError {
   /// The delegate that caused the error.
   final BaseBoxyDelegate delegate;
 
@@ -828,18 +835,17 @@ class CannotInflateError<DelegateType extends BaseBoxyDelegate> extends FlutterE
     required this.delegate,
     required this.render,
   }) : super.fromParts([
-    ErrorSummary(
-      'The $delegate boxy attempted to inflate a widget during a dry layout.'
-    ),
-    ErrorDescription(
-      'This happens if an ancestor of the boxy (e.g. Wrap) requires a '
-      'dry layout, but your size also depends on an inflated widget.',
-    ),
-    ErrorDescription(
-      'If your boxy\'s size does not depend on the size of this widget you '
-      'can skip the call to `inflate` when `isDryLayout` is true',
-    ),
-  ]);
+          ErrorSummary(
+              'The $delegate boxy attempted to inflate a widget during a dry layout.'),
+          ErrorDescription(
+            'This happens if an ancestor of the boxy (e.g. Wrap) requires a '
+            'dry layout, but your size also depends on an inflated widget.',
+          ),
+          ErrorDescription(
+            'If your boxy\'s size does not depend on the size of this widget you '
+            'can skip the call to `inflate` when `isDryLayout` is true',
+          ),
+        ]);
 }
 
 /// Base class for delegates that control the layout and paint of multiple
@@ -852,13 +858,15 @@ class CannotInflateError<DelegateType extends BaseBoxyDelegate> extends FlutterE
 ///
 ///  * [BaseBoxyChild]
 ///  * [RenderBoxyMixin]
-abstract class BaseBoxyDelegate<LayoutData extends Object, ChildHandleType extends BaseBoxyChild> {
+abstract class BaseBoxyDelegate<LayoutData extends Object,
+    ChildHandleType extends BaseBoxyChild> {
   /// Constructs a BaseBoxyDelegate with optional [relayout] and [repaint]
   /// [Listenable]s.
   BaseBoxyDelegate({
     Listenable? relayout,
     Listenable? repaint,
-  }) : _relayout = relayout, _repaint = repaint;
+  })  : _relayout = relayout,
+        _repaint = repaint;
 
   final Listenable? _relayout;
   final Listenable? _repaint;
@@ -868,7 +876,7 @@ abstract class BaseBoxyDelegate<LayoutData extends Object, ChildHandleType exten
   /// The current phase in the render pipeline that this boxy is performing,
   /// only valid in debug mode.
   BoxyDelegatePhase get debugPhase =>
-    _render == null ? BoxyDelegatePhase.none : _render!.debugPhase;
+      _render == null ? BoxyDelegatePhase.none : _render!.debugPhase;
 
   /// A variable to hold additional data created during layout which can be
   /// used while painting and hit testing.
@@ -878,8 +886,7 @@ abstract class BaseBoxyDelegate<LayoutData extends Object, ChildHandleType exten
     assert(() {
       if (debugPhase != BoxyDelegatePhase.layout) {
         throw FlutterError(
-          'The $this boxy delegate attempted to set layout data outside of the layout method.\n'
-        );
+            'The $this boxy delegate attempted to set layout data outside of the layout method.\n');
       }
       return true;
     }());
@@ -887,13 +894,13 @@ abstract class BaseBoxyDelegate<LayoutData extends Object, ChildHandleType exten
   }
 
   /// The [RenderBoxyMixin] of the current context.
-  RenderBoxyMixin<RenderObject, BaseBoxyParentData, ChildHandleType> get render {
+  RenderBoxyMixin<RenderObject, BaseBoxyParentData, ChildHandleType>
+      get render {
     assert(() {
       if (debugPhase == BoxyDelegatePhase.none) {
         throw FlutterError(
-          'The $this boxy delegate attempted to get the context outside of its normal lifecycle.\n'
-          'You should only access the BoxyDelegate from its overridden methods.'
-        );
+            'The $this boxy delegate attempted to get the context outside of its normal lifecycle.\n'
+            'You should only access the BoxyDelegate from its overridden methods.');
       }
       return true;
     }());
@@ -923,9 +930,8 @@ abstract class BaseBoxyDelegate<LayoutData extends Object, ChildHandleType exten
     assert(() {
       if (child == null) {
         throw FlutterError(
-          'The $this boxy delegate attempted to get a nonexistent child.\n'
-          'There is no child with the id "$id".'
-        );
+            'The $this boxy delegate attempted to get a nonexistent child.\n'
+            'There is no child with the id "$id".');
       }
       return true;
     }());
@@ -945,8 +951,7 @@ abstract class BaseBoxyDelegate<LayoutData extends Object, ChildHandleType exten
     assert(() {
       if (debugPhase != BoxyDelegatePhase.paint) {
         throw FlutterError(
-          'The $this boxy delegate attempted to access the canvas outside of a paint method.'
-        );
+            'The $this boxy delegate attempted to access the canvas outside of a paint method.');
       }
       return true;
     }());
@@ -961,8 +966,7 @@ abstract class BaseBoxyDelegate<LayoutData extends Object, ChildHandleType exten
     assert(() {
       if (debugPhase != BoxyDelegatePhase.paint) {
         throw FlutterError(
-          'The $this boxy delegate attempted to access the paint offset outside of a paint method.'
-        );
+            'The $this boxy delegate attempted to access the paint offset outside of a paint method.');
       }
       return true;
     }());
@@ -974,8 +978,7 @@ abstract class BaseBoxyDelegate<LayoutData extends Object, ChildHandleType exten
     assert(() {
       if (debugPhase != BoxyDelegatePhase.paint) {
         throw FlutterError(
-          'The $this boxy delegate attempted to access the paint context outside of a paint method.'
-        );
+            'The $this boxy delegate attempted to access the paint context outside of a paint method.');
       }
       return true;
     }());
@@ -1004,7 +1007,8 @@ abstract class BaseBoxyDelegate<LayoutData extends Object, ChildHandleType exten
   /// );
   /// ```
   @Deprecated('Use layers.push instead')
-  void paintLayer(ContainerLayer layer, {
+  void paintLayer(
+    ContainerLayer layer, {
     VoidCallback? painter,
     Offset? offset,
     Rect? debugBounds,
@@ -1040,12 +1044,12 @@ abstract class BaseBoxyDelegate<LayoutData extends Object, ChildHandleType exten
     final render = this.render;
     assert(() {
       if (debugPhase == BoxyDelegatePhase.dryLayout) {
-        render.debugThrowLayout(CannotInflateError(delegate: this, render: render));
+        render.debugThrowLayout(
+            CannotInflateError(delegate: this, render: render));
       } else if (debugPhase != BoxyDelegatePhase.layout) {
         throw FlutterError(
-          'The $this boxy attempted to inflate a widget outside of the layout method.\n'
-          'You should only call `inflate` from its overridden methods.'
-        );
+            'The $this boxy attempted to inflate a widget outside of the layout method.\n'
+            'You should only call `inflate` from its overridden methods.');
       }
       return true;
     }());
@@ -1122,8 +1126,7 @@ abstract class BaseBoxyDelegate<LayoutData extends Object, ChildHandleType exten
     assert(() {
       if (debugPhase != BoxyDelegatePhase.hitTest) {
         throw FlutterError(
-          'The $this boxy delegate attempted to access hitTestResult outside of the hitTest method.'
-        );
+            'The $this boxy delegate attempted to access hitTestResult outside of the hitTest method.');
       }
       return true;
     }());
@@ -1185,14 +1188,14 @@ class BoxyId<T extends Object> extends ParentDataWidget<BaseBoxyParentData> {
     required Widget child,
     bool alwaysRelayout = true,
     bool alwaysRepaint = true,
-  }) : hasData = hasData ?? data != null,
-       _data = data,
-       _alwaysRelayout = alwaysRelayout,
-       _alwaysRepaint = alwaysRepaint,
-       super(
-         key: key,
-         child: child,
-       );
+  })  : hasData = hasData ?? data != null,
+        _data = data,
+        _alwaysRelayout = alwaysRelayout,
+        _alwaysRepaint = alwaysRepaint,
+        super(
+          key: key,
+          child: child,
+        );
 
   /// The data to provide to the parent.
   T get data {
@@ -1214,9 +1217,8 @@ class BoxyId<T extends Object> extends ParentDataWidget<BaseBoxyParentData> {
       }
     } else if (hasData) {
       if (
-        // Avoid calling shouldRelayout if old data is null
-        oldUserData == null || shouldRelayout(oldUserData as T)
-      ) {
+          // Avoid calling shouldRelayout if old data is null
+          oldUserData == null || shouldRelayout(oldUserData as T)) {
         parent.markNeedsLayout();
       } else if (shouldRepaint(oldUserData)) {
         parent.markNeedsPaint();

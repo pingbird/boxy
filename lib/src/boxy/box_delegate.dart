@@ -16,10 +16,12 @@ import 'inflating_element.dart';
 /// See also:
 ///   * [CustomBoxy]
 ///   * [BoxyDelegate]
-class RenderBoxy<ChildHandleType extends BaseBoxyChild> extends RenderBox with
-  ContainerRenderObjectMixin<RenderObject, BoxyParentData>,
-  InflatingRenderObjectMixin<RenderObject, BoxyParentData, ChildHandleType>,
-  RenderBoxyMixin<RenderObject, BoxyParentData, ChildHandleType> {
+class RenderBoxy<ChildHandleType extends BaseBoxyChild> extends RenderBox
+    with
+        ContainerRenderObjectMixin<RenderObject, BoxyParentData>,
+        InflatingRenderObjectMixin<RenderObject, BoxyParentData,
+            ChildHandleType>,
+        RenderBoxyMixin<RenderObject, BoxyParentData, ChildHandleType> {
   BoxBoxyDelegateMixin<Object, ChildHandleType> _delegate;
 
   @override
@@ -98,32 +100,28 @@ class RenderBoxy<ChildHandleType extends BaseBoxyChild> extends RenderBox with
   double computeMinIntrinsicWidth(double height) {
     updateChildHandles();
     return wrapPhase(
-      BoxyDelegatePhase.intrinsics, () => delegate.minIntrinsicWidth(height)
-    );
+        BoxyDelegatePhase.intrinsics, () => delegate.minIntrinsicWidth(height));
   }
 
   @override
   double computeMaxIntrinsicWidth(double height) {
     updateChildHandles();
     return wrapPhase(
-      BoxyDelegatePhase.intrinsics, () => delegate.maxIntrinsicWidth(height)
-    );
+        BoxyDelegatePhase.intrinsics, () => delegate.maxIntrinsicWidth(height));
   }
 
   @override
   double computeMinIntrinsicHeight(double width) {
     updateChildHandles();
     return wrapPhase(
-      BoxyDelegatePhase.intrinsics, () => delegate.minIntrinsicHeight(width)
-    );
+        BoxyDelegatePhase.intrinsics, () => delegate.minIntrinsicHeight(width));
   }
 
   @override
   double computeMaxIntrinsicHeight(double width) {
     updateChildHandles();
     return wrapPhase(
-      BoxyDelegatePhase.intrinsics, () => delegate.maxIntrinsicHeight(width)
-    );
+        BoxyDelegatePhase.intrinsics, () => delegate.maxIntrinsicHeight(width));
   }
 
   @override
@@ -131,11 +129,9 @@ class RenderBoxy<ChildHandleType extends BaseBoxyChild> extends RenderBox with
     hitTestResult = result;
     hitPosition = SliverOffset.from(position);
     try {
-      return wrapPhase(
-        BoxyDelegatePhase.hitTest, () {
-          return delegate.hitTest(hitPosition!);
-        }
-      );
+      return wrapPhase(BoxyDelegatePhase.hitTest, () {
+        return delegate.hitTest(hitPosition!);
+      });
     } finally {
       hitTestResult = null;
       hitPosition = null;
@@ -173,7 +169,8 @@ class RenderBoxy<ChildHandleType extends BaseBoxyChild> extends RenderBox with
       transform: transform,
       position: position,
       hitTest: (result, position) {
-        if (checkBounds && !(Offset.zero & child.hitTestSize).contains(position)) {
+        if (checkBounds &&
+            !(Offset.zero & child.hitTestSize).contains(position)) {
           return false;
         }
         return child.hitTest(
@@ -190,12 +187,12 @@ class RenderBoxy<ChildHandleType extends BaseBoxyChild> extends RenderBox with
 ///
 /// This mixin should typically not be used directly, instead consider extending
 /// one of the above classes.
-mixin BoxBoxyDelegateMixin<
-  LayoutData extends Object,
-  ChildHandleType extends BaseBoxyChild
-> on BaseBoxyDelegate<LayoutData, ChildHandleType> {
+mixin BoxBoxyDelegateMixin<LayoutData extends Object,
+        ChildHandleType extends BaseBoxyChild>
+    on BaseBoxyDelegate<LayoutData, ChildHandleType> {
   @override
-  RenderBoxy<ChildHandleType> get render => super.render as RenderBoxy<ChildHandleType>;
+  RenderBoxy<ChildHandleType> get render =>
+      super.render as RenderBoxy<ChildHandleType>;
 
   /// The most recent constraints given to this boxy by its parent.
   ///
@@ -239,9 +236,8 @@ mixin BoxBoxyDelegateMixin<
     assert(() {
       if (!RenderObject.debugCheckingIntrinsics) {
         throw FlutterError(
-          'Something tried to get the minimum intrinsic width of the boxy delegate $this.\n'
-          'You must override minIntrinsicWidth to use the intrinsic width.'
-        );
+            'Something tried to get the minimum intrinsic width of the boxy delegate $this.\n'
+            'You must override minIntrinsicWidth to use the intrinsic width.');
       }
       return true;
     }());
@@ -258,9 +254,8 @@ mixin BoxBoxyDelegateMixin<
     assert(() {
       if (!RenderObject.debugCheckingIntrinsics) {
         throw FlutterError(
-          'Something tried to get the maximum intrinsic width of the boxy delegate $this.\n'
-          'You must override maxIntrinsicWidth to use the intrinsic width.'
-        );
+            'Something tried to get the maximum intrinsic width of the boxy delegate $this.\n'
+            'You must override maxIntrinsicWidth to use the intrinsic width.');
       }
       return true;
     }());
@@ -277,9 +272,8 @@ mixin BoxBoxyDelegateMixin<
     assert(() {
       if (!RenderObject.debugCheckingIntrinsics) {
         throw FlutterError(
-          'Something tried to get the minimum intrinsic height of the boxy delegate $this.\n'
-          'You must override minIntrinsicHeight to use the intrinsic width.'
-        );
+            'Something tried to get the minimum intrinsic height of the boxy delegate $this.\n'
+            'You must override minIntrinsicHeight to use the intrinsic width.');
       }
       return true;
     }());
@@ -296,9 +290,8 @@ mixin BoxBoxyDelegateMixin<
     assert(() {
       if (!RenderObject.debugCheckingIntrinsics) {
         throw FlutterError(
-          'Something tried to get the maximum intrinsic height of the boxy delegate $this.\n'
-          'You must override maxIntrinsicHeight to use the intrinsic width.'
-        );
+            'Something tried to get the maximum intrinsic height of the boxy delegate $this.\n'
+            'You must override maxIntrinsicHeight to use the intrinsic width.');
       }
       return true;
     }());
@@ -329,17 +322,17 @@ mixin BoxBoxyDelegateMixin<
 ///  * [BoxyDelegate], a base delegate that supports both [BoxyChild] and
 ///    [SliverBoxyChild].
 class BoxBoxyDelegate<LayoutData extends Object>
-  extends BaseBoxyDelegate<LayoutData, BaseBoxyChild>
-  with BoxBoxyDelegateMixin<LayoutData, BaseBoxyChild> {
+    extends BaseBoxyDelegate<LayoutData, BaseBoxyChild>
+    with BoxBoxyDelegateMixin<LayoutData, BaseBoxyChild> {
   /// Constructs a BoxyDelegate with optional [relayout] and [repaint]
   /// [Listenable]s.
   BoxBoxyDelegate({
     Listenable? relayout,
     Listenable? repaint,
   }) : super(
-    relayout: relayout,
-    repaint: repaint,
-  );
+          relayout: relayout,
+          repaint: repaint,
+        );
 }
 
 /// A delegate that controls the layout and paint of child widgets, used by
@@ -545,17 +538,17 @@ class BoxBoxyDelegate<LayoutData extends Object>
 ///  * [BoxBoxyDelegate], a base delegate that supports both [BoxyChild] and
 ///    [SliverBoxyChild].
 abstract class BoxyDelegate<LayoutData extends Object>
-  extends BaseBoxyDelegate<LayoutData, BoxyChild>
-  with BoxBoxyDelegateMixin<LayoutData, BoxyChild> {
+    extends BaseBoxyDelegate<LayoutData, BoxyChild>
+    with BoxBoxyDelegateMixin<LayoutData, BoxyChild> {
   /// Constructs a BoxyDelegate with optional [relayout] and [repaint]
   /// [Listenable]s.
   BoxyDelegate({
     Listenable? relayout,
     Listenable? repaint,
   }) : super(
-    relayout: relayout,
-    repaint: repaint,
-  );
+          relayout: relayout,
+          repaint: repaint,
+        );
 
   @override
   Size layout() {
@@ -563,9 +556,7 @@ abstract class BoxyDelegate<LayoutData extends Object>
     for (final child in children) {
       final size = child.layout(constraints);
       biggest = Size(
-        max(biggest.width, size.width),
-        max(biggest.height, size.height)
-      );
+          max(biggest.width, size.width), max(biggest.height, size.height));
     }
     return biggest;
   }

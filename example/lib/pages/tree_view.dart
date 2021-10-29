@@ -13,117 +13,132 @@ class TreeViewPageState extends State<TreeViewPage> {
   var style = const TreeStyle();
   static const settingsWidth = 400.0;
 
-  Widget buildSettings(Widget child) => LayoutBuilder(builder: (ctx, cns) =>
-    cns.maxWidth < settingsWidth ? child : Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [ConstrainedBox(
-        child: child,
-        constraints: const BoxConstraints.tightFor(width: settingsWidth),
-      )],
-    ),
-  );
+  Widget buildSettings(Widget child) => LayoutBuilder(
+        builder: (ctx, cns) => cns.maxWidth < settingsWidth
+            ? child
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ConstrainedBox(
+                    child: child,
+                    constraints:
+                        const BoxConstraints.tightFor(width: settingsWidth),
+                  )
+                ],
+              ),
+      );
 
   Widget buildTitle(String name) => Padding(
-    child: Text(
-      name,
-      style: const TextStyle(
-        color: NiceColors.text,
-      ),
-    ),
-    padding: const EdgeInsets.only(
-      left: 24,
-      top: 8,
-    ),
-  );
+        child: Text(
+          name,
+          style: const TextStyle(
+            color: NiceColors.text,
+          ),
+        ),
+        padding: const EdgeInsets.only(
+          left: 24,
+          top: 8,
+        ),
+      );
 
   build(BuildContext context) => Scaffold(
-    appBar: const GalleryAppBar(
-      ['Boxy Gallery', 'Tree View'],
-      source: 'https://github.com/PixelToast/flutter-boxy/blob/master/example/lib/pages/tree_view.dart',
-    ),
-    backgroundColor: NiceColors.primary,
-    body: Column(children: [
-      Separator(),
-      Expanded(child: Container(child: ListView(children: [
-        Center(child: Container(
-          child: TreeView(
-            style: style,
-            root: TreeBranch(const TreeTile(text: 'RawObject'), [
-              TreeLeaf(const TreeTile(text: 'RawClass')),
-              TreeBranch(const TreeTile(text: 'RawError'), [
-                TreeLeaf(const TreeTile(text: 'RawApiError')),
-                TreeLeaf(const TreeTile(text: 'RawUnwindError')),
-              ]),
-              TreeBranch(const TreeTile(text: 'RawInstance'), [
-                TreeBranch(const TreeTile(text: 'RawNumber'), [
-                  TreeBranch(const TreeTile(text: 'RawInteger'), [
-                    TreeLeaf(const TreeTile(text: 'RawSmi')),
-                    TreeLeaf(const TreeTile(text: 'RawMint')),
-                  ]),
-                  TreeLeaf(const TreeTile(text: 'RawDouble')),
-                ]),
-                TreeBranch(const TreeTile(text: 'RawTypedDataBase'), [
-                  TreeLeaf(const TreeTile(text: 'RawTypedData')),
-                  TreeLeaf(const TreeTile(text: 'RawTypedDataView')),
-                  TreeLeaf(const TreeTile(text: 'RawExternalTypedData')),
-                ]),
-              ]),
-            ]),
-          ),
-          padding: const EdgeInsets.symmetric(vertical: 64, horizontal: 8),
-        )),
-      ], physics: const BouncingScrollPhysics()), color: NiceColors.background)),
-      Separator(),
-      buildSettings(Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        const Padding(padding: EdgeInsets.only(top: 8)),
-        buildTitle('Line thickness'),
-        Slider(
-          label: '${style.lineThickness.round()}px',
-          value: style.lineThickness,
-          min: 1,
-          max: 10,
-          onChanged: (v) => setState(() {
-            style = style.copyWith(lineThickness: v);
-          }),
-          divisions: 9,
+        appBar: const GalleryAppBar(
+          ['Boxy Gallery', 'Tree View'],
+          source:
+              'https://github.com/PixelToast/flutter-boxy/blob/master/example/lib/pages/tree_view.dart',
         ),
-        buildTitle('Line spacing'),
-        Slider(
-          label: '${style.lineSpacing.round()}px',
-          value: style.lineSpacing,
-          min: 1,
-          max: 100,
-          onChanged: (v) => setState(() {
-            style = style.copyWith(lineSpacing: v);
-          }),
-          divisions: 100,
-        ),
-        buildTitle('Line border radius'),
-        Slider(
-          label: '${style.lineRadius.round()}px',
-          value: style.lineRadius,
-          min: 0,
-          max: 25,
-          onChanged: (v) => setState(() {
-            style = style.copyWith(lineRadius: v);
-          }),
-          divisions: 26,
-        ),
-        buildTitle('Vertical spacing'),
-        Slider(
-          label: '${style.spacing.round()}px',
-          value: style.spacing,
-          min: 0,
-          max: 100,
-          onChanged: (v) => setState(() {
-            style = style.copyWith(spacing: v);
-          }),
-          divisions: 101,
-        ),
-      ])),
-      Separator(),
-    ]),
-  );
+        backgroundColor: NiceColors.primary,
+        body: Column(children: [
+          Separator(),
+          Expanded(
+              child: Container(
+                  child: ListView(children: [
+                    Center(
+                        child: Container(
+                      child: TreeView(
+                        style: style,
+                        root: TreeBranch(const TreeTile(text: 'RawObject'), [
+                          TreeLeaf(const TreeTile(text: 'RawClass')),
+                          TreeBranch(const TreeTile(text: 'RawError'), [
+                            TreeLeaf(const TreeTile(text: 'RawApiError')),
+                            TreeLeaf(const TreeTile(text: 'RawUnwindError')),
+                          ]),
+                          TreeBranch(const TreeTile(text: 'RawInstance'), [
+                            TreeBranch(const TreeTile(text: 'RawNumber'), [
+                              TreeBranch(const TreeTile(text: 'RawInteger'), [
+                                TreeLeaf(const TreeTile(text: 'RawSmi')),
+                                TreeLeaf(const TreeTile(text: 'RawMint')),
+                              ]),
+                              TreeLeaf(const TreeTile(text: 'RawDouble')),
+                            ]),
+                            TreeBranch(
+                                const TreeTile(text: 'RawTypedDataBase'), [
+                              TreeLeaf(const TreeTile(text: 'RawTypedData')),
+                              TreeLeaf(
+                                  const TreeTile(text: 'RawTypedDataView')),
+                              TreeLeaf(
+                                  const TreeTile(text: 'RawExternalTypedData')),
+                            ]),
+                          ]),
+                        ]),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 64, horizontal: 8),
+                    )),
+                  ], physics: const BouncingScrollPhysics()),
+                  color: NiceColors.background)),
+          Separator(),
+          buildSettings(
+              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            const Padding(padding: EdgeInsets.only(top: 8)),
+            buildTitle('Line thickness'),
+            Slider(
+              label: '${style.lineThickness.round()}px',
+              value: style.lineThickness,
+              min: 1,
+              max: 10,
+              onChanged: (v) => setState(() {
+                style = style.copyWith(lineThickness: v);
+              }),
+              divisions: 9,
+            ),
+            buildTitle('Line spacing'),
+            Slider(
+              label: '${style.lineSpacing.round()}px',
+              value: style.lineSpacing,
+              min: 1,
+              max: 100,
+              onChanged: (v) => setState(() {
+                style = style.copyWith(lineSpacing: v);
+              }),
+              divisions: 100,
+            ),
+            buildTitle('Line border radius'),
+            Slider(
+              label: '${style.lineRadius.round()}px',
+              value: style.lineRadius,
+              min: 0,
+              max: 25,
+              onChanged: (v) => setState(() {
+                style = style.copyWith(lineRadius: v);
+              }),
+              divisions: 26,
+            ),
+            buildTitle('Vertical spacing'),
+            Slider(
+              label: '${style.spacing.round()}px',
+              value: style.spacing,
+              min: 0,
+              max: 100,
+              onChanged: (v) => setState(() {
+                style = style.copyWith(spacing: v);
+              }),
+              divisions: 101,
+            ),
+          ])),
+          Separator(),
+        ]),
+      );
 }
 
 class TreeTile extends StatefulWidget {
@@ -136,14 +151,18 @@ class TreeTile extends StatefulWidget {
   createState() => TreeTileState();
 }
 
-class TreeTileState extends State<TreeTile> with SingleTickerProviderStateMixin {
+class TreeTileState extends State<TreeTile>
+    with SingleTickerProviderStateMixin {
   int state = 0;
 
   late AnimationController anim;
 
   initState() {
     super.initState();
-    anim = AnimationController(duration: const Duration(milliseconds: 300), vsync: this, upperBound: 2);
+    anim = AnimationController(
+        duration: const Duration(milliseconds: 300),
+        vsync: this,
+        upperBound: 2);
     anim.addListener(() => setState(() {}));
   }
 
@@ -152,31 +171,35 @@ class TreeTileState extends State<TreeTile> with SingleTickerProviderStateMixin 
     anim.dispose();
   }
 
-  build(context) => ClipRRect(child: AnimatedContainer(
-    child: Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () => setState(() {
-          state = (state + 1) % 3;
-          anim.animateTo(state.toDouble(), curve: Curves.ease);
-        }),
-        child: Padding(child: Text(
-          widget.text,
-          style: TextStyle(
-            fontSize: 16 * anim.value + 16,
-            color: NiceColors.text,
+  build(context) => ClipRRect(
+      child: AnimatedContainer(
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () => setState(() {
+              state = (state + 1) % 3;
+              anim.animateTo(state.toDouble(), curve: Curves.ease);
+            }),
+            child: Padding(
+                child: Text(
+                  widget.text,
+                  style: TextStyle(
+                    fontSize: 16 * anim.value + 16,
+                    color: NiceColors.text,
+                  ),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 16,
+                  horizontal: 32,
+                )),
           ),
-        ), padding: const EdgeInsets.symmetric(
-          vertical: 16,
-          horizontal: 32,
-        )),
+        ),
+        decoration: const BoxDecoration(
+          color: NiceColors.primary,
+        ),
+        duration: const Duration(milliseconds: 250),
       ),
-    ),
-    decoration: const BoxDecoration(
-      color: NiceColors.primary,
-    ),
-    duration: const Duration(milliseconds: 250),
-  ), borderRadius: BorderRadius.circular(8));
+      borderRadius: BorderRadius.circular(8));
 }
 
 class TreeStyle {
@@ -200,22 +223,22 @@ class TreeStyle {
     double? spacing,
     double? lineSpacing,
     double? lineRadius,
-  }) => TreeStyle(
-    lineThickness: lineThickness ?? this.lineThickness,
-    lineColor: lineColor ?? this.lineColor,
-    spacing: spacing ?? this.spacing,
-    lineSpacing: lineSpacing ?? this.lineSpacing,
-    lineRadius: lineRadius ?? this.lineRadius,
-  );
+  }) =>
+      TreeStyle(
+        lineThickness: lineThickness ?? this.lineThickness,
+        lineColor: lineColor ?? this.lineColor,
+        spacing: spacing ?? this.spacing,
+        lineSpacing: lineSpacing ?? this.lineSpacing,
+        lineRadius: lineRadius ?? this.lineRadius,
+      );
 
   bool sameLayout(TreeStyle other) =>
-    other.lineSpacing == lineSpacing &&
-    other.spacing == spacing;
+      other.lineSpacing == lineSpacing && other.spacing == spacing;
 
   bool samePaint(TreeStyle other) =>
-    other.lineThickness == lineThickness &&
-    other.lineColor == lineColor &&
-    other.lineRadius == lineRadius;
+      other.lineThickness == lineThickness &&
+      other.lineColor == lineColor &&
+      other.lineRadius == lineRadius;
 }
 
 class TreeView extends StatelessWidget {
@@ -250,8 +273,7 @@ class TreeBranch extends TreeNode {
   final Widget parent;
   final List<TreeNode> children;
 
-  TreeBranch(this.parent, this.children) :
-    assert(children.isNotEmpty);
+  TreeBranch(this.parent, this.children) : assert(children.isNotEmpty);
 
   addTo(widgets) {
     widgets.add(parent);
@@ -259,7 +281,7 @@ class TreeBranch extends TreeNode {
       child.addTo(widgets);
     }
   }
-  
+
   sameLayout(other) {
     if (other is TreeBranch) {
       if (other.children.length != children.length) return false;
@@ -295,28 +317,22 @@ class TreeViewDelegate extends BoxyDelegate {
 
   @override
   shouldRelayout(TreeViewDelegate other) =>
-    !other.root.sameLayout(root) ||
-    !other.style.sameLayout(style);
+      !other.root.sameLayout(root) || !other.style.sameLayout(style);
 
   @override
-  shouldRepaint(TreeViewDelegate other) =>
-    !other.style.samePaint(style);
+  shouldRepaint(TreeViewDelegate other) => !other.style.samePaint(style);
 
   @override
   layout() {
     int i = 0;
     // size, offset of parent, position
     Tuple3<Size, double, void Function(Offset)>? layoutNode(
-      TreeNode node, BoxConstraints constraints
-    ) {
+        TreeNode node, BoxConstraints constraints) {
       if (node is TreeLeaf) {
         final child = children[i++];
         child.layout(constraints);
         return Tuple3(
-          child.render.size,
-          child.render.size.height / 2,
-          child.position
-        );
+            child.render.size, child.render.size.height / 2, child.position);
       } else if (node is TreeBranch) {
         final parent = children[i++];
         final pSize = parent.layout(constraints.loosen());
@@ -369,7 +385,8 @@ class TreeViewDelegate extends BoxyDelegate {
         }
 
         return Tuple3(
-          Size(cSize.width + left, max(pOffset + pSize.height, cOffset + cSize.height)),
+          Size(cSize.width + left,
+              max(pOffset + pSize.height, cOffset + cSize.height)),
           pOffset + pSize.height / 2,
           (o) {
             parent.position(o + Offset(0, pOffset));
@@ -377,7 +394,8 @@ class TreeViewDelegate extends BoxyDelegate {
             for (final b in branches) b(bo);
           },
         );
-      } else { // Unreachable
+      } else {
+        // Unreachable
         assert(false);
         return null;
       }
@@ -401,7 +419,9 @@ class TreeViewDelegate extends BoxyDelegate {
       if (node is TreeBranch) {
         final parent = children[childIndex++].rect.centerRight;
         canvas.drawLine(
-          parent, parent + Offset(style.lineSpacing, 0), linePaint,
+          parent,
+          parent + Offset(style.lineSpacing, 0),
+          linePaint,
         );
         final x = parent.dx;
 
@@ -413,8 +433,7 @@ class TreeViewDelegate extends BoxyDelegate {
           start ??= end;
           if (i != 0 && i != node.children.length - 1) {
             canvas.drawLine(
-              left - Offset(style.lineSpacing, 0), left, linePaint
-            );
+                left - Offset(style.lineSpacing, 0), left, linePaint);
           }
           paintNode(node.children[i]);
         }
@@ -424,12 +443,22 @@ class TreeViewDelegate extends BoxyDelegate {
           canvas.drawPath(
             Path()
               ..moveTo(x + style.lineSpacing * 2, start!)
-              ..arcTo(Rect.fromLTWH(
-                x + style.lineSpacing, start, diameter, diameter
-              ), pi / -2, pi / -2, false)
-              ..arcTo(Rect.fromLTWH(
-                x + style.lineSpacing, end! - diameter, diameter, diameter,
-              ), pi, pi / -2, false)
+              ..arcTo(
+                  Rect.fromLTWH(
+                      x + style.lineSpacing, start, diameter, diameter),
+                  pi / -2,
+                  pi / -2,
+                  false)
+              ..arcTo(
+                  Rect.fromLTWH(
+                    x + style.lineSpacing,
+                    end! - diameter,
+                    diameter,
+                    diameter,
+                  ),
+                  pi,
+                  pi / -2,
+                  false)
               ..lineTo(x + style.lineSpacing * 2, end),
             linePaint,
           );
