@@ -1,3 +1,6 @@
+## [2.0.5]
+* Implemented `BoxyChild.context`
+
 ## [2.0.4]
 * Fixed an issue with `BoxyId.data` not being applied before first layout
 
