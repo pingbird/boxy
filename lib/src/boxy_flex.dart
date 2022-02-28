@@ -164,18 +164,6 @@ class BoxyFlex extends MultiChildRenderObjectWidget {
   /// If aligning items according to their baseline, which baseline to use.
   final TextBaseline? textBaseline;
 
-  bool? get _needTextDirection {
-    switch (direction) {
-      case Axis.horizontal:
-        return true; // because it affects the layout order.
-      case Axis.vertical:
-        // We could normally check if the crossAxisAlignment is start or end,
-        // but with BoxyFlexible.crossAxisAlignment it is no longer possible to
-        // know which alignments will be in use at build time
-        return false;
-    }
-  }
-
   /// The value to pass to [RenderBoxyFlex.textDirection].
   ///
   /// This value is derived from the [textDirection] property and the ambient
@@ -193,8 +181,7 @@ class BoxyFlex extends MultiChildRenderObjectWidget {
   /// the logic for providing a text direction only when it is necessary.
   @protected
   TextDirection? getEffectiveTextDirection(BuildContext context) {
-    return textDirection ??
-        (_needTextDirection! ? Directionality.of(context) : null);
+    return textDirection ?? Directionality.of(context);
   }
 
   @override
