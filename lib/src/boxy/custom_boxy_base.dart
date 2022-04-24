@@ -743,7 +743,7 @@ class BaseBoxyChild extends InflatedChildHandle {
   /// own compositing [Layer] between two other [PictureLayer]s.
   void paint({Offset? offset, Matrix4? transform}) {
     assert(
-      offset == null || transform != null,
+      offset == null || transform == null,
       'Only one of offset and transform can be provided at the same time',
     );
 
