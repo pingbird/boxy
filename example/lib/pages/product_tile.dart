@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:boxy/boxy.dart';
 import 'package:boxy_gallery/main.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:rxdart/rxdart.dart' as rx;
 import 'package:tuple/tuple.dart';
 

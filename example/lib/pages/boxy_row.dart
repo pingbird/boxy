@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:boxy/flex.dart';
 import 'package:boxy_gallery/main.dart';
 import 'package:flutter/material.dart';

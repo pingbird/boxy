@@ -1,4 +1,3 @@
-import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 /// Extension on [BoxConstraints] that provides various axis-dependant utilities.

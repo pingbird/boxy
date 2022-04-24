@@ -1623,7 +1623,7 @@ class RenderBoxyFlex extends RenderBox
   @override
   String toStringShort() {
     String header = super.toStringShort();
-    if (_overflow is double && _hasOverflow) header += ' OVERFLOWING';
+    if (_hasOverflow) header += ' OVERFLOWING';
     return header;
   }
 
