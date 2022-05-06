@@ -6,7 +6,8 @@ import 'package:boxy_gallery/main.dart';
 import 'package:flutter/material.dart';
 
 class SliverContainerPage extends StatefulWidget {
-  createState() => SliverContainerPageState();
+  @override
+  State createState() => SliverContainerPageState();
 }
 
 final rainbow = <MaterialColor>[
@@ -37,11 +38,12 @@ Color lerpGradient(List<Color> colors, List<double> stops, double t) {
 
 Color getRainbowColor(double delta) {
   return lerpGradient(
-      rainbow,
-      [
-        for (int i = 0; i < rainbow.length; i++) i / (rainbow.length - 1),
-      ],
-      delta);
+    rainbow,
+    [
+      for (int i = 0; i < rainbow.length; i++) i / (rainbow.length - 1),
+    ],
+    delta,
+  );
 }
 
 class SliverContainerPageState extends State<SliverContainerPage> {
@@ -52,7 +54,8 @@ class SliverContainerPageState extends State<SliverContainerPage> {
     setState(() {});
   }
 
-  build(BuildContext context) {
+  @override
+  Widget build(BuildContext context) {
     final buttonTheme = ElevatedButton.styleFrom(
       primary: NiceColors.primary,
     );
@@ -64,47 +67,55 @@ class SliverContainerPageState extends State<SliverContainerPage> {
             'https://github.com/PixelToast/flutter-boxy/blob/master/example/lib/pages/sliver_container.dart',
       ),
       backgroundColor: NiceColors.primary,
-      body: Column(children: [
-        Separator(),
-        Expanded(
+      body: Column(
+        children: [
+          Separator(),
+          Expanded(
             child: Align(
-                child: Container(
-          width: 400,
-          height: 500,
-          child: Column(children: [
-            Flexible(child: SliverOverlayFrame(direction)),
-            Padding(
-                child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      ElevatedButton(
-                        style: buttonTheme,
-                        onPressed: () => setDir(AxisDirection.down),
-                        child: const Icon(Icons.keyboard_arrow_down),
+              child: Container(
+                width: 400,
+                height: 500,
+                child: Column(
+                  children: [
+                    Flexible(child: SliverOverlayFrame(direction)),
+                    Padding(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          ElevatedButton(
+                            style: buttonTheme,
+                            onPressed: () => setDir(AxisDirection.down),
+                            child: const Icon(Icons.keyboard_arrow_down),
+                          ),
+                          ElevatedButton(
+                            style: buttonTheme,
+                            onPressed: () => setDir(AxisDirection.right),
+                            child: const Icon(Icons.keyboard_arrow_right),
+                          ),
+                          ElevatedButton(
+                            style: buttonTheme,
+                            onPressed: () => setDir(AxisDirection.up),
+                            child: const Icon(Icons.keyboard_arrow_up),
+                          ),
+                          ElevatedButton(
+                            style: buttonTheme,
+                            onPressed: () => setDir(AxisDirection.left),
+                            child: const Icon(Icons.keyboard_arrow_left),
+                          ),
+                        ],
                       ),
-                      ElevatedButton(
-                        style: buttonTheme,
-                        onPressed: () => setDir(AxisDirection.right),
-                        child: const Icon(Icons.keyboard_arrow_right),
+                      padding: const EdgeInsets.only(
+                        top: 64,
                       ),
-                      ElevatedButton(
-                        style: buttonTheme,
-                        onPressed: () => setDir(AxisDirection.up),
-                        child: const Icon(Icons.keyboard_arrow_up),
-                      ),
-                      ElevatedButton(
-                        style: buttonTheme,
-                        onPressed: () => setDir(AxisDirection.left),
-                        child: const Icon(Icons.keyboard_arrow_left),
-                      ),
-                    ]),
-                padding: const EdgeInsets.only(
-                  top: 64,
-                )),
-          ]),
-        ))),
-        Separator(),
-      ]),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Separator(),
+        ],
+      ),
     );
   }
 }
@@ -115,28 +126,30 @@ class SliverOverlayFrame extends StatelessWidget {
   const SliverOverlayFrame(this.direction);
 
   @override
-  Widget build(BuildContext context) => Container(
-        decoration: BoxDecoration(
-          border: Border.all(color: NiceColors.text.withOpacity(0.1), width: 1),
-        ),
-        child: CustomScrollView(
-          scrollDirection: direction.axis,
-          reverse: direction.isReverse,
-          cacheExtent: 32,
-          slivers: [
-            SliverAppBar(
-              expandedHeight: 150.0,
-              title: const Text('App Bar'),
-              flexibleSpace: FlexibleSpaceBar(
-                background: Container(color: Colors.red[400]),
-              ),
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: NiceColors.text.withOpacity(0.1), width: 1),
+      ),
+      child: CustomScrollView(
+        scrollDirection: direction.axis,
+        reverse: direction.isReverse,
+        cacheExtent: 32,
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 150.0,
+            title: const Text('App Bar'),
+            flexibleSpace: FlexibleSpaceBar(
+              background: Container(color: Colors.red[400]),
             ),
-            for (int s = 0; s < rainbow.length; s++)
-              SliverCard(
-                clipBehavior: Clip.antiAlias,
-                color: Colors.white,
-                sliver: SliverList(
-                  delegate: SliverChildListDelegate([
+          ),
+          for (int s = 0; s < rainbow.length; s++)
+            SliverCard(
+              clipBehavior: Clip.antiAlias,
+              color: Colors.white,
+              sliver: SliverList(
+                delegate: SliverChildListDelegate(
+                  [
                     Container(
                       width: direction.axis == Axis.horizontal
                           ? 16
@@ -148,20 +161,22 @@ class SliverOverlayFrame extends StatelessWidget {
                     ),
                     for (var i = 0; i <= s && i < shades.length; i++)
                       ColorTile(
-                          color: rainbow[s][shades[i]]!, direction: direction)
-                  ]),
-                ),
-                margin: EdgeInsetsAxisUtil.direction(
-                  direction,
-                  mainBegin: s != 0 ? 0.0 : 16.0,
-                  mainEnd: 16.0,
-                  crossBegin: 16.0,
-                  crossEnd: 16.0,
+                          color: rainbow[s][shades[i]]!, direction: direction),
+                  ],
                 ),
               ),
-          ],
-        ),
-      );
+              margin: EdgeInsetsAxisUtil.direction(
+                direction,
+                mainBegin: s != 0 ? 0.0 : 16.0,
+                mainEnd: 16.0,
+                crossBegin: 16.0,
+                crossEnd: 16.0,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
 }
 
 class ColorTile extends StatefulWidget {
@@ -170,7 +185,8 @@ class ColorTile extends StatefulWidget {
 
   const ColorTile({required this.color, required this.direction});
 
-  createState() => _ColorTileState();
+  @override
+  _ColorTileState createState() => _ColorTileState();
 }
 
 class _ColorTileState extends State<ColorTile>
@@ -178,7 +194,8 @@ class _ColorTileState extends State<ColorTile>
   late AnimationController anim;
   late double descWidth;
 
-  initState() {
+  @override
+  void initState() {
     descWidth = Random().nextInt(100).toDouble();
     super.initState();
     anim = AnimationController(vsync: this)
@@ -186,60 +203,68 @@ class _ColorTileState extends State<ColorTile>
           duration: const Duration(seconds: 1), curve: Curves.ease);
   }
 
-  dispose() {
+  @override
+  void dispose() {
     anim.dispose();
     super.dispose();
   }
 
-  build(context) => RotatedBox(
+  @override
+  Widget build(context) {
+    return RotatedBox(
       quarterTurns: widget.direction.reversed.index,
       child: Container(
-          padding: const EdgeInsets.all(8),
-          child: AnimatedBuilder(
-            animation: anim,
-            builder: (context, child) {
-              return Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    width: 60,
-                    height: 60,
-                    child: Align(
-                      child: Container(
-                        width: 30 + 30 * anim.value,
-                        height: 30 + 30 * anim.value,
-                        decoration: BoxDecoration(
-                            color: widget.color.withOpacity(anim.value),
-                            borderRadius:
-                                BorderRadius.circular(16 - 12 * anim.value)),
+        padding: const EdgeInsets.all(8),
+        child: AnimatedBuilder(
+          animation: anim,
+          builder: (context, child) {
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  width: 60,
+                  height: 60,
+                  child: Align(
+                    child: Container(
+                      width: 30 + 30 * anim.value,
+                      height: 30 + 30 * anim.value,
+                      decoration: BoxDecoration(
+                        color: widget.color.withOpacity(anim.value),
+                        borderRadius:
+                            BorderRadius.circular(16 - 12 * anim.value),
                       ),
                     ),
                   ),
-                  const Padding(padding: EdgeInsets.only(right: 8)),
-                  Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(anim.value * 0.54),
-                            borderRadius: BorderRadius.circular(7),
-                          ),
-                          height: 15,
-                          width: 90,
-                          margin: const EdgeInsets.only(top: 8, bottom: 8),
-                        ),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(anim.value * 0.38),
-                            borderRadius: BorderRadius.circular(7),
-                          ),
-                          height: 15,
-                          width: (descWidth * anim.value) + 50,
-                          margin: const EdgeInsets.only(top: 8, bottom: 8),
-                        ),
-                      ])
-                ],
-              );
-            },
-          )));
+                ),
+                const Padding(padding: EdgeInsets.only(right: 8)),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(anim.value * 0.54),
+                        borderRadius: BorderRadius.circular(7),
+                      ),
+                      height: 15,
+                      width: 90,
+                      margin: const EdgeInsets.only(top: 8, bottom: 8),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(anim.value * 0.38),
+                        borderRadius: BorderRadius.circular(7),
+                      ),
+                      height: 15,
+                      width: (descWidth * anim.value) + 50,
+                      margin: const EdgeInsets.only(top: 8, bottom: 8),
+                    ),
+                  ],
+                )
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
 }

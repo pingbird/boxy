@@ -11,73 +11,90 @@ class ProductTitleController {
 }
 
 class ProductTileSimplePage extends StatefulWidget {
-  createState() => ProductTileSimplePageState();
+  @override
+  State createState() => ProductTileSimplePageState();
 }
 
 class ProductTileSimplePageState extends State<ProductTileSimplePage> {
-  build(BuildContext context) => Scaffold(
-        appBar: const GalleryAppBar(
-          ['Boxy Gallery', 'Simple Product Tile'],
-          source:
-              'https://github.com/PixelToast/flutter-boxy/blob/master/example/lib/pages/product_tile_simple.dart',
-        ),
-        backgroundColor: NiceColors.primary,
-        body: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: const GalleryAppBar(
+        ['Boxy Gallery', 'Simple Product Tile'],
+        source:
+            'https://github.com/PixelToast/flutter-boxy/blob/master/example/lib/pages/product_tile_simple.dart',
+      ),
+      backgroundColor: NiceColors.primary,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
           Separator(),
           Expanded(
-              child: Align(
-            child: Column(children: [
-              ProductTile(
-                title: SeebTitle(),
-                info: SeebInfo(),
-                seller: SeebSeller(),
-              ),
-            ], mainAxisAlignment: MainAxisAlignment.center),
-          )),
+            child: Align(
+              child: Column(children: [
+                ProductTile(
+                  title: SeebTitle(),
+                  info: SeebInfo(),
+                  seller: SeebSeller(),
+                ),
+              ], mainAxisAlignment: MainAxisAlignment.center),
+            ),
+          ),
           Separator(),
-        ]),
-      );
+        ],
+      ),
+    );
+  }
 }
 
 class SeebSeller extends StatefulWidget {
-  createState() => _SeebSellerState();
+  @override
+  State createState() => _SeebSellerState();
 }
 
 class _SeebSellerState extends State<SeebSeller> {
   bool expanded = false;
-  build(context) => ClipOval(
-        child: Material(
-            child: InkWell(
-                onTap: () {
-                  setState(() {
-                    expanded = !expanded;
-                  });
-                },
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 500),
-                  width: expanded ? 84 : 48,
-                  height: expanded ? 84 : 48,
-                  curve: Curves.ease,
-                  margin: const EdgeInsets.all(8),
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(256),
-                      color: const Color(0xFFE2F0CB),
-                    ),
-                  ),
-                )),
-            color: NiceColors.primary),
-      );
+  @override
+  Widget build(context) {
+    return ClipOval(
+      child: Material(
+        child: InkWell(
+          onTap: () {
+            setState(() {
+              expanded = !expanded;
+            });
+          },
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 500),
+            width: expanded ? 84 : 48,
+            height: expanded ? 84 : 48,
+            curve: Curves.ease,
+            margin: const EdgeInsets.all(8),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(256),
+                color: const Color(0xFFE2F0CB),
+              ),
+            ),
+          ),
+        ),
+        color: NiceColors.primary,
+      ),
+    );
+  }
 }
 
 class SeebTitle extends StatefulWidget {
-  createState() => SeebTitleState();
+  @override
+  SeebTitleState createState() => SeebTitleState();
 }
 
 class SeebTitleState extends State<SeebTitle> {
   bool expanded = false;
 
-  build(context) => ClipRRect(
+  @override
+  Widget build(context) {
+    return ClipRRect(
       child: Stack(children: [
         Positioned.fill(child: Container(color: const Color(0xFFC7CEEA))),
         AnimatedContainer(
@@ -95,22 +112,27 @@ class SeebTitleState extends State<SeebTitle> {
           curve: Curves.ease,
         ),
       ]),
-      borderRadius: BorderRadius.circular(8));
+      borderRadius: BorderRadius.circular(8),
+    );
+  }
 
-  dispose() {
+  @override
+  void dispose() {
     super.dispose();
   }
 }
 
 class SeebInfo extends StatefulWidget {
-  createState() => SeebInfoState();
+  @override
+  SeebInfoState createState() => SeebInfoState();
 }
 
 class SeebInfoState extends State<SeebInfo> with TickerProviderStateMixin {
   late AnimationController anim;
   int expanded = 0;
 
-  initState() {
+  @override
+  void initState() {
     super.initState();
     anim = AnimationController.unbounded(
       duration: const Duration(milliseconds: 1000),
@@ -119,25 +141,29 @@ class SeebInfoState extends State<SeebInfo> with TickerProviderStateMixin {
     anim.addListener(() => setState(() {}));
   }
 
-  build(context) => ClipRRect(
-        child: Material(
-          borderRadius: BorderRadius.circular(8),
-          color: const Color(0xFFB5EAD7),
-          child: InkWell(
-              child: AnimatedContainer(
-                alignment: Alignment.topCenter,
-                height: (expanded + 1) * 56.0,
-                duration: const Duration(milliseconds: 500),
-                curve: Curves.ease,
-              ),
-              onTap: () {
-                setState(() {
-                  expanded = (expanded + 1) % 3;
-                  anim.animateTo(expanded.toDouble(), curve: Curves.ease);
-                });
-              }),
+  @override
+  ClipRRect build(context) {
+    return ClipRRect(
+      child: Material(
+        borderRadius: BorderRadius.circular(8),
+        color: const Color(0xFFB5EAD7),
+        child: InkWell(
+          child: AnimatedContainer(
+            alignment: Alignment.topCenter,
+            height: (expanded + 1) * 56.0,
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.ease,
+          ),
+          onTap: () {
+            setState(() {
+              expanded = (expanded + 1) % 3;
+              anim.animateTo(expanded.toDouble(), curve: Curves.ease);
+            });
+          },
         ),
-      );
+      ),
+    );
+  }
 
   @override
   void dispose() {
@@ -172,14 +198,17 @@ class ProductTile extends StatelessWidget {
     this.style = const ProductTileStyle(),
   });
 
-  build(context) => CustomBoxy(
-        delegate: ProductTileDelegate(style: style),
-        children: [
-          BoxyId(id: #title, child: title),
-          BoxyId(id: #info, child: info),
-          BoxyId(id: #seller, child: seller),
-        ],
-      );
+  @override
+  Widget build(context) {
+    return CustomBoxy(
+      delegate: ProductTileDelegate(style: style),
+      children: [
+        BoxyId(id: #title, child: title),
+        BoxyId(id: #info, child: info),
+        BoxyId(id: #seller, child: seller),
+      ],
+    );
+  }
 }
 
 class ProductTileDelegate extends BoxyDelegate {
@@ -190,7 +219,7 @@ class ProductTileDelegate extends BoxyDelegate {
   });
 
   @override
-  layout() {
+  Size layout() {
     final title = getChild(#title);
     final seller = getChild(#seller);
     final info = getChild(#info);
@@ -223,5 +252,6 @@ class ProductTileDelegate extends BoxyDelegate {
   }
 
   @override
-  shouldRelayout(ProductTileDelegate old) => !style.sameLayout(old.style);
+  bool shouldRelayout(ProductTileDelegate oldDelegate) =>
+      !style.sameLayout(oldDelegate.style);
 }

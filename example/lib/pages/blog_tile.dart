@@ -7,46 +7,57 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:tuple/tuple.dart';
 
 class BlogTilePage extends StatefulWidget {
-  createState() => BlogTilePageState();
+  @override
+  State createState() => BlogTilePageState();
 }
 
 const loremIpsum =
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco...';
 
 class BlogTilePageState extends State<BlogTilePage> {
-  build(BuildContext context) => Scaffold(
-        appBar: const GalleryAppBar(
-          ['Boxy Gallery', 'Blog Tile'],
-          source:
-              'https://github.com/PixelToast/flutter-boxy/blob/master/example/lib/pages/blog_tile.dart',
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: const GalleryAppBar(
+        ['Boxy Gallery', 'Blog Tile'],
+        source:
+            'https://github.com/PixelToast/flutter-boxy/blob/master/example/lib/pages/blog_tile.dart',
+      ),
+      backgroundColor: NiceColors.primary,
+      body: Column(children: [
+        Separator(),
+        Expanded(
+          child: Container(
+            child: ListView(
+              children: [
+                const Padding(padding: EdgeInsets.only(top: 64)),
+                Center(
+                  child: ConstrainedBox(
+                    child: const BlogTile(
+                      body: BlogDesc(
+                        author: 'Cicero',
+                      ),
+                      icons: [
+                        Tuple2(MdiIcons.shareVariant, null),
+                        Tuple2(MdiIcons.starOutline, MdiIcons.star),
+                        Tuple2(MdiIcons.heartOutline, MdiIcons.heart),
+                        Tuple2(MdiIcons.chatOutline, null),
+                      ],
+                    ),
+                    constraints: const BoxConstraints(maxWidth: 450),
+                  ),
+                ),
+                const Padding(padding: EdgeInsets.only(top: 64)),
+              ],
+              physics: const BouncingScrollPhysics(),
+            ),
+            color: NiceColors.background,
+          ),
         ),
-        backgroundColor: NiceColors.primary,
-        body: Column(children: [
-          Separator(),
-          Expanded(
-              child: Container(
-                  child: ListView(children: [
-                    const Padding(padding: EdgeInsets.only(top: 64)),
-                    Center(
-                        child: ConstrainedBox(
-                            child: const BlogTile(
-                              body: BlogDesc(
-                                author: 'Cicero',
-                              ),
-                              icons: [
-                                Tuple2(MdiIcons.shareVariant, null),
-                                Tuple2(MdiIcons.starOutline, MdiIcons.star),
-                                Tuple2(MdiIcons.heartOutline, MdiIcons.heart),
-                                Tuple2(MdiIcons.chatOutline, null),
-                              ],
-                            ),
-                            constraints: const BoxConstraints(maxWidth: 450))),
-                    const Padding(padding: EdgeInsets.only(top: 64)),
-                  ], physics: const BouncingScrollPhysics()),
-                  color: NiceColors.background)),
-          Separator(),
-        ]),
-      );
+        Separator(),
+      ]),
+    );
+  }
 }
 
 class ExpandButton extends StatefulWidget {
@@ -58,7 +69,8 @@ class ExpandButton extends StatefulWidget {
     required this.onPressed,
   });
 
-  createState() => _ExpandButtonState();
+  @override
+  _ExpandButtonState createState() => _ExpandButtonState();
 }
 
 class _ExpandButtonState extends State<ExpandButton>
@@ -66,7 +78,7 @@ class _ExpandButtonState extends State<ExpandButton>
   late AnimationController controller;
 
   @override
-  initState() {
+  void initState() {
     super.initState();
     controller =
         AnimationController(vsync: this, value: widget.expanded ? 1 : 0);
@@ -74,7 +86,7 @@ class _ExpandButtonState extends State<ExpandButton>
   }
 
   @override
-  didUpdateWidget(old) {
+  void didUpdateWidget(ExpandButton old) {
     super.didUpdateWidget(old);
     controller.animateTo(
       widget.expanded ? 1 : 0,
@@ -84,14 +96,15 @@ class _ExpandButtonState extends State<ExpandButton>
   }
 
   @override
-  dispose() {
+  void dispose() {
     super.dispose();
     controller.dispose();
   }
 
   static const size = 42.0;
 
-  build(context) => SizedBox(
+  @override
+  SizedBox build(context) => SizedBox(
       child: Material(
         borderRadius: BorderRadius.circular(size / 2),
         color: Colors.transparent,
@@ -123,14 +136,16 @@ class BlogDesc extends StatefulWidget {
     required this.author,
   });
 
-  createState() => _BlogDescState();
+  @override
+  _BlogDescState createState() => _BlogDescState();
 }
 
 class _BlogDescState extends State<BlogDesc> with TickerProviderStateMixin {
   bool expandDesc = false;
   bool expandText = false;
 
-  build(BuildContext context) => Stack(children: [
+  @override
+  Stack build(BuildContext context) => Stack(children: [
         Column(children: [
           AnimatedContainer(
             margin: EdgeInsets.only(left: 8, bottom: expandDesc ? 4 : 0),
@@ -236,7 +251,8 @@ class ShareButton extends StatefulWidget {
     this.alt,
   });
 
-  createState() => _ShareButtonState();
+  @override
+  _ShareButtonState createState() => _ShareButtonState();
 }
 
 class _ShareButtonState extends State<ShareButton>
@@ -245,7 +261,8 @@ class _ShareButtonState extends State<ShareButton>
 
   static final borderRadius = BorderRadius.circular(16);
 
-  build(context) => SizedBox(
+  @override
+  SizedBox build(context) => SizedBox(
         child: Material(
           color: Colors.transparent,
           child: InkWell(
@@ -282,7 +299,8 @@ class _ShareButtonState extends State<ShareButton>
 class ShareMoreButton extends StatelessWidget {
   static final borderRadius = BorderRadius.circular(16);
 
-  build(context) => Material(
+  @override
+  Material build(context) => Material(
         color: Colors.transparent,
         child: InkWell(
           child: AnimatedContainer(
@@ -323,7 +341,8 @@ class BlogTile extends StatelessWidget {
     required this.icons,
   });
 
-  build(context) => CustomBoxy(
+  @override
+  CustomBoxy build(context) => CustomBoxy(
         delegate: BlogTileDelegate(
           numButtons: icons.length,
           buttonBuilder: (context, i) =>
@@ -346,7 +365,7 @@ class BlogTileDelegate extends BoxyDelegate {
   });
 
   @override
-  layout() {
+  Size layout() {
     final moreButton = getChild(#moreButton);
     final moreButtonSize = moreButton.layout(constraints.loosen());
 
@@ -389,5 +408,6 @@ class BlogTileDelegate extends BoxyDelegate {
     );
   }
 
-  shouldRelayout(BlogTileDelegate old) => true;
+  @override
+  bool shouldRelayout(BlogTileDelegate oldDelegate) => true;
 }

@@ -6,139 +6,167 @@ import 'package:flutter/material.dart';
 import 'package:tuple/tuple.dart';
 
 class TreeViewPage extends StatefulWidget {
-  createState() => TreeViewPageState();
+  @override
+  State createState() => TreeViewPageState();
 }
 
 class TreeViewPageState extends State<TreeViewPage> {
   var style = const TreeStyle();
   static const settingsWidth = 400.0;
 
-  Widget buildSettings(Widget child) => LayoutBuilder(
-        builder: (ctx, cns) => cns.maxWidth < settingsWidth
-            ? child
-            : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ConstrainedBox(
-                    child: child,
-                    constraints:
-                        const BoxConstraints.tightFor(width: settingsWidth),
-                  )
-                ],
-              ),
-      );
+  Widget buildSettings(Widget child) {
+    return LayoutBuilder(
+      builder: (ctx, cns) => cns.maxWidth < settingsWidth
+          ? child
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ConstrainedBox(
+                  child: child,
+                  constraints:
+                      const BoxConstraints.tightFor(width: settingsWidth),
+                )
+              ],
+            ),
+    );
+  }
 
-  Widget buildTitle(String name) => Padding(
-        child: Text(
-          name,
-          style: const TextStyle(
-            color: NiceColors.text,
+  Widget buildTitle(String name) {
+    return Padding(
+      child: Text(
+        name,
+        style: const TextStyle(
+          color: NiceColors.text,
+        ),
+      ),
+      padding: const EdgeInsets.only(
+        left: 24,
+        top: 8,
+      ),
+    );
+  }
+
+  final treeRoot = TreeBranch(
+    const TreeTile(text: 'RawObject'),
+    [
+      TreeLeaf(const TreeTile(text: 'RawClass')),
+      TreeBranch(const TreeTile(text: 'RawError'), [
+        TreeLeaf(const TreeTile(text: 'RawApiError')),
+        TreeLeaf(const TreeTile(text: 'RawUnwindError')),
+      ]),
+      TreeBranch(
+        const TreeTile(text: 'RawInstance'),
+        [
+          TreeBranch(const TreeTile(text: 'RawNumber'), [
+            TreeBranch(const TreeTile(text: 'RawInteger'), [
+              TreeLeaf(const TreeTile(text: 'RawSmi')),
+              TreeLeaf(const TreeTile(text: 'RawMint')),
+            ]),
+            TreeLeaf(const TreeTile(text: 'RawDouble')),
+          ]),
+          TreeBranch(
+            const TreeTile(text: 'RawTypedDataBase'),
+            [
+              TreeLeaf(const TreeTile(text: 'RawTypedData')),
+              TreeLeaf(const TreeTile(text: 'RawTypedDataView')),
+              TreeLeaf(const TreeTile(text: 'RawExternalTypedData')),
+            ],
           ),
-        ),
-        padding: const EdgeInsets.only(
-          left: 24,
-          top: 8,
-        ),
-      );
+        ],
+      ),
+    ],
+  );
 
-  build(BuildContext context) => Scaffold(
-        appBar: const GalleryAppBar(
-          ['Boxy Gallery', 'Tree View'],
-          source:
-              'https://github.com/PixelToast/flutter-boxy/blob/master/example/lib/pages/tree_view.dart',
-        ),
-        backgroundColor: NiceColors.primary,
-        body: Column(children: [
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: const GalleryAppBar(
+        ['Boxy Gallery', 'Tree View'],
+        source:
+            'https://github.com/PixelToast/flutter-boxy/blob/master/example/lib/pages/tree_view.dart',
+      ),
+      backgroundColor: NiceColors.primary,
+      body: Column(
+        children: [
           Separator(),
           Expanded(
-              child: Container(
-                  child: ListView(children: [
-                    Center(
-                        child: Container(
+            child: Container(
+              child: ListView(
+                children: [
+                  Center(
+                    child: Container(
                       child: TreeView(
                         style: style,
-                        root: TreeBranch(const TreeTile(text: 'RawObject'), [
-                          TreeLeaf(const TreeTile(text: 'RawClass')),
-                          TreeBranch(const TreeTile(text: 'RawError'), [
-                            TreeLeaf(const TreeTile(text: 'RawApiError')),
-                            TreeLeaf(const TreeTile(text: 'RawUnwindError')),
-                          ]),
-                          TreeBranch(const TreeTile(text: 'RawInstance'), [
-                            TreeBranch(const TreeTile(text: 'RawNumber'), [
-                              TreeBranch(const TreeTile(text: 'RawInteger'), [
-                                TreeLeaf(const TreeTile(text: 'RawSmi')),
-                                TreeLeaf(const TreeTile(text: 'RawMint')),
-                              ]),
-                              TreeLeaf(const TreeTile(text: 'RawDouble')),
-                            ]),
-                            TreeBranch(
-                                const TreeTile(text: 'RawTypedDataBase'), [
-                              TreeLeaf(const TreeTile(text: 'RawTypedData')),
-                              TreeLeaf(
-                                  const TreeTile(text: 'RawTypedDataView')),
-                              TreeLeaf(
-                                  const TreeTile(text: 'RawExternalTypedData')),
-                            ]),
-                          ]),
-                        ]),
+                        root: treeRoot,
                       ),
                       padding: const EdgeInsets.symmetric(
                           vertical: 64, horizontal: 8),
-                    )),
-                  ], physics: const BouncingScrollPhysics()),
-                  color: NiceColors.background)),
+                    ),
+                  ),
+                ],
+                physics: const BouncingScrollPhysics(),
+              ),
+              color: NiceColors.background,
+            ),
+          ),
           Separator(),
           buildSettings(
-              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            const Padding(padding: EdgeInsets.only(top: 8)),
-            buildTitle('Line thickness'),
-            Slider(
-              label: '${style.lineThickness.round()}px',
-              value: style.lineThickness,
-              min: 1,
-              max: 10,
-              onChanged: (v) => setState(() {
-                style = style.copyWith(lineThickness: v);
-              }),
-              divisions: 9,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Padding(padding: EdgeInsets.only(top: 8)),
+                buildTitle('Line thickness'),
+                Slider(
+                  label: '${style.lineThickness.round()}px',
+                  value: style.lineThickness,
+                  min: 1,
+                  max: 10,
+                  onChanged: (v) => setState(() {
+                    style = style.copyWith(lineThickness: v);
+                  }),
+                  divisions: 9,
+                ),
+                buildTitle('Line spacing'),
+                Slider(
+                  label: '${style.lineSpacing.round()}px',
+                  value: style.lineSpacing,
+                  min: 1,
+                  max: 100,
+                  onChanged: (v) => setState(() {
+                    style = style.copyWith(lineSpacing: v);
+                  }),
+                  divisions: 100,
+                ),
+                buildTitle('Line border radius'),
+                Slider(
+                  label: '${style.lineRadius.round()}px',
+                  value: style.lineRadius,
+                  min: 0,
+                  max: 25,
+                  onChanged: (v) => setState(() {
+                    style = style.copyWith(lineRadius: v);
+                  }),
+                  divisions: 26,
+                ),
+                buildTitle('Vertical spacing'),
+                Slider(
+                  label: '${style.spacing.round()}px',
+                  value: style.spacing,
+                  min: 0,
+                  max: 100,
+                  onChanged: (v) => setState(() {
+                    style = style.copyWith(spacing: v);
+                  }),
+                  divisions: 101,
+                ),
+              ],
             ),
-            buildTitle('Line spacing'),
-            Slider(
-              label: '${style.lineSpacing.round()}px',
-              value: style.lineSpacing,
-              min: 1,
-              max: 100,
-              onChanged: (v) => setState(() {
-                style = style.copyWith(lineSpacing: v);
-              }),
-              divisions: 100,
-            ),
-            buildTitle('Line border radius'),
-            Slider(
-              label: '${style.lineRadius.round()}px',
-              value: style.lineRadius,
-              min: 0,
-              max: 25,
-              onChanged: (v) => setState(() {
-                style = style.copyWith(lineRadius: v);
-              }),
-              divisions: 26,
-            ),
-            buildTitle('Vertical spacing'),
-            Slider(
-              label: '${style.spacing.round()}px',
-              value: style.spacing,
-              min: 0,
-              max: 100,
-              onChanged: (v) => setState(() {
-                style = style.copyWith(spacing: v);
-              }),
-              divisions: 101,
-            ),
-          ])),
+          ),
           Separator(),
-        ]),
-      );
+        ],
+      ),
+    );
+  }
 }
 
 class TreeTile extends StatefulWidget {
@@ -148,7 +176,8 @@ class TreeTile extends StatefulWidget {
     required this.text,
   });
 
-  createState() => TreeTileState();
+  @override
+  State createState() => TreeTileState();
 }
 
 class TreeTileState extends State<TreeTile>
@@ -157,7 +186,8 @@ class TreeTileState extends State<TreeTile>
 
   late AnimationController anim;
 
-  initState() {
+  @override
+  void initState() {
     super.initState();
     anim = AnimationController(
         duration: const Duration(milliseconds: 300),
@@ -166,12 +196,15 @@ class TreeTileState extends State<TreeTile>
     anim.addListener(() => setState(() {}));
   }
 
-  dispose() {
+  @override
+  void dispose() {
     super.dispose();
     anim.dispose();
   }
 
-  build(context) => ClipRRect(
+  @override
+  Widget build(context) {
+    return ClipRRect(
       child: AnimatedContainer(
         child: Material(
           color: Colors.transparent,
@@ -181,17 +214,18 @@ class TreeTileState extends State<TreeTile>
               anim.animateTo(state.toDouble(), curve: Curves.ease);
             }),
             child: Padding(
-                child: Text(
-                  widget.text,
-                  style: TextStyle(
-                    fontSize: 16 * anim.value + 16,
-                    color: NiceColors.text,
-                  ),
+              child: Text(
+                widget.text,
+                style: TextStyle(
+                  fontSize: 16 * anim.value + 16,
+                  color: NiceColors.text,
                 ),
-                padding: const EdgeInsets.symmetric(
-                  vertical: 16,
-                  horizontal: 32,
-                )),
+              ),
+              padding: const EdgeInsets.symmetric(
+                vertical: 16,
+                horizontal: 32,
+              ),
+            ),
           ),
         ),
         decoration: const BoxDecoration(
@@ -199,7 +233,9 @@ class TreeTileState extends State<TreeTile>
         ),
         duration: const Duration(milliseconds: 250),
       ),
-      borderRadius: BorderRadius.circular(8));
+      borderRadius: BorderRadius.circular(8),
+    );
+  }
 }
 
 class TreeStyle {
@@ -250,7 +286,8 @@ class TreeView extends StatelessWidget {
     this.style = const TreeStyle(),
   });
 
-  build(context) {
+  @override
+  Widget build(context) {
     final children = <Widget>[];
     root.addTo(children);
 
@@ -275,14 +312,16 @@ class TreeBranch extends TreeNode {
 
   TreeBranch(this.parent, this.children) : assert(children.isNotEmpty);
 
-  addTo(widgets) {
+  @override
+  void addTo(widgets) {
     widgets.add(parent);
     for (final child in children) {
       child.addTo(widgets);
     }
   }
 
-  sameLayout(other) {
+  @override
+  bool sameLayout(other) {
     if (other is TreeBranch) {
       if (other.children.length != children.length) return false;
       for (var i = 0; i < children.length; i++) {
@@ -299,11 +338,13 @@ class TreeLeaf extends TreeNode {
 
   TreeLeaf(this.child);
 
-  addTo(widgets) {
+  @override
+  void addTo(widgets) {
     widgets.add(child);
   }
 
-  sameLayout(other) => true;
+  @override
+  bool sameLayout(other) => true;
 }
 
 class TreeViewDelegate extends BoxyDelegate {
@@ -316,14 +357,16 @@ class TreeViewDelegate extends BoxyDelegate {
   });
 
   @override
-  shouldRelayout(TreeViewDelegate other) =>
-      !other.root.sameLayout(root) || !other.style.sameLayout(style);
+  bool shouldRelayout(TreeViewDelegate oldDelegate) =>
+      !oldDelegate.root.sameLayout(root) ||
+      !oldDelegate.style.sameLayout(style);
 
   @override
-  shouldRepaint(TreeViewDelegate other) => !other.style.samePaint(style);
+  bool shouldRepaint(TreeViewDelegate oldDelegate) =>
+      !oldDelegate.style.samePaint(style);
 
   @override
-  layout() {
+  Size layout() {
     int i = 0;
     // size, offset of parent, position
     Tuple3<Size, double, void Function(Offset)>? layoutNode(

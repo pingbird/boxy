@@ -3,7 +3,8 @@ import 'package:boxy_gallery/main.dart';
 import 'package:flutter/material.dart';
 
 class BoxyRowPage extends StatefulWidget {
-  createState() => BoxyRowPageState();
+  @override
+  State createState() => BoxyRowPageState();
 }
 
 final rainbow = <MaterialColor>[
@@ -32,33 +33,36 @@ Color lerpGradient(List<Color> colors, List<double> stops, double t) {
 
 Color getRainbowColor(double delta) {
   return lerpGradient(
-      rainbow,
-      [
-        for (int i = 0; i < rainbow.length; i++) i / (rainbow.length - 1),
-      ],
-      delta);
+    rainbow,
+    [
+      for (int i = 0; i < rainbow.length; i++) i / (rainbow.length - 1),
+    ],
+    delta,
+  );
 }
 
 class BoxyRowPageState extends State<BoxyRowPage> {
-  build(BuildContext context) => Scaffold(
-        appBar: const GalleryAppBar(
-          ['Boxy Gallery', 'BoxyRow'],
-          source:
-              'https://github.com/PixelToast/flutter-boxy/blob/master/example/lib/pages/boxy_row.dart',
-        ),
-        backgroundColor: NiceColors.primary,
-        body: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Separator(),
-          Expanded(
-              child: Align(
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: const GalleryAppBar(
+        ['Boxy Gallery', 'BoxyRow'],
+        source:
+            'https://github.com/PixelToast/flutter-boxy/blob/master/example/lib/pages/boxy_row.dart',
+      ),
+      backgroundColor: NiceColors.primary,
+      body: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Separator(),
+        Expanded(
+          child: Align(
             child: LabelBox(
-                label: 'BoxyRow',
-                child: BoxyRow(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const ChildCard(text: 'Child 1', color: Colors.red),
-                    Dominant(
-                        child: LabelBox(
+              label: 'BoxyRow',
+              child: BoxyRow(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const ChildCard(text: 'Child 1', color: Colors.red),
+                  Dominant(
+                    child: LabelBox(
                       label: 'Dominant',
                       child: LabelBox(
                         label: 'Column',
@@ -71,15 +75,19 @@ class BoxyRowPageState extends State<BoxyRowPage> {
                           ],
                         ),
                       ),
-                    )),
-                  ],
-                )),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             widthFactor: 1,
             heightFactor: 1,
-          )),
-          Separator(),
-        ]),
-      );
+          ),
+        ),
+        Separator(),
+      ]),
+    );
+  }
 }
 
 class ChildCard extends StatefulWidget {
@@ -91,7 +99,8 @@ class ChildCard extends StatefulWidget {
     required this.color,
   });
 
-  createState() => ChildCardState();
+  @override
+  ChildCardState createState() => ChildCardState();
 }
 
 class ChildCardState extends State<ChildCard>
@@ -100,7 +109,8 @@ class ChildCardState extends State<ChildCard>
 
   late AnimationController anim;
 
-  initState() {
+  @override
+  void initState() {
     super.initState();
     anim = AnimationController(
         duration: const Duration(milliseconds: 300),
@@ -109,25 +119,29 @@ class ChildCardState extends State<ChildCard>
     anim.addListener(() => setState(() {}));
   }
 
-  dispose() {
+  @override
+  void dispose() {
     super.dispose();
     anim.dispose();
   }
 
-  build(context) => Card(
-        color: widget.color,
-        child: InkWell(
-          onTap: () => setState(() {
-            state = (state + 1) % 2;
-            anim.animateTo(state.toDouble(), curve: Curves.ease);
-          }),
-          child: Container(
-            width: 80 + anim.value * 45,
-            height: 80 + anim.value * 45,
-            child: Center(child: Text(widget.text)),
-          ),
+  @override
+  Card build(context) {
+    return Card(
+      color: widget.color,
+      child: InkWell(
+        onTap: () => setState(() {
+          state = (state + 1) % 2;
+          anim.animateTo(state.toDouble(), curve: Curves.ease);
+        }),
+        child: Container(
+          width: 80 + anim.value * 45,
+          height: 80 + anim.value * 45,
+          child: Center(child: Text(widget.text)),
         ),
-      );
+      ),
+    );
+  }
 }
 
 class LabelBox extends StatelessWidget {
@@ -137,7 +151,9 @@ class LabelBox extends StatelessWidget {
   const LabelBox({required this.label, required this.child});
 
   @override
-  Widget build(BuildContext context) => Stack(children: [
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
         Container(
           margin: const EdgeInsets.all(7),
           padding: const EdgeInsets.all(7),
@@ -158,5 +174,7 @@ class LabelBox extends StatelessWidget {
             child: Text('$label'),
           )),
         ),
-      ]);
+      ],
+    );
+  }
 }

@@ -6,7 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:tuple/tuple.dart';
 
 class LineNumberPage extends StatefulWidget {
-  createState() => LineNumberPageState();
+  @override
+  State createState() => LineNumberPageState();
 }
 
 class LineNumberPageState extends State<LineNumberPage> {
@@ -16,35 +17,40 @@ class LineNumberPageState extends State<LineNumberPage> {
   double exponent = 1.0;
   var numberAlignment = Alignment.topRight;
 
-  Widget buildSettings(Widget child) => LayoutBuilder(
-        builder: (ctx, cns) => cns.maxWidth < settingsWidth
-            ? child
-            : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ConstrainedBox(
-                    child: child,
-                    constraints:
-                        const BoxConstraints.tightFor(width: settingsWidth),
-                  )
-                ],
-              ),
-      );
+  Widget buildSettings(Widget child) {
+    return LayoutBuilder(
+      builder: (ctx, cns) => cns.maxWidth < settingsWidth
+          ? child
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ConstrainedBox(
+                  child: child,
+                  constraints:
+                      const BoxConstraints.tightFor(width: settingsWidth),
+                )
+              ],
+            ),
+    );
+  }
 
-  Widget buildTitle(String name) => Padding(
-        child: Text(
-          name,
-          style: const TextStyle(
-            color: NiceColors.text,
-          ),
+  Widget buildTitle(String name) {
+    return Padding(
+      child: Text(
+        name,
+        style: const TextStyle(
+          color: NiceColors.text,
         ),
-        padding: const EdgeInsets.only(
-          left: 24,
-          top: 8,
-        ),
-      );
+      ),
+      padding: const EdgeInsets.only(
+        left: 24,
+        top: 8,
+      ),
+    );
+  }
 
-  build(BuildContext context) {
+  @override
+  Widget build(BuildContext context) {
     Widget view = LineNumberView(
       lineCount: 15,
       buildLine: (context, i) => Padding(
@@ -87,84 +93,97 @@ class LineNumberPageState extends State<LineNumberPage> {
       body: Column(children: [
         Separator(),
         Expanded(
-            child: Container(
-                child: ListView(children: [
-                  const Padding(padding: EdgeInsets.only(top: 64)),
-                  Center(
-                      child: DecoratedBox(
+          child: Container(
+            child: ListView(
+              children: [
+                const Padding(padding: EdgeInsets.only(top: 64)),
+                Center(
+                  child: DecoratedBox(
                     child: ClipRect(child: view),
                     decoration: BoxDecoration(
                       border: Border.all(color: NiceColors.divider, width: 1),
                     ),
-                  )),
-                  const Padding(padding: EdgeInsets.only(top: 64)),
-                ], physics: const BouncingScrollPhysics()),
-                color: NiceColors.background)),
+                  ),
+                ),
+                const Padding(padding: EdgeInsets.only(top: 64)),
+              ],
+              physics: const BouncingScrollPhysics(),
+            ),
+            color: NiceColors.background,
+          ),
+        ),
         Separator(),
         buildSettings(
-            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          const Padding(padding: EdgeInsets.only(top: 8)),
-          buildTitle('Constrain width'),
-          Row(children: [
-            const Padding(padding: EdgeInsets.only(right: 4)),
-            Switch(
-              value: constrainWidth,
-              onChanged: (b) => setState(() {
-                constrainWidth = b;
-              }),
-            ),
-            Expanded(
-                child: Slider(
-              label: '${maxWidth}px',
-              value: maxWidth,
-              min: 50,
-              max: 600,
-              onChanged: constrainWidth
-                  ? (v) => setState(() {
-                        maxWidth = v;
-                      })
-                  : null,
-            )),
-          ]),
-          const Padding(padding: EdgeInsets.only(top: 8)),
-          buildTitle('Align number'),
-          Row(children: [
-            Expanded(
-                child: Slider(
-              label: 'x: ${numberAlignment.x.toStringAsFixed(1)}',
-              value: numberAlignment.x,
-              min: -1,
-              max: 1,
-              divisions: 10,
-              onChanged: (v) => setState(() {
-                numberAlignment = Alignment(v, numberAlignment.y);
-              }),
-            )),
-            Expanded(
-                child: Slider(
-              label: 'y: ${numberAlignment.y.toStringAsFixed(1)}',
-              value: numberAlignment.y,
-              min: -1,
-              max: 1,
-              divisions: 10,
-              onChanged: (v) => setState(() {
-                numberAlignment = Alignment(numberAlignment.x, v);
-              }),
-            )),
-          ]),
-          const Padding(padding: EdgeInsets.only(top: 8)),
-          buildTitle('Number exponent'),
-          Slider(
-            label: '${exponent.toStringAsFixed(1)}',
-            value: exponent,
-            min: 1,
-            max: 10,
-            divisions: 9,
-            onChanged: (v) => setState(() {
-              exponent = v;
-            }),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Padding(padding: EdgeInsets.only(top: 8)),
+              buildTitle('Constrain width'),
+              Row(children: [
+                const Padding(padding: EdgeInsets.only(right: 4)),
+                Switch(
+                  value: constrainWidth,
+                  onChanged: (b) => setState(() {
+                    constrainWidth = b;
+                  }),
+                ),
+                Expanded(
+                  child: Slider(
+                    label: '${maxWidth}px',
+                    value: maxWidth,
+                    min: 50,
+                    max: 600,
+                    onChanged: constrainWidth
+                        ? (v) => setState(() {
+                              maxWidth = v;
+                            })
+                        : null,
+                  ),
+                ),
+              ]),
+              const Padding(padding: EdgeInsets.only(top: 8)),
+              buildTitle('Align number'),
+              Row(children: [
+                Expanded(
+                  child: Slider(
+                    label: 'x: ${numberAlignment.x.toStringAsFixed(1)}',
+                    value: numberAlignment.x,
+                    min: -1,
+                    max: 1,
+                    divisions: 10,
+                    onChanged: (v) => setState(() {
+                      numberAlignment = Alignment(v, numberAlignment.y);
+                    }),
+                  ),
+                ),
+                Expanded(
+                  child: Slider(
+                    label: 'y: ${numberAlignment.y.toStringAsFixed(1)}',
+                    value: numberAlignment.y,
+                    min: -1,
+                    max: 1,
+                    divisions: 10,
+                    onChanged: (v) => setState(() {
+                      numberAlignment = Alignment(numberAlignment.x, v);
+                    }),
+                  ),
+                ),
+              ]),
+              const Padding(padding: EdgeInsets.only(top: 8)),
+              buildTitle('Number exponent'),
+              Slider(
+                label: '${exponent.toStringAsFixed(1)}',
+                value: exponent,
+                min: 1,
+                max: 10,
+                divisions: 9,
+                onChanged: (v) => setState(() {
+                  exponent = v;
+                }),
+              ),
+            ],
           ),
-        ])),
+        ),
         Separator(),
       ]),
     );
@@ -190,21 +209,24 @@ class LineNumberView extends StatelessWidget {
     this.lineAlignment = 0.0,
   });
 
-  build(context) => CustomBoxy(
-        children: [
-          if (numberBg != null) BoxyId(id: #numBg, child: numberBg!),
-          if (lineBg != null) BoxyId(id: #lineBg, child: lineBg!),
-          for (int i = 0; i < lineCount; i++) ...[
-            BoxyId(id: Tuple2(#num, i), child: buildNumber(context, i)),
-            buildLine(context, i),
-          ],
+  @override
+  Widget build(context) {
+    return CustomBoxy(
+      children: [
+        if (numberBg != null) BoxyId(id: #numBg, child: numberBg!),
+        if (lineBg != null) BoxyId(id: #lineBg, child: lineBg!),
+        for (int i = 0; i < lineCount; i++) ...[
+          BoxyId(id: Tuple2(#num, i), child: buildNumber(context, i)),
+          buildLine(context, i),
         ],
-        delegate: LineNumberDelegate(
-          lineCount: lineCount,
-          numberAlignment: numberAlignment,
-          lineAlignment: lineAlignment,
-        ),
-      );
+      ],
+      delegate: LineNumberDelegate(
+        lineCount: lineCount,
+        numberAlignment: numberAlignment,
+        lineAlignment: lineAlignment,
+      ),
+    );
+  }
 }
 
 class LineNumberDelegate extends BoxyDelegate {
@@ -219,7 +241,7 @@ class LineNumberDelegate extends BoxyDelegate {
   });
 
   @override
-  layout() {
+  Size layout() {
     var numWidth = 0.0;
     final numConstraints = constraints.loosen();
 
@@ -280,8 +302,8 @@ class LineNumberDelegate extends BoxyDelegate {
   }
 
   @override
-  shouldRelayout(LineNumberDelegate old) =>
-      old.lineCount != lineCount ||
-      old.lineAlignment != lineAlignment ||
-      old.numberAlignment != numberAlignment;
+  bool shouldRelayout(LineNumberDelegate oldDelegate) =>
+      oldDelegate.lineCount != lineCount ||
+      oldDelegate.lineAlignment != lineAlignment ||
+      oldDelegate.numberAlignment != numberAlignment;
 }
