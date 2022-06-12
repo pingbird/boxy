@@ -14,7 +14,7 @@ class ProductTitleController {
 }
 
 class ProductTilePage extends StatefulWidget {
-  createState() => ProductTilePageState();
+  State<ProductTilePage> createState() => ProductTilePageState();
 }
 
 class ProductTilePageState extends State<ProductTilePage> {
@@ -23,26 +23,31 @@ class ProductTilePageState extends State<ProductTilePage> {
   var style = const ProductTileStyle();
   var titleCtrl = ProductTitleController();
 
-  dispose() {
+  @override
+  void dispose() {
     super.dispose();
     titleCtrl.close();
   }
 
-  build(BuildContext context) => Scaffold(
-        appBar: const GalleryAppBar(
-          ['Boxy Gallery', 'Product Tile'],
-          source:
-              'https://github.com/PixelToast/flutter-boxy/blob/master/example/lib/pages/product_tile.dart',
-        ),
-        backgroundColor: NiceColors.primary,
-        body: Column(children: [
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: const GalleryAppBar(
+        ['Boxy Gallery', 'Product Tile'],
+        source:
+            'https://github.com/PixelToast/flutter-boxy/blob/master/example/lib/pages/product_tile.dart',
+      ),
+      backgroundColor: NiceColors.primary,
+      body: Column(
+        children: [
           Separator(),
           Expanded(
-              child: Container(
-                  child: ListView(children: [
-                    const Padding(padding: EdgeInsets.only(top: 64)),
-                    Center(
-                        child: Container(
+            child: Container(
+              child: ListView(
+                children: [
+                  const Padding(padding: EdgeInsets.only(top: 64)),
+                  Center(
+                    child: Container(
                       child: ProductTile(
                         title: SeebTitle(
                           name: 'Millet',
@@ -55,10 +60,11 @@ class ProductTilePageState extends State<ProductTilePage> {
                             image: 'https://i.imgur.com/ayx4yZa.png'),
                         style: style,
                       ),
-                    )),
-                    const Padding(padding: EdgeInsets.only(top: 12)),
-                    Center(
-                        child: Container(
+                    ),
+                  ),
+                  const Padding(padding: EdgeInsets.only(top: 12)),
+                  Center(
+                    child: Container(
                       child: ProductTile(
                         title: SeebTitle(
                           name: 'Sunflower',
@@ -71,10 +77,11 @@ class ProductTilePageState extends State<ProductTilePage> {
                             image: 'https://i.imgur.com/fKtqsMi.jpg'),
                         style: style,
                       ),
-                    )),
-                    const Padding(padding: EdgeInsets.only(top: 12)),
-                    Center(
-                        child: Container(
+                    ),
+                  ),
+                  const Padding(padding: EdgeInsets.only(top: 12)),
+                  Center(
+                    child: Container(
                       child: ProductTile(
                         title: SeebTitle(
                           name: 'Blend',
@@ -87,13 +94,20 @@ class ProductTilePageState extends State<ProductTilePage> {
                             image: 'https://i.imgur.com/fKtqsMi.jpg'),
                         style: style,
                       ),
-                    )),
-                    const Padding(padding: EdgeInsets.only(top: 64)),
-                  ], physics: const BouncingScrollPhysics()),
-                  color: NiceColors.background)),
+                    ),
+                  ),
+                  const Padding(padding: EdgeInsets.only(top: 64)),
+                ],
+                physics: const BouncingScrollPhysics(),
+              ),
+              color: NiceColors.background,
+            ),
+          ),
           Separator(),
-        ]),
-      );
+        ],
+      ),
+    );
+  }
 }
 
 class SeebSeller extends StatefulWidget {
@@ -106,32 +120,42 @@ class SeebSeller extends StatefulWidget {
 
 class _SeebSellerState extends State<SeebSeller> {
   bool expanded = false;
-  build(context) => ClipOval(
-          child: Stack(children: [
-        Positioned.fill(
+
+  @override
+  Widget build(context) {
+    return ClipOval(
+      child: Stack(
+        children: [
+          Positioned.fill(
             child: Container(
-          color: NiceColors.background,
-          child: ClipOval(
-            child: Image.network(widget.image, fit: BoxFit.cover),
+              color: NiceColors.background,
+              child: ClipOval(
+                child: Image.network(widget.image, fit: BoxFit.cover),
+              ),
+              padding: const EdgeInsets.all(8),
+            ),
           ),
-          padding: const EdgeInsets.all(8),
-        )),
-        Material(
+          Material(
             child: InkWell(
-                onTap: () {
-                  setState(() {
-                    expanded = !expanded;
-                  });
-                },
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 500),
-                  width: expanded ? 84 : 48,
-                  height: expanded ? 84 : 48,
-                  curve: Curves.ease,
-                  margin: const EdgeInsets.all(8),
-                )),
-            color: Colors.transparent),
-      ]));
+              onTap: () {
+                setState(() {
+                  expanded = !expanded;
+                });
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 500),
+                width: expanded ? 84 : 48,
+                height: expanded ? 84 : 48,
+                curve: Curves.ease,
+                margin: const EdgeInsets.all(8),
+              ),
+            ),
+            color: Colors.transparent,
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class SeebTitle extends StatefulWidget {
@@ -140,12 +164,12 @@ class SeebTitle extends StatefulWidget {
   final String name;
   final String image;
 
-  SeebTitle(
-      {required this.controller,
-      required this.index,
-      required this.name,
-      required this.image})
-      : super(key: ValueKey(Tuple2(#seebTitle, index)));
+  SeebTitle({
+    required this.controller,
+    required this.index,
+    required this.name,
+    required this.image,
+  }) : super(key: ValueKey(Tuple2(#seebTitle, index)));
 
   createState() => SeebTitleState();
 }
@@ -165,73 +189,81 @@ class SeebTitleState extends State<SeebTitle> {
     expanded = widget.controller.expanded.value == widget.index;
   }
 
-  build(context) => ClipRRect(
-      child: Stack(children: [
-        Positioned.fill(
-            child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Colors.blueGrey.shade900,
-                Colors.blueGrey.shade800,
-              ],
+  build(context) {
+    return ClipRRect(
+      child: Stack(
+        children: [
+          Positioned.fill(
+              child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.blueGrey.shade900,
+                  Colors.blueGrey.shade800,
+                ],
+              ),
             ),
-          ),
-        )),
-        Positioned.fill(
-            child: AnimatedContainer(
-          child: Image.network(
-            widget.image,
-            fit: BoxFit.cover,
-          ),
-          duration: const Duration(milliseconds: 500),
-          curve: Curves.ease,
-          padding: EdgeInsets.only(
-            bottom: expanded ? 0 : 60,
-          ),
-        )),
-        AnimatedContainer(
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
+          )),
+          Positioned.fill(
+              child: AnimatedContainer(
+            child: Image.network(
+              widget.image,
+              fit: BoxFit.cover,
+            ),
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.ease,
+            padding: EdgeInsets.only(
+              bottom: expanded ? 0 : 60,
+            ),
+          )),
+          AnimatedContainer(
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
                 child: Align(
-                    child: Padding(
-                      child: Text(
-                        widget.name,
-                        style: const TextStyle(
-                            fontSize: 24,
-                            color: Colors.white,
-                            shadows: [
-                              Shadow(
-                                // bottomLeft
-                                offset: Offset.zero,
-                                color: Colors.black26,
-                                blurRadius: 8.0,
-                              ),
-                            ]),
+                  child: Padding(
+                    child: Text(
+                      widget.name,
+                      style: const TextStyle(
+                        fontSize: 24,
+                        color: Colors.white,
+                        shadows: [
+                          Shadow(
+                            // bottomLeft
+                            offset: Offset.zero,
+                            color: Colors.black26,
+                            blurRadius: 8.0,
+                          ),
+                        ],
                       ),
-                      padding: const EdgeInsets.all(16),
                     ),
-                    alignment: Alignment.bottomLeft),
+                    padding: const EdgeInsets.all(16),
+                  ),
+                  alignment: Alignment.bottomLeft,
+                ),
                 onTap: () {
                   if (widget.controller.expanded.value == widget.index) {
                     widget.controller.expanded.add(null);
                   } else {
                     widget.controller.expanded.add(widget.index);
                   }
-                }),
+                },
+              ),
+            ),
+            duration: const Duration(milliseconds: 500),
+            width: expanded ? 450 : 350,
+            height: expanded ? 350 : 200,
+            curve: Curves.ease,
           ),
-          duration: const Duration(milliseconds: 500),
-          width: expanded ? 450 : 350,
-          height: expanded ? 350 : 200,
-          curve: Curves.ease,
-        ),
-      ]),
-      borderRadius: BorderRadius.circular(8));
+        ],
+      ),
+      borderRadius: BorderRadius.circular(8),
+    );
+  }
 
-  dispose() {
+  void dispose() {
     super.dispose();
     subscription.cancel();
   }
@@ -242,19 +274,23 @@ class SeebInfoTile extends StatelessWidget {
 
   const SeebInfoTile({required this.text});
 
-  build(context) => Padding(
-        padding: const EdgeInsets.only(top: 16),
-        child: Row(
-          children: [
-            const Icon(Icons.check, size: 14),
-            const Padding(padding: EdgeInsets.only(right: 8)),
-            Text(text,
-                style: const TextStyle(
-                  color: Colors.white,
-                )),
-          ],
-        ),
-      );
+  Widget build(context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: Row(
+        children: [
+          const Icon(Icons.check, size: 14),
+          const Padding(padding: EdgeInsets.only(right: 8)),
+          Text(
+            text,
+            style: const TextStyle(
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class SeebInfo extends StatefulWidget {
@@ -271,7 +307,8 @@ class SeebInfoState extends State<SeebInfo> with TickerProviderStateMixin {
   late AnimationController anim;
   int expanded = 0;
 
-  initState() {
+  @override
+  void initState() {
     super.initState();
     anim = AnimationController.unbounded(
       duration: const Duration(milliseconds: 1000),
@@ -280,24 +317,28 @@ class SeebInfoState extends State<SeebInfo> with TickerProviderStateMixin {
     anim.addListener(() => setState(() {}));
   }
 
-  build(context) => ClipRRect(
-      child: Stack(children: [
-        Positioned.fill(
+  @override
+  Widget build(context) {
+    return ClipRRect(
+      child: Stack(
+        children: [
+          Positioned.fill(
             child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Colors.blueGrey.shade900,
-                Colors.blueGrey.shade700,
-              ],
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.blueGrey.shade900,
+                    Colors.blueGrey.shade700,
+                  ],
+                ),
+              ),
             ),
           ),
-        )),
-        Material(
-          color: Colors.transparent,
-          child: InkWell(
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
               child: Padding(
                   child: AnimatedSize(
                     alignment: Alignment.topCenter,
@@ -327,14 +368,22 @@ class SeebInfoState extends State<SeebInfo> with TickerProviderStateMixin {
                   expanded = (expanded + 1) % 4;
                   anim.animateTo(expanded.toDouble(), curve: Curves.ease);
                 });
-              }),
-        ),
-      ]),
-      borderRadius: BorderRadius.circular(8));
+              },
+            ),
+          ),
+        ],
+      ),
+      borderRadius: BorderRadius.circular(8),
+    );
+  }
 }
 
+@immutable
 class ProductTileStyle {
+  /// How far to the left the seller is inset
   final double sellerInset;
+
+  /// The size of the gap between the title and description
   final double gapHeight;
 
   const ProductTileStyle({
@@ -342,8 +391,14 @@ class ProductTileStyle {
     this.gapHeight = 8.0,
   });
 
-  bool sameLayout(ProductTileStyle other) =>
-      other.sellerInset == sellerInset && other.gapHeight == gapHeight;
+  bool operator ==(Object? other) =>
+      identical(this, other) ||
+      (other is ProductTileStyle &&
+          other.sellerInset == sellerInset &&
+          other.gapHeight == gapHeight);
+
+  @override
+  int get hashCode => hashValues(sellerInset, gapHeight);
 }
 
 class ProductTile extends StatelessWidget {
@@ -359,43 +414,53 @@ class ProductTile extends StatelessWidget {
     this.style = const ProductTileStyle(),
   });
 
-  build(context) => CustomBoxy(
-        delegate: ProductTileDelegate(style: style),
-        children: [
-          BoxyId(id: #title, child: title),
-          BoxyId(id: #info, child: info),
-          BoxyId(id: #seller, child: seller),
-        ],
-      );
+  @override
+  Widget build(context) {
+    return CustomBoxy(
+      delegate: ProductTileDelegate(style: style),
+      children: [
+        // Children are in paint order, put the seller last so it can sit
+        // above the others
+        BoxyId(id: #title, child: title),
+        BoxyId(id: #info, child: info),
+        BoxyId(id: #seller, child: seller),
+      ],
+    );
+  }
 }
 
 class ProductTileDelegate extends BoxyDelegate {
   final ProductTileStyle style;
 
-  ProductTileDelegate({
-    required this.style,
-  });
+  ProductTileDelegate({required this.style});
 
   @override
-  layout() {
+  Size layout() {
+    // We can grab children by name using getChild
     final title = getChild(#title);
     final seller = getChild(#seller);
     final info = getChild(#info);
 
+    // Lay out the seller first so it can provide a minimum height to the title
+    // and info
     final sellerSize = seller.layout(constraints.deflate(
       EdgeInsets.only(right: style.sellerInset),
     ));
 
+    // Lay out and position the title
     final titleSize = title.layout(constraints.copyWith(
       minHeight: sellerSize.height / 2 + style.gapHeight / 2,
     ));
-
     title.position(Offset.zero);
+
+    // Position the seller at the bottom right of the title, offset to the left
+    // by sellerInset
     seller.position(Offset(
       titleSize.width - (sellerSize.width + style.sellerInset),
       (titleSize.height - sellerSize.height / 2) + style.gapHeight / 2,
     ));
 
+    // Lay out info to match the width of title and position it below the title
     final infoSize = info.layout(constraints.copyWith(
       minHeight: sellerSize.height / 2,
       minWidth: titleSize.width,
@@ -410,5 +475,5 @@ class ProductTileDelegate extends BoxyDelegate {
   }
 
   @override
-  shouldRelayout(ProductTileDelegate old) => !style.sameLayout(old.style);
+  bool shouldRelayout(ProductTileDelegate old) => style != old.style;
 }

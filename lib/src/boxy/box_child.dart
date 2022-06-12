@@ -185,11 +185,12 @@ class BoxyChild extends BaseBoxyChild {
   }
 
   @override
-  bool hitTest(
-      {Matrix4? transform,
-      Offset? offset,
-      Offset? position,
-      bool checkBounds = true}) {
+  bool hitTest({
+    Matrix4? transform,
+    Offset? offset,
+    Offset? position,
+    bool checkBounds = true,
+  }) {
     if (isIgnored) return false;
 
     if (offset != null) {
