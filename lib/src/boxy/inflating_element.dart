@@ -58,8 +58,8 @@ class InflatingParentData<ChildType extends RenderObject> extends ParentData
 ///
 ///  * [InflatingElement]
 class InflatedChildHandle {
-  /// The id of the child, will either be the id given by LayoutId, BoxyId, or
-  /// an incrementing int in-order.
+  /// The id of the child, will either be the id given by BoxyId, or an
+  /// incrementing int.
   final Object id;
 
   final InflatingRenderObjectMixin _parent;

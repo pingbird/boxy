@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -476,6 +477,26 @@ class BoxyLayerContext {
       layer = (key!.layer as ColorFilterLayer)..colorFilter = colorFilter;
     } else {
       layer = ColorFilterLayer(colorFilter: colorFilter);
+      key?.layer = layer;
+    }
+    push(layer: layer, paint: paint, bounds: bounds);
+  }
+
+  /// Pushes a [ImageFilterLayer] to the compositing tree, calling [paint] to
+  /// paint on top of the layer.
+  ///
+  /// {@macro boxy.custom_boxy.BoxyLayerContext.push.bounds}
+  void imageFilter({
+    required ImageFilter imageFilter,
+    required VoidCallback paint,
+    Rect? bounds,
+    LayerKey? key,
+  }) {
+    ImageFilterLayer layer;
+    if (key?.layer is ImageFilterLayer) {
+      layer = (key!.layer as ImageFilterLayer)..imageFilter = imageFilter;
+    } else {
+      layer = ImageFilterLayer(imageFilter: imageFilter);
       key?.layer = layer;
     }
     push(layer: layer, paint: paint, bounds: bounds);
