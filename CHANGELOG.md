@@ -1,3 +1,6 @@
+## [2.0.6]
+* Added `BoxyLayerContext.picture`
+
 ## [2.0.5+1]
 * Fixed small bug in BoxyChild.paint
 
