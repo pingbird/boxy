@@ -1,5 +1,8 @@
+## [2.0.6+1]
+* Added `BoxyDelegate.renderSize`
+
 ## [2.0.6]
-* Added `BoxyLayerContext.picture`
+* Added `BoxyLayerContext.imageFilter`
 
 ## [2.0.5+1]
 * Fixed small bug in BoxyChild.paint
