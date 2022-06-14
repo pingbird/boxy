@@ -941,6 +941,9 @@ abstract class BaseBoxyDelegate<LayoutData extends Object,
   /// The most recent constraints given to this boxy by its parent.
   Constraints get constraints;
 
+  /// The last size returned by layout.
+  Size get renderSize;
+
   /// Returns true if a child exists with the specified [id].
   bool hasChild(Object id) => render.childHandleMap.containsKey(id);
 
@@ -1114,7 +1117,7 @@ abstract class BaseBoxyDelegate<LayoutData extends Object,
   ///
   /// This method has access to [canvas] and [paintingContext] for painting.
   ///
-  /// You can get the size of the widget with `render.size`.
+  /// You can get the size of the widget with [renderSize].
   void paintForeground() {}
 
   /// Override this method to change how children get painted.
@@ -1134,7 +1137,7 @@ abstract class BaseBoxyDelegate<LayoutData extends Object,
   ///
   /// This method has access to [canvas] and [paintingContext] for painting.
   ///
-  /// You can get the size of the widget with `render.size`.
+  /// You can get the size of the widget with [renderSize].
   void paint() {}
 
   /// Adds the boxy to [hitTestResult], this should typically be called from

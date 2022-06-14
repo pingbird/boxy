@@ -226,6 +226,9 @@ mixin BoxBoxyDelegateMixin<LayoutData extends Object,
   /// [CannotInflateError] if called during a dry layout.
   Size layout() => constraints.smallest;
 
+  @override
+  Size get renderSize => render.size;
+
   /// Override to change the minimum width that this box could be without
   /// failing to correctly paint its contents within itself, without clipping.
   ///
@@ -321,7 +324,7 @@ mixin BoxBoxyDelegateMixin<LayoutData extends Object,
 ///  * [BoxyLayerContext], a wrapper that can push [Layer]s.
 ///  * [BoxyDelegate], a base delegate that supports both [BoxyChild] and
 ///    [SliverBoxyChild].
-class BoxBoxyDelegate<LayoutData extends Object>
+abstract class BoxBoxyDelegate<LayoutData extends Object>
     extends BaseBoxyDelegate<LayoutData, BaseBoxyChild>
     with BoxBoxyDelegateMixin<LayoutData, BaseBoxyChild> {
   /// Constructs a BoxyDelegate with optional [relayout] and [repaint]
@@ -412,7 +415,7 @@ class BoxBoxyDelegate<LayoutData extends Object>
 ///   @override
 ///   void paint() {
 ///     canvas.drawRect(
-///       Offset.zero & render.size,
+///       Offset.zero & renderSize,
 ///       Paint()..color = Colors.blue,
 ///     );
 ///   }

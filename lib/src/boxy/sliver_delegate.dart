@@ -243,6 +243,9 @@ abstract class SliverBoxyDelegate<LayoutData extends Object>
   }
 
   @override
+  SliverSize get renderSize => render.size;
+
+  @override
   void addHit() {
     hitTestResult.add(
       SliverHitTestEntry(
