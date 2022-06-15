@@ -1,10 +1,14 @@
 import 'dart:math';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'
+    hide
+        SlottedMultiChildRenderObjectWidgetMixin,
+        SlottedContainerRenderObjectMixin;
 import 'package:flutter/rendering.dart';
 
 import 'axis_utils.dart';
 import 'sliver_card.dart';
+import 'slotted_render_object_widget.dart';
 
 /// A sliver container that gives its sliver a foreground or background
 /// consisting of box widgets, this is useful if you want a sliver to look and
@@ -88,7 +92,7 @@ class SliverContainer extends StatelessWidget {
       );
     }
     current = _BaseSliverContainer(
-      sliver: current!,
+      sliver: current,
       foreground: foreground,
       background: background,
       bufferExtent: bufferExtent,
@@ -106,8 +110,15 @@ class SliverContainer extends StatelessWidget {
   }
 }
 
-class _BaseSliverContainer extends RenderObjectWidget {
-  final Widget sliver;
+enum _SliverOverlaySlot {
+  foreground,
+  sliver,
+  background,
+}
+
+class _BaseSliverContainer extends RenderObjectWidget
+    with SlottedMultiChildRenderObjectWidgetMixin<_SliverOverlaySlot> {
+  final Widget? sliver;
   final Widget? foreground;
   final Widget? background;
   final double bufferExtent;
@@ -127,15 +138,29 @@ class _BaseSliverContainer extends RenderObjectWidget {
   }) : super(key: key);
 
   @override
-  RenderObjectElement createElement() => _SliverContainerElement(this);
+  Iterable<_SliverOverlaySlot> get slots => _SliverOverlaySlot.values;
 
   @override
-  RenderObject createRenderObject(context) => RenderSliverContainer(
-        bufferExtent: bufferExtent,
-        clipper: clipper,
-        clipBehavior: clipBehavior,
-        clipSliverOnly: clipSliverOnly,
-      );
+  Widget? childForSlot(_SliverOverlaySlot slot) {
+    switch (slot) {
+      case _SliverOverlaySlot.foreground:
+        return foreground;
+      case _SliverOverlaySlot.sliver:
+        return sliver;
+      case _SliverOverlaySlot.background:
+        return background;
+    }
+  }
+
+  @override
+  RenderSliverContainer createRenderObject(context) {
+    return RenderSliverContainer(
+      bufferExtent: bufferExtent,
+      clipper: clipper,
+      clipBehavior: clipBehavior,
+      clipSliverOnly: clipSliverOnly,
+    );
+  }
 
   @override
   void updateRenderObject(
@@ -153,12 +178,12 @@ class _BaseSliverContainer extends RenderObjectWidget {
 /// See also:
 ///
 ///   * [SliverContainer], the widget equivalent.
-class RenderSliverContainer extends RenderSliver with RenderSliverHelpers {
+class RenderSliverContainer extends RenderSliver
+    with
+        RenderSliverHelpers,
+        SlottedContainerRenderObjectMixin<_SliverOverlaySlot> {
   /// Constructs a RenderSliverContainer with the specified arguments.
   RenderSliverContainer({
-    this.foreground,
-    this.sliver,
-    this.background,
     double bufferExtent = 0.0,
     Clip clipBehavior = Clip.antiAlias,
     CustomClipper<Path>? clipper,
@@ -166,11 +191,7 @@ class RenderSliverContainer extends RenderSliver with RenderSliverHelpers {
   })  : _clipBehavior = clipBehavior,
         _clipper = clipper,
         _bufferExtent = bufferExtent,
-        _clipSliverOnly = clipSliverOnly {
-    if (foreground != null) adoptChild(foreground!);
-    if (sliver != null) adoptChild(sliver!);
-    if (background != null) adoptChild(background!);
-  }
+        _clipSliverOnly = clipSliverOnly;
 
   /// A custom clipper that defines the path to clip [sliver], [foreground], and
   /// [background.
@@ -201,24 +222,13 @@ class RenderSliverContainer extends RenderSliver with RenderSliverHelpers {
   @override
   void attach(PipelineOwner owner) {
     super.attach(owner);
-    if (foreground != null) foreground!.attach(owner);
     _clipper?.addListener(_markNeedsClip);
   }
 
   @override
   void detach() {
     super.detach();
-    if (foreground != null) foreground!.detach();
-    if (sliver != null) sliver!.detach();
-    if (background != null) background!.detach();
     _clipper?.removeListener(_markNeedsClip);
-  }
-
-  @override
-  void redepthChildren() {
-    if (foreground != null) redepthChild(foreground!);
-    if (sliver != null) redepthChild(sliver!);
-    if (background != null) redepthChild(background!);
   }
 
   /// Adopts a new child, drops the previous one.
@@ -275,23 +285,17 @@ class RenderSliverContainer extends RenderSliver with RenderSliverHelpers {
     }
   }
 
-  /// The child box widget that is layed out so that it covers the visual space
-  /// of [sliver], and painted above it.
-  RenderBox? foreground;
+  /// The foreground's [RenderBox].
+  RenderBox? get foreground =>
+      childForSlot(_SliverOverlaySlot.foreground) as RenderBox?;
 
-  /// The child sliver that this container will wrap.
-  RenderSliver? sliver;
+  /// The containing sliver's [RenderSliver].
+  RenderSliver? get sliver =>
+      childForSlot(_SliverOverlaySlot.sliver) as RenderSliver?;
 
-  /// The child box widget that is layed out so that it covers the visual space
-  /// of [sliver], and painted below it.
-  RenderBox? background;
-
-  @override
-  void visitChildren(RenderObjectVisitor visitor) {
-    if (foreground != null) visitor(foreground!);
-    if (sliver != null) visitor(sliver!);
-    if (background != null) visitor(background!);
-  }
+  /// The background's [RenderBox].
+  RenderBox? get background =>
+      childForSlot(_SliverOverlaySlot.background) as RenderBox?;
 
   Offset _getBufferOffset(double mainAxisPosition, double mainAxisSize) {
     var delta = mainAxisPosition;
@@ -311,9 +315,14 @@ class RenderSliverContainer extends RenderSliver with RenderSliverHelpers {
 
   @override
   void performLayout() {
-    assert(sliver != null);
-    sliver!.layout(constraints, parentUsesSize: true);
-    final geometry = (this.geometry = sliver!.geometry)!;
+    final SliverGeometry geometry;
+    if (sliver != null) {
+      sliver!.layout(constraints, parentUsesSize: true);
+      geometry = sliver!.geometry!;
+    } else {
+      geometry = SliverGeometry.zero;
+    }
+    this.geometry = geometry;
 
     final maxBufferExtent = min(
       bufferExtent,
@@ -477,109 +486,5 @@ class RenderSliverContainer extends RenderSliver with RenderSliverHelpers {
   @override
   double childMainAxisPosition(RenderObject child) {
     return identical(child, sliver) ? 0 : _bufferMainSize;
-  }
-}
-
-enum _SliverOverlaySlot {
-  foreground,
-  sliver,
-  background,
-}
-
-class _SliverContainerElement extends RenderObjectElement {
-  _SliverContainerElement(_BaseSliverContainer widget) : super(widget);
-
-  Element? foreground;
-  Element? sliver;
-  Element? background;
-
-  @override
-  _BaseSliverContainer get widget => super.widget as _BaseSliverContainer;
-
-  @override
-  RenderSliverContainer get renderObject =>
-      super.renderObject as RenderSliverContainer;
-
-  @override
-  void visitChildren(ElementVisitor visitor) {
-    if (foreground != null) visitor(foreground!);
-    if (sliver != null) visitor(sliver!);
-    if (background != null) visitor(background!);
-  }
-
-  @override
-  void forgetChild(Element child) {
-    if (identical(foreground, child)) {
-      foreground = null;
-    } else if (identical(sliver, child)) {
-      sliver = null;
-    } else if (identical(background, child)) {
-      background = null;
-    }
-    super.forgetChild(child);
-  }
-
-  void _updateChildren() {
-    foreground = updateChild(
-        foreground, widget.foreground, _SliverOverlaySlot.foreground);
-    sliver = updateChild(sliver, widget.sliver, _SliverOverlaySlot.sliver);
-    background = updateChild(
-        background, widget.background, _SliverOverlaySlot.background);
-  }
-
-  @override
-  void mount(Element? parent, dynamic newSlot) {
-    super.mount(parent, newSlot);
-    _updateChildren();
-  }
-
-  @override
-  void update(_BaseSliverContainer newWidget) {
-    super.update(newWidget);
-    _updateChildren();
-  }
-
-  void _updateRenderObject(RenderObject child, _SliverOverlaySlot slot) {
-    switch (slot) {
-      case _SliverOverlaySlot.foreground:
-        renderObject.updateChild(renderObject.foreground, child);
-        renderObject.foreground = child as RenderBox;
-        break;
-      case _SliverOverlaySlot.sliver:
-        renderObject.updateChild(renderObject.sliver, child);
-        renderObject.sliver = child as RenderSliver;
-        break;
-      case _SliverOverlaySlot.background:
-        renderObject.updateChild(renderObject.background, child);
-        renderObject.background = child as RenderBox;
-        break;
-    }
-  }
-
-  @override
-  void insertRenderObjectChild(RenderObject child, dynamic slot) {
-    _updateRenderObject(child, slot as _SliverOverlaySlot);
-  }
-
-  @override
-  void removeRenderObjectChild(RenderObject child, dynamic slot) {
-    if (identical(foreground, child)) {
-      renderObject.updateChild(renderObject.foreground, null);
-      renderObject.foreground = null;
-    } else if (identical(sliver, child)) {
-      renderObject.updateChild(renderObject.sliver, null);
-      renderObject.foreground = null;
-    } else if (identical(background, child)) {
-      renderObject.updateChild(renderObject.background, null);
-      renderObject.foreground = null;
-    } else {
-      assert(false, 'Unreachable');
-    }
-  }
-
-  @override
-  void moveRenderObjectChild(
-      RenderObject child, dynamic oldSlot, dynamic slot) {
-    assert(false, 'Unreachable');
   }
 }

@@ -1,5 +1,6 @@
 ## [2.0.6+1]
 * Added `BoxyDelegate.renderSize`
+* Fixed bugs in `SliverContainer`
 
 ## [2.0.6]
 * Added `BoxyLayerContext.imageFilter`
