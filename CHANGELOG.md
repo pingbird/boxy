@@ -1,6 +1,7 @@
 ## [2.0.6+1]
 * Added `BoxyDelegate.renderSize`
-* Fixed bugs in `SliverContainer`
+* Fixed slot bug in `SliverContainer`
+* Fixed overflow bug in `BoxyFlex`
 
 ## [2.0.6]
 * Added `BoxyLayerContext.imageFilter`

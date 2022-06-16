@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -1107,6 +1108,9 @@ class RenderBoxyFlex extends RenderBox
     required ChildLayouter layoutChild,
   }) {
     int totalFlex = 0;
+    final double minMainSize = _direction == Axis.horizontal
+        ? constraints.minWidth
+        : constraints.minHeight;
     final double maxMainSize = _direction == Axis.horizontal
         ? constraints.maxWidth
         : constraints.maxHeight;
@@ -1275,14 +1279,15 @@ class RenderBoxyFlex extends RenderBox
           math.max(0.0, (canFlex ? maxMainSize : 0.0) - allocatedSize);
       final mainSize = (freeSpace / totalFlex) * _getFlex(dominantChild!);
       final size = layoutChild(
-          dominantChild,
-          BoxConstraintsAxisUtil.create(
-            _direction,
-            minCross: 0,
-            maxCross: maxCrossSize,
-            minMain: _getFit(dominantChild) == FlexFit.tight ? mainSize : 0.0,
-            maxMain: mainSize,
-          ));
+        dominantChild,
+        BoxConstraintsAxisUtil.create(
+          _direction,
+          minCross: 0,
+          maxCross: maxCrossSize,
+          minMain: _getFit(dominantChild) == FlexFit.tight ? mainSize : 0.0,
+          maxMain: mainSize,
+        ),
+      );
       maxCrossSize = crossSize = size.crossAxisSize(_direction);
     } else if (hasInflexible) {
       // Lay out inflexible children to calculate the allocatedSize, giving
@@ -1398,9 +1403,12 @@ class RenderBoxyFlex extends RenderBox
     }
 
     return _LayoutSizes(
-      mainSize: canFlex && mainAxisSize == MainAxisSize.max
-          ? maxMainSize
-          : allocatedSize,
+      mainSize: max(
+        minMainSize,
+        canFlex && mainAxisSize == MainAxisSize.max
+            ? maxMainSize
+            : min(maxMainSize, allocatedSize),
+      ),
       crossSize: crossSize,
       allocatedSize: allocatedSize,
       needsBaseline: needsBaseline,
