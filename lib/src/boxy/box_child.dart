@@ -164,24 +164,19 @@ class BoxyChild extends BaseBoxyChild {
     BoxFit fit = BoxFit.contain,
     Alignment alignment = Alignment.center,
   }) {
-    final constraints = BoxConstraints(
-      maxWidth: rect.width,
-      maxHeight: rect.height,
-    );
-
-    final childSize = layout(constraints, useSize: true);
+    final childSize = layout(const BoxConstraints());
     final sizes = applyBoxFit(fit, childSize, rect.size);
     final scaleX = sizes.destination.width / sizes.source.width;
     final scaleY = sizes.destination.height / sizes.source.height;
     final sourceRect =
         alignment.inscribe(sizes.source, Offset.zero & childSize);
-    final destinationRect =
-        alignment.inscribe(sizes.destination, Offset.zero & size);
+    final destinationRect = alignment.inscribe(sizes.destination, rect);
 
-    setTransform(Matrix4.translationValues(
-        destinationRect.left, destinationRect.top, 0.0)
-      ..scale(scaleX, scaleY, 1.0)
-      ..translate(-sourceRect.left, -sourceRect.top));
+    setTransform(
+      Matrix4.translationValues(destinationRect.left, destinationRect.top, 0.0)
+        ..scale(scaleX, scaleY, 1.0)
+        ..translate(-sourceRect.left, -sourceRect.top),
+    );
   }
 
   @override
