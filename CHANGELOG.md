@@ -1,3 +1,6 @@
+## [2.0.6+2]
+* Fixed constraints bug in `BoxyChild.layoutRect`
+
 ## [2.0.6+1]
 * Added `BoxyDelegate.renderSize`
 * Fixed slot bug in `SliverContainer`
