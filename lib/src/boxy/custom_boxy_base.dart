@@ -1175,6 +1175,13 @@ abstract class BaseBoxyDelegate<LayoutData extends Object,
 
     return false;
   }
+
+  /// Override to handle pointer events that hit this boxy.
+  ///
+  /// See also:
+  ///
+  /// * [RenderObject.handleEvent], which has usage examples.
+  void onPointerEvent(PointerEvent event, covariant HitTestEntry entry) {}
 }
 
 /// Widget that can provide data to the parent [CustomBoxy].

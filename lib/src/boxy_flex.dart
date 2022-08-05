@@ -13,10 +13,14 @@ enum BoxyFlexIntrinsicsBehavior {
   /// Measure the intrinsic main axis of inflexible children with an infinite
   /// max cross axis size, using it as the max main axis size of the dominant
   /// child.
+  ///
+  /// TL;DR: Use this if you have text in a horizontal Flex.
   measureMain,
 
   /// Measure the intrinsic cross axis of the dominant child with an infinite
   /// max main axis size.
+  ///
+  /// TL;DR: Use this if you want speed, since it only measures one child.
   measureCross,
 }
 

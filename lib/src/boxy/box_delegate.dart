@@ -100,28 +100,45 @@ class RenderBoxy<ChildHandleType extends BaseBoxyChild> extends RenderBox
   double computeMinIntrinsicWidth(double height) {
     updateChildHandles();
     return wrapPhase(
-        BoxyDelegatePhase.intrinsics, () => delegate.minIntrinsicWidth(height));
+      BoxyDelegatePhase.intrinsics,
+      () => delegate.minIntrinsicWidth(height),
+    );
   }
 
   @override
   double computeMaxIntrinsicWidth(double height) {
     updateChildHandles();
     return wrapPhase(
-        BoxyDelegatePhase.intrinsics, () => delegate.maxIntrinsicWidth(height));
+      BoxyDelegatePhase.intrinsics,
+      () => delegate.maxIntrinsicWidth(height),
+    );
   }
 
   @override
   double computeMinIntrinsicHeight(double width) {
     updateChildHandles();
     return wrapPhase(
-        BoxyDelegatePhase.intrinsics, () => delegate.minIntrinsicHeight(width));
+      BoxyDelegatePhase.intrinsics,
+      () => delegate.minIntrinsicHeight(width),
+    );
   }
 
   @override
   double computeMaxIntrinsicHeight(double width) {
     updateChildHandles();
     return wrapPhase(
-        BoxyDelegatePhase.intrinsics, () => delegate.maxIntrinsicHeight(width));
+      BoxyDelegatePhase.intrinsics,
+      () => delegate.maxIntrinsicHeight(width),
+    );
+  }
+
+  @override
+  double? computeDistanceToActualBaseline(TextBaseline baseline) {
+    updateChildHandles();
+    return wrapPhase(
+      BoxyDelegatePhase.intrinsics,
+      () => delegate.distanceToBaseline(baseline),
+    );
   }
 
   @override
@@ -180,6 +197,11 @@ class RenderBoxy<ChildHandleType extends BaseBoxyChild> extends RenderBox
         );
       },
     );
+  }
+
+  @override
+  void handleEvent(PointerEvent event, BoxHitTestEntry entry) {
+    return _delegate.onPointerEvent(event, entry);
   }
 }
 
@@ -300,6 +322,19 @@ mixin BoxBoxyDelegateMixin<LayoutData extends Object,
     }());
     return 0.0;
   }
+
+  /// Override to return the distance from the y-coordinate of the position of
+  /// the box to the y-coordinate of the first given baseline in the box's
+  /// contents, if any, or null otherwise.
+  ///
+  /// See also:
+  ///
+  ///  * [RenderBox.computeDistanceToActualBaseline], which has usage examples.
+  double? distanceToBaseline(TextBaseline baseline) => null;
+
+  @override
+  void onPointerEvent(PointerEvent event, BoxHitTestEntry entry) =>
+      super.onPointerEvent(event, entry);
 
   @override
   BoxHitTestResult get hitTestResult => super.hitTestResult as BoxHitTestResult;

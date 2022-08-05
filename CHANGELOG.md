@@ -1,3 +1,7 @@
+## [2.0.6+2]
+* Added `BoxyDelegate.distanceToBaseline`
+* Added `BoxyDelegate.onPointerEvent`
+
 ## [2.0.6+1]
 * Added `BoxyDelegate.renderSize`
 * Fixed slot bug in `SliverContainer`
