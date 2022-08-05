@@ -81,6 +81,7 @@ class StateTestDelegate extends BoxyDelegate {
 
     for (final child in children) {
       final size = child.layout(childConstraints);
+      assert(size == child.size);
       child.position(Offset(0, offset));
       offset += size.height;
       maxWidth = max(maxWidth, size.width);
