@@ -194,11 +194,15 @@ class TestRecordingPaintingContext extends ClipContext
 
 class _MethodCall implements Invocation {
   _MethodCall(this._name,
-      [this._arguments = const <dynamic>[],
-      this._typeArguments = const <Type>[]]);
+      [this.positionalArguments = const <dynamic>[],
+      // not my code
+      // ignore: unused_element
+      this.typeArguments = const <Type>[]]);
   final Symbol _name;
-  final List<dynamic> _arguments;
-  final List<Type> _typeArguments;
+  @override
+  final List<dynamic> positionalArguments;
+  @override
+  final List<Type> typeArguments;
   @override
   bool get isAccessor => false;
   @override
@@ -211,10 +215,6 @@ class _MethodCall implements Invocation {
   Symbol get memberName => _name;
   @override
   Map<Symbol, dynamic> get namedArguments => <Symbol, dynamic>{};
-  @override
-  List<dynamic> get positionalArguments => _arguments;
-  @override
-  List<Type> get typeArguments => _typeArguments;
 }
 
 String _valueName(Object? value) {
