@@ -1,0 +1,6 @@
+include: '../analysis_options.yaml'
+
+analyzer:
+  errors:
+    public_member_api_docs: ignore
+    use_key_in_widget_constructors: ignore

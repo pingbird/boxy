@@ -1,0 +1,95 @@
+[data-md-color-scheme="slate"] {
+    /*--md-primary-fg-color: #FF6188;*/
+    --md-primary-fg-color: #221f22;
+    --md-accent-fg-color: #221f22;
+    --md-typeset-a-color: #ff7295;
+    --md-default-bg-color: #2d2a2e;
+    --md-footer-bg-color: #221f22;
+    --md-footer-bg-color--dark: #221f22;
+    --md-code-bg-color: #221f22;
+}
+
+.md-typeset a:focus, .md-typeset a:hover {
+    color: #ff96b1;
+}
+
+.md-nav__link:is(a:focus,label:focus), .md-nav__link:is(a:hover,label:hover) {
+    color: #fdced8;
+}
+
+.md-typeset a {
+    font-weight: bold;
+}
+
+.md-typeset .grid.cards>:is(ul,ol)>li:is(:focus-within,:hover), .md-typeset .grid>.card:is(:focus-within,:hover) {
+    background-color: #2a262a;
+    transition: border 0s, box-shadow 0s;
+}
+
+.md-typeset .grid .card.md-button.md-button--primary {
+    border-bottom: 3px #b2b2b2 solid;
+}
+
+.md-typeset .grid .card.md-button.md-button--primary:is(:hover) {
+    border-bottom: 3px #fff solid;
+}
+
+.md-typeset .grid.cards>:is(ul,ol)>li:is(:focus-within,:hover), .md-typeset .grid>.card:is(:focus-within,:hover) {
+    box-shadow: none;
+}
+
+.md-typeset .grid.cards>:is(ul,ol)>li:is(:focus-within,:hover), .md-typeset .grid>.card {
+    border-radius: 4px;
+}
+
+.md-button.md-button--primary .twemoji {
+    margin-right: 16px;
+}
+
+.md-footer {
+    margin-top: 30px;
+}
+
+.highlight span.filename {
+    border-radius: 4px 4px 0 0;
+}
+
+.md-typeset h1 {
+    color: var(--md-typeset-color);
+    font-weight: bold;
+}
+
+.boxy-content-card {
+    margin-block-start: 16px;
+    margin-block-end: 16px;
+}
+
+.boxy-content-card>a {
+    display: block;
+    border: 2px solid var(--md-default-fg-color--lightest);
+    border-radius: 4px;
+    padding: 16px;
+    color: var(--md-typeset-color) !important;
+}
+
+.boxy-content-card>a:hover {
+    color: var(--md-typeset-color) !important;
+}
+
+.boxy-content-card .description {
+    font-weight: normal;
+    font-size: 90%;
+}
+
+.md-button.block {
+    display: block !important;
+}
+
+.md-typeset .md-button:is(:focus,:hover) {
+    background-color: #2a262a;
+    border-color: #2a262a;
+}
+
+.md-search-result mark {
+    color: #ff7295;
+}

@@ -1,0 +1,72 @@
+site_name: Boxy
+site_url: https://boxy.wiki
+nav:
+  - Home: index.md
+  - Primer:
+      - render-objects/introduction-to-layout.md
+      - render-objects/box-constraints.md
+      - render-objects/the-many-trees.md
+      - render-objects/interactive-example.md
+      - render-objects/learn-more.md
+  - CustomBoxy:
+      - custom-boxy/introduction-to-customboxy.md
+      - custom-boxy/hello-world.md
+      - custom-boxy/boxy-child.md
+      - custom-boxy/boxy-id.md
+      - custom-boxy/painting.md
+      - custom-boxy/layers.md
+      - custom-boxy/widget-inflation.md
+      - Examples:
+        - custom-boxy/examples/square-layout.md
+        - custom-boxy/examples/evenly-sized-row.md
+        - custom-boxy/examples/product-tile.md
+  - Helpers:
+    - Flex:
+        - helpers/cross-axis-alignment.md
+        - helpers/dominant.md
+    - Slivers:
+        - helpers/sliver-container.md
+        - helpers/sliver-card.md
+theme:
+  name: material
+  custom_dir: overrides
+  logo: assets/beeper.png
+  favicon: assets/beeper.png
+  palette:
+    - scheme: slate
+      primary: blue
+      accent: blue
+  features:
+    - navigation.tabs
+    - navigation.instant
+    - navigation.expand
+    - toc.follow
+    - content.code.annotate
+markdown_extensions:
+  - tables
+  - admonition
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - attr_list
+  - md_in_html
+  - pymdownx.details
+extra:
+  generator: false
+  social:
+    - icon: fontawesome/solid/heart
+      link: https://tst.sh
+  analytics:
+    provider: google
+    property: G-3Q8MDN3K8F
+repo_url: https://github.com/PixelToast/flutter-boxy
+extra_css:
+  - stylesheets/extra.css
+  - stylesheets/boxy.css

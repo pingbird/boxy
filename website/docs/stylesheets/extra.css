@@ -1,0 +1,134 @@
+/* Make tabs smaller and add indicator */
+.md-footer .md-social {
+	padding: 0;
+}
+.md-tabs .md-tabs__link {
+	margin: 0;
+}
+.md-tabs .md-tabs__item {
+	height: inherit;
+	padding: 0;
+	display: flex;
+	align-content: stretch;
+}
+
+.md-tabs .md-tabs__item a {
+	vertical-align: middle;
+	padding: 0 8px;
+	margin: 0 8px;
+}
+.md-tabs .md-tabs__link {
+	box-sizing: border-box;
+	border-bottom: 2px solid rgba(0, 0, 0, 0);
+}
+.md-tabs .md-tabs__link--active {
+	border-bottom: 2px solid;
+}
+.md-tabs .md-tabs__list {
+	height: 48px;
+	display: flex;
+	flex-direction: row;
+}
+
+
+/* Make content a little wider */
+.md-grid {
+	max-width: 1300px;
+}
+
+/* Disable breakpoint text scaling */
+html {
+	font-size: 125%;
+}
+
+/* Bigger logo */
+.md-header__button.md-logo :-webkit-any(img,svg) {
+	height: 32px;
+}
+.md-header__button.md-logo {
+	padding: 0;
+}
+
+/* Make sidebar invisible instead of collapsed when hidden */
+.md-main .md-sidebar--primary[hidden] {
+	display: initial;
+	visibility: hidden;
+}
+
+@media screen and (max-width: 76.1875em) {
+	.md-main .md-sidebar--primary[hidden] {
+		visibility: visible;
+	}
+}
+
+[data-md-color-primary="white"] {
+	--md-button-hover-bg-color: hsla(0, 0, 0, 0.1);
+}
+
+[data-md-color-primary="slate"] {
+	--md-button-hover-bg-color: hsla(0, 0, 0, 0.1);
+}
+
+/* Better looking buttons */
+.md-typeset .md-button {
+	border-radius: 4px;
+	margin: 4px;
+	color: var(--md-typeset-color);
+	border-color: var(--md-default-fg-color--lightest);
+}
+
+.md-typeset .md-button:is(:focus,:hover):not(.md-button--primary) {
+	background-color: var(--md-default-fg-color--lightest);
+	border-color: var(--md-default-fg-color--lightest);
+}
+
+.md-typeset .md-button.md-button--primary {
+	color: var(--md-primary-bg-color);
+	border-color: var(--md-primary-fg-color);
+}
+
+.md-typeset .md-button:is(:focus,:hover) {
+	background-color: var(--md-primary-fg-color);
+	border-color: var(--md-default-bg-color--light);
+}
+
+/* Better looking tabs */
+.md-typeset .tabbed-set>input:first-child:checked~.tabbed-labels>:first-child,
+.md-typeset .tabbed-set>input:nth-child(2):checked~.tabbed-labels>:nth-child(2),
+.md-typeset .tabbed-set>input:nth-child(3):checked~.tabbed-labels>:nth-child(3),
+.md-typeset .tabbed-set>input:nth-child(4):checked~.tabbed-labels>:nth-child(4),
+.md-typeset .tabbed-set>input:nth-child(5):checked~.tabbed-labels>:nth-child(5),
+.md-typeset .tabbed-set>input:nth-child(6):checked~.tabbed-labels>:nth-child(6),
+.md-typeset .tabbed-set>input:nth-child(7):checked~.tabbed-labels>:nth-child(7),
+.md-typeset .tabbed-set>input:nth-child(8):checked~.tabbed-labels>:nth-child(8),
+.md-typeset .tabbed-set>input:nth-child(9):checked~.tabbed-labels>:nth-child(9),
+.md-typeset .tabbed-set>input:nth-child(10):checked~.tabbed-labels>:nth-child(10),
+.md-typeset .tabbed-set>input:nth-child(11):checked~.tabbed-labels>:nth-child(11),
+.md-typeset .tabbed-set>input:nth-child(12):checked~.tabbed-labels>:nth-child(12),
+.md-typeset .tabbed-set>input:nth-child(13):checked~.tabbed-labels>:nth-child(13),
+.md-typeset .tabbed-set>input:nth-child(14):checked~.tabbed-labels>:nth-child(14),
+.md-typeset .tabbed-set>input:nth-child(15):checked~.tabbed-labels>:nth-child(15),
+.md-typeset .tabbed-set>input:nth-child(16):checked~.tabbed-labels>:nth-child(16),
+.md-typeset .tabbed-set>input:nth-child(17):checked~.tabbed-labels>:nth-child(17),
+.md-typeset .tabbed-set>input:nth-child(18):checked~.tabbed-labels>:nth-child(18),
+.md-typeset .tabbed-set>input:nth-child(19):checked~.tabbed-labels>:nth-child(19),
+.md-typeset .tabbed-set>input:nth-child(20):checked~.tabbed-labels>:nth-child(20) {
+	color: var(--md-typeset-a-color);
+}
+.md-typeset .tabbed-labels>label:hover {
+	color: var(--md-typeset-color--light);
+}
+.js .md-typeset .tabbed-labels:before {
+	background: var(--md-typeset-a-color);
+}
+
+/* 🌠 */
+.star-list li {
+	text-indent: 4px;
+	list-style-image: url(/docs/assets/star.svg);
+}
+.star-list li::marker {
+	font-size: 2rem;
+	margin: 0;
+	line-height: 0.5;
+}
