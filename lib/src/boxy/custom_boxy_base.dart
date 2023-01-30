@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -483,6 +484,26 @@ class BoxyLayerContext {
     push(layer: layer, paint: paint, bounds: bounds);
   }
 
+  /// Pushes a [ImageFilterLayer] to the compositing tree, calling [paint] to
+  /// paint on top of the layer.
+  ///
+  /// {@macro boxy.custom_boxy.BoxyLayerContext.push.bounds}
+  void imageFilter({
+    required ImageFilter imageFilter,
+    required VoidCallback paint,
+    Rect? bounds,
+    LayerKey? key,
+  }) {
+    ImageFilterLayer layer;
+    if (key?.layer is ImageFilterLayer) {
+      layer = (key!.layer! as ImageFilterLayer)..imageFilter = imageFilter;
+    } else {
+      layer = ImageFilterLayer(imageFilter: imageFilter);
+      key?.layer = layer;
+    }
+    push(layer: layer, paint: paint, bounds: bounds);
+  }
+
   /// Pushes an [OffsetLayer] to the compositing tree, calling [paint] to paint
   /// on top of the layer.
   ///
@@ -938,6 +959,9 @@ abstract class BaseBoxyDelegate<LayoutData extends Object,
   /// The most recent constraints given to this boxy by its parent.
   Constraints get constraints;
 
+  /// The last size returned by layout.
+  Size get renderSize;
+
   /// Returns true if a child exists with the specified [id].
   bool hasChild(Object id) => render.childHandleMap.containsKey(id);
 
@@ -1113,7 +1137,7 @@ abstract class BaseBoxyDelegate<LayoutData extends Object,
   ///
   /// This method has access to [canvas] and [paintingContext] for painting.
   ///
-  /// You can get the size of the widget with `render.size`.
+  /// You can get the size of the widget with [renderSize].
   void paintForeground() {}
 
   /// Override this method to change how children get painted.
@@ -1135,7 +1159,7 @@ abstract class BaseBoxyDelegate<LayoutData extends Object,
   ///
   /// This method has access to [canvas] and [paintingContext] for painting.
   ///
-  /// You can get the size of the widget with `render.size`.
+  /// You can get the size of the widget with [renderSize].
   void paint() {}
 
   /// Adds the boxy to [hitTestResult], this should typically be called from
@@ -1173,6 +1197,13 @@ abstract class BaseBoxyDelegate<LayoutData extends Object,
 
     return false;
   }
+
+  /// Override to handle pointer events that hit this boxy.
+  ///
+  /// See also:
+  ///
+  /// * [RenderObject.handleEvent], which has usage examples.
+  void onPointerEvent(PointerEvent event, covariant HitTestEntry entry) {}
 }
 
 /// Widget that can provide data to the parent [CustomBoxy].

@@ -1,3 +1,16 @@
+## [2.0.6+2]
+* Added `BoxyDelegate.distanceToBaseline`
+* Added `BoxyDelegate.onPointerEvent`
+* Fixed constraints bug in `BoxyChild.layoutRect`
+
+## [2.0.6+1]
+* Added `BoxyDelegate.renderSize`
+* Fixed slot bug in `SliverContainer`
+* Fixed overflow bug in `BoxyFlex`
+
+## [2.0.6]
+* Added `BoxyLayerContext.imageFilter`
+
 ## [2.0.5+1]
 * Fixed small bug in BoxyChild.paint
 

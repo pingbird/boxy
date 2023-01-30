@@ -19,13 +19,15 @@ T keyWidget<T>(Object value) {
   return widget as T;
 }
 
-Rect boxRect(RenderBox box) => Rect.fromPoints(
-      box.localToGlobal(Offset.zero),
-      box.localToGlobal(Offset(
-        box.size.width,
-        box.size.height,
-      )),
-    );
+Rect boxRect(RenderBox box) {
+  return Rect.fromPoints(
+    box.localToGlobal(Offset.zero),
+    box.localToGlobal(Offset(
+      box.size.width,
+      box.size.height,
+    )),
+  );
+}
 
 class TestFrame extends StatelessWidget {
   final Widget child;

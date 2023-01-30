@@ -340,7 +340,8 @@ void main() {
                 child: RotatedBox(
                   quarterTurns: 1,
                   child: Text(
-                      'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
+                    'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                  ),
                 ),
               ),
             ],
@@ -419,5 +420,32 @@ void main() {
         expect(lastBox.size, const Size(blockSize, blockSize));
       }
     }
+  });
+
+  testWidgets('handles overflow properly', (tester) async {
+    await tester.pumpWidget(
+      TestFrame(
+        constraints: BoxConstraints.loose(const Size(300, 300)),
+        child: SizedBox(
+          width: 200,
+          child: BoxyRow(
+            mainAxisSize: MainAxisSize.min,
+            children: const [
+              BoxyFlexible.align(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                child: SizedBox(
+                  width: 400,
+                  height: 400,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    expect(
+      tester.takeException().toString(),
+      contains('A RenderBoxyFlex overflowed by 200 pixels on the right.'),
+    );
   });
 }

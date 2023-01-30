@@ -17,7 +17,7 @@ class ProductTitleController {
 
 class ProductTilePage extends StatefulWidget {
   @override
-  ProductTilePageState createState() => ProductTilePageState();
+  State<ProductTilePage> createState() => ProductTilePageState();
 }
 
 class ProductTilePageState extends State<ProductTilePage> {
@@ -33,13 +33,14 @@ class ProductTilePageState extends State<ProductTilePage> {
   }
 
   @override
-  Scaffold build(BuildContext context) {
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: const GalleryAppBar(
         ['Boxy Gallery', 'Product Tile'],
         source:
             'https://github.com/PixelToast/flutter-boxy/blob/master/example/lib/pages/product_tile.dart',
       ),
+      backgroundColor: palette.primary,
       body: Column(
         children: [
           Separator(),
@@ -75,8 +76,7 @@ class ProductTilePageState extends State<ProductTilePage> {
                       ),
                       info: const SeebInfo(price: r'$0.10 / oz'),
                       seller: const SeebSeller(
-                        image: 'https://i.imgur.com/fKtqsMi.jpg',
-                      ),
+                          image: 'https://i.imgur.com/fKtqsMi.jpg'),
                       style: style,
                     ),
                   ),
@@ -118,6 +118,7 @@ class SeebSeller extends StatefulWidget {
 
 class _SeebSellerState extends State<SeebSeller> {
   bool expanded = false;
+
   @override
   Widget build(context) {
     return ClipOval(
@@ -169,7 +170,7 @@ class SeebTitle extends StatefulWidget {
   }) : super(key: ValueKey(Tuple2(#seebTitle, index)));
 
   @override
-  State createState() => SeebTitleState();
+  SeebTitleState createState() => SeebTitleState();
 }
 
 class SeebTitleState extends State<SeebTitle> {
@@ -189,38 +190,36 @@ class SeebTitleState extends State<SeebTitle> {
   }
 
   @override
-  Widget build(context) {
+  ClipRRect build(context) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(8),
       child: Stack(
         children: [
           Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Colors.blueGrey.shade900,
-                    Colors.blueGrey.shade800,
-                  ],
-                ),
+              child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.blueGrey.shade900,
+                  Colors.blueGrey.shade800,
+                ],
               ),
             ),
-          ),
+          )),
           Positioned.fill(
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 500),
-              curve: Curves.ease,
-              padding: EdgeInsets.only(
-                bottom: expanded ? 0 : 60,
-              ),
-              child: Image.network(
-                widget.image,
-                fit: BoxFit.cover,
-              ),
+              child: AnimatedContainer(
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.ease,
+            padding: EdgeInsets.only(
+              bottom: expanded ? 0 : 60,
             ),
-          ),
+            child: Image.network(
+              widget.image,
+              fit: BoxFit.cover,
+            ),
+          )),
           AnimatedContainer(
             duration: const Duration(milliseconds: 500),
             width: expanded ? 450 : 350,
@@ -303,7 +302,7 @@ class SeebInfo extends StatefulWidget {
   });
 
   @override
-  State createState() => SeebInfoState();
+  SeebInfoState createState() => SeebInfoState();
 }
 
 class SeebInfoState extends State<SeebInfo> with TickerProviderStateMixin {
@@ -382,8 +381,12 @@ class SeebInfoState extends State<SeebInfo> with TickerProviderStateMixin {
   }
 }
 
+@immutable
 class ProductTileStyle {
+  /// How far to the left the seller is inset
   final double sellerInset;
+
+  /// The size of the gap between the title and description
   final double gapHeight;
 
   const ProductTileStyle({
@@ -391,8 +394,15 @@ class ProductTileStyle {
     this.gapHeight = 8.0,
   });
 
-  bool sameLayout(ProductTileStyle other) =>
-      other.sellerInset == sellerInset && other.gapHeight == gapHeight;
+  @override
+  bool operator ==(Object? other) =>
+      identical(this, other) ||
+      (other is ProductTileStyle &&
+          other.sellerInset == sellerInset &&
+          other.gapHeight == gapHeight);
+
+  @override
+  int get hashCode => Object.hash(sellerInset, gapHeight);
 }
 
 class ProductTile extends StatelessWidget {
@@ -413,6 +423,8 @@ class ProductTile extends StatelessWidget {
     return CustomBoxy(
       delegate: ProductTileDelegate(style: style),
       children: [
+        // Children are in paint order, put the seller last so it can sit
+        // above the others
         BoxyId(id: #title, child: title),
         BoxyId(id: #info, child: info),
         BoxyId(id: #seller, child: seller),
@@ -424,30 +436,35 @@ class ProductTile extends StatelessWidget {
 class ProductTileDelegate extends BoxyDelegate {
   final ProductTileStyle style;
 
-  ProductTileDelegate({
-    required this.style,
-  });
+  ProductTileDelegate({required this.style});
 
   @override
   Size layout() {
+    // We can grab children by name using getChild
     final title = getChild(#title);
     final seller = getChild(#seller);
     final info = getChild(#info);
 
+    // Lay out the seller first so it can provide a minimum height to the title
+    // and info
     final sellerSize = seller.layout(constraints.deflate(
       EdgeInsets.only(right: style.sellerInset),
     ));
 
+    // Lay out and position the title
     final titleSize = title.layout(constraints.copyWith(
       minHeight: sellerSize.height / 2 + style.gapHeight / 2,
     ));
-
     title.position(Offset.zero);
+
+    // Position the seller at the bottom right of the title, offset to the left
+    // by sellerInset
     seller.position(Offset(
       titleSize.width - (sellerSize.width + style.sellerInset),
       (titleSize.height - sellerSize.height / 2) + style.gapHeight / 2,
     ));
 
+    // Lay out info to match the width of title and position it below the title
     final infoSize = info.layout(constraints.copyWith(
       minHeight: sellerSize.height / 2,
       minWidth: titleSize.width,
@@ -463,5 +480,5 @@ class ProductTileDelegate extends BoxyDelegate {
 
   @override
   bool shouldRelayout(ProductTileDelegate oldDelegate) =>
-      !style.sameLayout(oldDelegate.style);
+      style != oldDelegate.style;
 }

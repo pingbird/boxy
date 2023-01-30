@@ -198,6 +198,11 @@ class RenderSliverBoxy<ChildHandleType extends BaseBoxyChild>
   Offset unwrapOffset(double cross, double main, Size size) {
     return constraints.unwrap(cross, main, size);
   }
+
+  @override
+  void handleEvent(PointerEvent event, SliverHitTestEntry entry) {
+    return _delegate.onPointerEvent(event, entry);
+  }
 }
 
 /// A delegate that controls the layout and paint of child widgets, used by
@@ -244,6 +249,9 @@ abstract class SliverBoxyDelegate<LayoutData extends Object>
   }
 
   @override
+  SliverSize get renderSize => render.size;
+
+  @override
   void addHit() {
     hitTestResult.add(
       SliverHitTestEntry(
@@ -253,6 +261,10 @@ abstract class SliverBoxyDelegate<LayoutData extends Object>
       ),
     );
   }
+
+  @override
+  void onPointerEvent(PointerEvent event, SliverHitTestEntry entry) =>
+      super.onPointerEvent(event, entry);
 }
 
 typedef _HitTestCallback = bool Function(

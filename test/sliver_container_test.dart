@@ -231,4 +231,32 @@ void main() {
 
     expect(clipper.listeners, equals(0));
   });
+
+  testWidgets('Remove child from SliverContainer', (tester) async {
+    await tester.pumpWidget(
+      TestFrame(
+        constraints: const BoxConstraints(maxWidth: 400, maxHeight: 400),
+        child: CustomScrollView(
+          slivers: [
+            SliverContainer(
+              sliver: const SliverToBoxAdapter(
+                child: Text('Hello'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    await tester.pumpWidget(
+      TestFrame(
+        constraints: const BoxConstraints(maxWidth: 400, maxHeight: 400),
+        child: CustomScrollView(
+          slivers: [
+            SliverContainer(sliver: null),
+          ],
+        ),
+      ),
+    );
+  });
 }
