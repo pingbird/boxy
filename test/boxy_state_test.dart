@@ -31,7 +31,7 @@ class StateTestChildState extends State<StateTestChild> {
   }
 
   @override
-  Widget build(context) => Container(width: 10, height: 10);
+  Widget build(context) => const SizedBox(width: 10, height: 10);
 }
 
 class CheckIntrinsicsDelegate extends BoxyDelegate {

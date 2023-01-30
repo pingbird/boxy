@@ -1,9 +1,11 @@
 import 'dart:math';
 
 import 'package:boxy/boxy.dart';
-import 'package:boxy_gallery/main.dart';
 import 'package:flutter/material.dart';
 import 'package:tuple/tuple.dart';
+
+import '../components/palette.dart';
+import '../main.dart';
 
 class TreeViewPage extends StatefulWidget {
   @override
@@ -22,9 +24,9 @@ class TreeViewPageState extends State<TreeViewPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ConstrainedBox(
-                  child: child,
                   constraints:
                       const BoxConstraints.tightFor(width: settingsWidth),
+                  child: child,
                 )
               ],
             ),
@@ -33,16 +35,11 @@ class TreeViewPageState extends State<TreeViewPage> {
 
   Widget buildTitle(String name) {
     return Padding(
-      child: Text(
-        name,
-        style: const TextStyle(
-          color: NiceColors.text,
-        ),
-      ),
       padding: const EdgeInsets.only(
         left: 24,
         top: 8,
       ),
+      child: Text(name),
     );
   }
 
@@ -85,28 +82,29 @@ class TreeViewPageState extends State<TreeViewPage> {
         source:
             'https://github.com/PixelToast/flutter-boxy/blob/master/example/lib/pages/tree_view.dart',
       ),
-      backgroundColor: NiceColors.primary,
       body: Column(
         children: [
           Separator(),
           Expanded(
-            child: Container(
+            child: ColoredBox(
+              color: palette.background,
               child: ListView(
+                physics: const BouncingScrollPhysics(),
                 children: [
                   Center(
                     child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 64,
+                        horizontal: 8,
+                      ),
                       child: TreeView(
                         style: style,
                         root: treeRoot,
                       ),
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 64, horizontal: 8),
                     ),
                   ),
                 ],
-                physics: const BouncingScrollPhysics(),
               ),
-              color: NiceColors.background,
             ),
           ),
           Separator(),
@@ -141,7 +139,6 @@ class TreeViewPageState extends State<TreeViewPage> {
                 Slider(
                   label: '${style.lineRadius.round()}px',
                   value: style.lineRadius,
-                  min: 0,
                   max: 25,
                   onChanged: (v) => setState(() {
                     style = style.copyWith(lineRadius: v);
@@ -152,7 +149,6 @@ class TreeViewPageState extends State<TreeViewPage> {
                 Slider(
                   label: '${style.spacing.round()}px',
                   value: style.spacing,
-                  min: 0,
                   max: 100,
                   onChanged: (v) => setState(() {
                     style = style.copyWith(spacing: v);
@@ -205,7 +201,12 @@ class TreeTileState extends State<TreeTile>
   @override
   Widget build(context) {
     return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
       child: AnimatedContainer(
+        decoration: BoxDecoration(
+          color: palette.primary,
+        ),
+        duration: const Duration(milliseconds: 250),
         child: Material(
           color: Colors.transparent,
           child: InkWell(
@@ -214,26 +215,20 @@ class TreeTileState extends State<TreeTile>
               anim.animateTo(state.toDouble(), curve: Curves.ease);
             }),
             child: Padding(
-              child: Text(
-                widget.text,
-                style: TextStyle(
-                  fontSize: 16 * anim.value + 16,
-                  color: NiceColors.text,
-                ),
-              ),
               padding: const EdgeInsets.symmetric(
                 vertical: 16,
                 horizontal: 32,
               ),
+              child: Text(
+                widget.text,
+                style: TextStyle(
+                  fontSize: 16 * anim.value + 16,
+                ),
+              ),
             ),
           ),
         ),
-        decoration: const BoxDecoration(
-          color: NiceColors.primary,
-        ),
-        duration: const Duration(milliseconds: 250),
       ),
-      borderRadius: BorderRadius.circular(8),
     );
   }
 }
@@ -292,11 +287,11 @@ class TreeView extends StatelessWidget {
     root.addTo(children);
 
     return CustomBoxy(
-      children: children,
       delegate: TreeViewDelegate(
         root: root,
         style: style,
       ),
+      children: children,
     );
   }
 }
@@ -323,9 +318,13 @@ class TreeBranch extends TreeNode {
   @override
   bool sameLayout(other) {
     if (other is TreeBranch) {
-      if (other.children.length != children.length) return false;
+      if (other.children.length != children.length) {
+        return false;
+      }
       for (var i = 0; i < children.length; i++) {
-        if (!other.children[i].sameLayout(children[i])) return false;
+        if (!other.children[i].sameLayout(children[i])) {
+          return false;
+        }
       }
       return true;
     }
@@ -391,12 +390,18 @@ class TreeViewDelegate extends BoxyDelegate {
         late double btmY;
 
         for (var i = 0; i < node.children.length; i++) {
-          if (i != 0) cSize += Offset(0, style.spacing);
+          if (i != 0) {
+            cSize += Offset(0, style.spacing);
+          }
           final ch = layoutNode(node.children[i], cConstraints)!;
 
           final y = cSize.height + ch.item2;
-          if (i == 0) topY = y;
-          if (i == node.children.length - 1) btmY = y;
+          if (i == 0) {
+            topY = y;
+          }
+          if (i == node.children.length - 1) {
+            btmY = y;
+          }
 
           final offset = Offset(left, cSize.height);
           branches.add((o) => ch.item3(o + offset));
@@ -434,7 +439,9 @@ class TreeViewDelegate extends BoxyDelegate {
           (o) {
             parent.position(o + Offset(0, pOffset));
             final bo = o + Offset(0, cOffset);
-            for (final b in branches) b(bo);
+            for (final b in branches) {
+              b(bo);
+            }
           },
         );
       } else {

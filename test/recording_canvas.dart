@@ -195,6 +195,7 @@ class TestRecordingPaintingContext extends ClipContext
 class _MethodCall implements Invocation {
   _MethodCall(this._name,
       [this._arguments = const <dynamic>[],
+      // ignore: unused_element
       this._typeArguments = const <Type>[]]);
   final Symbol _name;
   final List<dynamic> _arguments;
@@ -218,7 +219,9 @@ class _MethodCall implements Invocation {
 }
 
 String _valueName(Object? value) {
-  if (value is double) return value.toStringAsFixed(1);
+  if (value is double) {
+    return value.toStringAsFixed(1);
+  }
   return value.toString();
 }
 

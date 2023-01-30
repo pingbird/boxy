@@ -72,7 +72,9 @@ class InflatedChildHandle {
   /// This getter is useful to access properties and methods that the child
   /// handle does not provide.
   RenderObject get render {
-    if (_render != null) return _render!;
+    if (_render != null) {
+      return _render!;
+    }
     _parent.flushInflateQueue();
     assert(_render != null);
     return _render!;
@@ -80,7 +82,9 @@ class InflatedChildHandle {
 
   /// The [Element] aka [BuildContext] representing this child.
   Element get context {
-    if (_context != null) return _context!;
+    if (_context != null) {
+      return _context!;
+    }
     _parent.flushInflateQueue();
     assert(_context != null);
     return _context!;
@@ -188,7 +192,7 @@ mixin InflatingRenderObjectMixin<
         for (final child in _inflateQueue) {
           assert(child._widget != null);
           final element = _inflater!(child.id, child._widget!);
-          child._render = element.renderObject!;
+          child._render = element.renderObject;
           child._context = element;
         }
         _inflateQueue.clear();
@@ -290,11 +294,13 @@ mixin InflatingRenderObjectMixin<
     // Attempt to recycle existing child handles.
     final top = min<int>(context._children!.length, childHandles.length);
     while (index < top && child != null) {
-      final parentData = child.parentData as ParentDataType;
+      final parentData = child.parentData! as ParentDataType;
       var id = parentData.id;
 
       final oldChild = childHandles[index];
-      if (oldChild.id != (id ?? movingIndex) || oldChild.render != child) break;
+      if (oldChild.id != (id ?? movingIndex) || oldChild.render != child) {
+        break;
+      }
 
       // Assign the child an incrementing index if it does not already have one.
       id ??= movingIndex++;
@@ -321,7 +327,7 @@ mixin InflatingRenderObjectMixin<
 
     // Create new child handles
     while (child != null && index < context._children!.length) {
-      final parentData = child.parentData as ParentDataType;
+      final parentData = child.parentData! as ParentDataType;
       // Assign the child an incrementing index if it does not already have one.
       final childContext = context._children![index];
       assert(childContext.renderObject == child);
@@ -529,7 +535,9 @@ class InflatingElement extends RenderObjectElement {
   @override
   void visitChildren(ElementVisitor visitor) {
     for (final child in _children!) {
-      if (!_forgottenChildren.contains(child)) visitor(child);
+      if (!_forgottenChildren.contains(child)) {
+        visitor(child);
+      }
     }
 
     for (final child in _delegateChildren) {

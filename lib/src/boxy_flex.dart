@@ -418,7 +418,7 @@ class BoxyFlexible extends ParentDataWidget<FlexParentData> {
   @override
   void applyParentData(RenderObject renderObject) {
     final FlexParentData currentParentData =
-        renderObject.parentData as FlexParentData;
+        renderObject.parentData! as FlexParentData;
     final BoxyFlexParentData parentData;
     if (currentParentData is BoxyFlexParentData) {
       parentData = currentParentData;
@@ -453,7 +453,9 @@ class BoxyFlexible extends ParentDataWidget<FlexParentData> {
 
     if (needsLayout) {
       final AbstractNode? targetParent = renderObject.parent;
-      if (targetParent is RenderObject) targetParent.markNeedsLayout();
+      if (targetParent is RenderObject) {
+        targetParent.markNeedsLayout();
+      }
     }
   }
 
@@ -777,7 +779,7 @@ class RenderBoxyFlex extends RenderBox
     if (child.parentData is! FlexParentData) {
       child.parentData = BoxyFlexParentData();
     } else if (child.parentData is! BoxyFlexParentData) {
-      final parentData = child.parentData as FlexParentData;
+      final parentData = child.parentData! as FlexParentData;
       child.parentData = BoxyFlexParentData()
         ..flex = parentData.flex
         ..fit = parentData.fit;
@@ -822,7 +824,7 @@ class RenderBoxyFlex extends RenderBox
           inflexibleSpace += childSize(child, extent);
         }
         final FlexParentData childParentData =
-            child.parentData as FlexParentData;
+            child.parentData! as FlexParentData;
         child = childParentData.nextSibling;
       }
       return maxFlexFractionSoFar * totalFlex + inflexibleSpace;
@@ -849,7 +851,7 @@ class RenderBoxyFlex extends RenderBox
           }
           dominantChild = child;
         }
-        final childParentData = child.parentData as FlexParentData;
+        final childParentData = child.parentData! as FlexParentData;
         child = childParentData.nextSibling;
       }
 
@@ -871,7 +873,7 @@ class RenderBoxyFlex extends RenderBox
           }
         }
         final FlexParentData childParentData =
-            child.parentData as FlexParentData;
+            child.parentData! as FlexParentData;
         child = childParentData.nextSibling;
       }
 
@@ -888,11 +890,12 @@ class RenderBoxyFlex extends RenderBox
       child = firstChild;
       while (child != null) {
         final int flex = _getFlex(child);
-        if (flex > 0)
+        if (flex > 0) {
           maxCrossSize =
               math.max(maxCrossSize, childSize(child, spacePerFlex * flex));
+        }
         final FlexParentData childParentData =
-            child.parentData as FlexParentData;
+            child.parentData! as FlexParentData;
         child = childParentData.nextSibling;
       }
 
@@ -942,24 +945,27 @@ class RenderBoxyFlex extends RenderBox
 
   @override
   double? computeDistanceToActualBaseline(TextBaseline baseline) {
-    if (_direction == Axis.horizontal)
+    if (_direction == Axis.horizontal) {
       return defaultComputeDistanceToHighestActualBaseline(baseline);
+    }
     return defaultComputeDistanceToFirstActualBaseline(baseline);
   }
 
   int _getFlex(RenderBox child) {
-    final FlexParentData childParentData = child.parentData as FlexParentData;
+    final FlexParentData childParentData = child.parentData! as FlexParentData;
     return childParentData.flex ?? 0;
   }
 
   FlexFit _getFit(RenderBox child) {
-    final FlexParentData childParentData = child.parentData as FlexParentData;
+    final FlexParentData childParentData = child.parentData! as FlexParentData;
     return childParentData.fit ?? FlexFit.tight;
   }
 
   bool _getDominant(RenderBox child) {
-    if (child.parentData is! BoxyFlexParentData) return false;
-    final childParentData = child.parentData as BoxyFlexParentData;
+    if (child.parentData is! BoxyFlexParentData) {
+      return false;
+    }
+    final childParentData = child.parentData! as BoxyFlexParentData;
     return childParentData.dominant ?? false;
   }
 
@@ -1008,15 +1014,21 @@ class RenderBoxyFlex extends RenderBox
               switch (_direction) {
                 case Axis.horizontal:
                   while (!node!.constraints.hasBoundedWidth &&
-                      node.parent is RenderBox)
+                      node.parent is RenderBox) {
                     node = node.parent as RenderBox?;
-                  if (!node.constraints.hasBoundedWidth) node = null;
+                  }
+                  if (!node.constraints.hasBoundedWidth) {
+                    node = null;
+                  }
                   break;
                 case Axis.vertical:
                   while (!node!.constraints.hasBoundedHeight &&
-                      node.parent is RenderBox)
+                      node.parent is RenderBox) {
                     node = node.parent as RenderBox?;
-                  if (!node.constraints.hasBoundedHeight) node = null;
+                  }
+                  if (!node.constraints.hasBoundedHeight) {
+                    node = null;
+                  }
                   break;
               }
               if (node != null) {
@@ -1087,7 +1099,7 @@ class RenderBoxyFlex extends RenderBox
     final _LayoutSizes sizes = _computeSizes(
       layoutChild: (RenderBox child, BoxConstraints constraints) {
         final size = child.getDryLayout(constraints);
-        final childParentData = child.parentData as BoxyFlexParentData;
+        final childParentData = child.parentData! as BoxyFlexParentData;
         childParentData._tempSize = child.size;
         return size;
       },
@@ -1155,13 +1167,21 @@ class RenderBoxyFlex extends RenderBox
             switch (_direction) {
               case Axis.horizontal:
                 while (!node!.constraints.hasBoundedWidth &&
-                    node.parent is RenderBox) node = node.parent as RenderBox?;
-                if (!node.constraints.hasBoundedWidth) node = null;
+                    node.parent is RenderBox) {
+                  node = node.parent as RenderBox?;
+                }
+                if (!node.constraints.hasBoundedWidth) {
+                  node = null;
+                }
                 break;
               case Axis.vertical:
                 while (!node!.constraints.hasBoundedHeight &&
-                    node.parent is RenderBox) node = node.parent as RenderBox?;
-                if (!node.constraints.hasBoundedHeight) node = null;
+                    node.parent is RenderBox) {
+                  node = node.parent as RenderBox?;
+                }
+                if (!node.constraints.hasBoundedHeight) {
+                  node = null;
+                }
                 break;
             }
             if (node != null) {
@@ -1204,7 +1224,7 @@ class RenderBoxyFlex extends RenderBox
         lastFlexChild = child;
       }
 
-      final childParentData = child.parentData as FlexParentData;
+      final childParentData = child.parentData! as FlexParentData;
       child = childParentData.nextSibling;
     }
 
@@ -1261,7 +1281,7 @@ class RenderBoxyFlex extends RenderBox
       child = firstChild;
       while (child != null) {
         final BoxyFlexParentData childParentData =
-            child.parentData as BoxyFlexParentData;
+            child.parentData! as BoxyFlexParentData;
         final int flex = _getFlex(child);
         if (flex == 0 && child != dominantChild) {
           final mainSize = child.getMaxIntrinsicAxis(_direction, maxCrossSize);
@@ -1278,7 +1298,6 @@ class RenderBoxyFlex extends RenderBox
           dominantChild,
           BoxConstraintsAxisUtil.create(
             _direction,
-            minCross: 0,
             maxCross: maxCrossSize,
             minMain: _getFit(dominantChild) == FlexFit.tight ? mainSize : 0.0,
             maxMain: mainSize,
@@ -1290,7 +1309,7 @@ class RenderBoxyFlex extends RenderBox
       child = firstChild;
       while (child != null) {
         final FlexParentData childParentData =
-            child.parentData as FlexParentData;
+            child.parentData! as FlexParentData;
         final int flex = _getFlex(child);
         if (flex == 0 && child != dominantChild) {
           final childConstraints = BoxConstraintsAxisUtil.create(
@@ -1318,7 +1337,7 @@ class RenderBoxyFlex extends RenderBox
           canFlex && totalFlex > 0 ? (freeSpace / totalFlex) : double.nan;
       child = firstChild;
       while (child != null) {
-        final childParentData = child.parentData as BoxyFlexParentData;
+        final childParentData = child.parentData! as BoxyFlexParentData;
         final flex = childParentData.flex ?? 0;
         if (flex > 0) {
           final maxChildExtent = canFlex
@@ -1412,27 +1431,28 @@ class RenderBoxyFlex extends RenderBox
     assert(_debugHasNecessaryDirections);
     final BoxConstraints constraints = this.constraints;
 
-    final _sizes = _computeSizes(
+    final sizes = _computeSizes(
       constraints: constraints,
       layoutChild: (child, constraints) {
         child.layout(constraints, parentUsesSize: true);
-        final childParentData = child.parentData as BoxyFlexParentData;
+        final childParentData = child.parentData! as BoxyFlexParentData;
         childParentData._tempSize = child.size;
         return child.size;
       },
     );
 
-    var crossSize = _sizes.crossSize;
+    var crossSize = sizes.crossSize;
     var maxBaselineDistance = 0.0;
-    if (_sizes.needsBaseline) {
+    if (sizes.needsBaseline) {
       var child = firstChild;
       double maxSizeAboveBaseline = 0;
       double maxSizeBelowBaseline = 0;
       while (child != null) {
         assert(() {
-          if (textBaseline == null)
+          if (textBaseline == null) {
             throw FlutterError(
                 'To use FlexAlignItems.baseline, you must also specify which baseline to use using the "baseline" argument.');
+          }
           return true;
         }());
         final double? distance =
@@ -1451,16 +1471,16 @@ class RenderBoxyFlex extends RenderBox
               math.max(maxSizeAboveBaseline + maxSizeBelowBaseline, crossSize);
         }
         final FlexParentData childParentData =
-            child.parentData as FlexParentData;
+            child.parentData! as FlexParentData;
         child = childParentData.nextSibling;
       }
     }
 
     // Align items along the main axis.
-    final mainSize = _sizes.mainSize;
+    final mainSize = sizes.mainSize;
     size = SizeAxisUtil.create(_direction, crossSize, mainSize);
     final actualSize = size.axisSize(_direction);
-    final actualSizeDelta = actualSize - _sizes.allocatedSize;
+    final actualSizeDelta = actualSize - sizes.allocatedSize;
     _overflow = math.max(0.0, -actualSizeDelta);
     final remainingSpace = math.max(0.0, actualSizeDelta);
     late double leadingSpace;
@@ -1504,14 +1524,15 @@ class RenderBoxyFlex extends RenderBox
         flipMainAxis ? actualSize - leadingSpace : leadingSpace;
     var child = firstChild;
     while (child != null) {
-      final FlexParentData childParentData = child.parentData as FlexParentData;
+      final FlexParentData childParentData =
+          child.parentData! as FlexParentData;
       final double childCrossPosition;
       final childCrossAxisAlignment = _getCrossAxisAlignment(child);
       switch (childCrossAxisAlignment) {
         case CrossAxisAlignment.start:
         case CrossAxisAlignment.end:
           childCrossPosition = _startIsTopLeft(
-                      flipAxis(direction), textDirection!, verticalDirection) ==
+                      flipAxis(direction), textDirection, verticalDirection) ==
                   (childCrossAxisAlignment == CrossAxisAlignment.start)
               ? 0.0
               : crossSize - child.size.crossAxisSize(_direction);
@@ -1528,16 +1549,19 @@ class RenderBoxyFlex extends RenderBox
             assert(textBaseline != null);
             final double? distance =
                 child.getDistanceToBaseline(textBaseline!, onlyReal: true);
-            if (distance != null)
+            if (distance != null) {
               childCrossPosition = maxBaselineDistance - distance;
-            else
+            } else {
               childCrossPosition = 0.0;
+            }
           } else {
             childCrossPosition = 0.0;
           }
           break;
       }
-      if (flipMainAxis) childMainPosition -= child.size.axisSize(_direction);
+      if (flipMainAxis) {
+        childMainPosition -= child.size.axisSize(_direction);
+      }
 
       childParentData.offset = OffsetAxisUtil.create(
         _direction,
@@ -1567,7 +1591,9 @@ class RenderBoxyFlex extends RenderBox
     }
 
     // There's no point in drawing the children if we're empty.
-    if (size.isEmpty) return;
+    if (size.isEmpty) {
+      return;
+    }
 
     // We have overflow. Clip it.
     context.pushClipRect(
@@ -1623,7 +1649,9 @@ class RenderBoxyFlex extends RenderBox
   @override
   String toStringShort() {
     String header = super.toStringShort();
-    if (_hasOverflow) header += ' OVERFLOWING';
+    if (_hasOverflow) {
+      header += ' OVERFLOWING';
+    }
     return header;
   }
 

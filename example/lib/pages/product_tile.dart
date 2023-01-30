@@ -1,10 +1,12 @@
 import 'dart:async';
 
 import 'package:boxy/boxy.dart';
-import 'package:boxy_gallery/main.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart' as rx;
 import 'package:tuple/tuple.dart';
+
+import '../components/palette.dart';
+import '../main.dart';
 
 class ProductTitleController {
   var expanded = rx.BehaviorSubject<int?>();
@@ -38,71 +40,64 @@ class ProductTilePageState extends State<ProductTilePage> {
         source:
             'https://github.com/PixelToast/flutter-boxy/blob/master/example/lib/pages/product_tile.dart',
       ),
-      backgroundColor: NiceColors.primary,
       body: Column(
         children: [
           Separator(),
           Expanded(
-            child: Container(
+            child: ColoredBox(
+              color: palette.background,
               child: ListView(
+                physics: const BouncingScrollPhysics(),
                 children: [
                   const Padding(padding: EdgeInsets.only(top: 64)),
                   Center(
-                    child: Container(
-                      child: ProductTile(
-                        title: SeebTitle(
-                          name: 'Millet',
-                          image: 'https://i.imgur.com/Stw5x9N.jpg',
-                          controller: titleCtrl,
-                          index: 0,
-                        ),
-                        info: const SeebInfo(price: '\$0.30 / oz'),
-                        seller: const SeebSeller(
-                            image: 'https://i.imgur.com/ayx4yZa.png'),
-                        style: style,
+                    child: ProductTile(
+                      title: SeebTitle(
+                        name: 'Millet',
+                        image: 'https://i.imgur.com/Stw5x9N.jpg',
+                        controller: titleCtrl,
+                        index: 0,
                       ),
+                      info: const SeebInfo(price: r'$0.30 / oz'),
+                      seller: const SeebSeller(
+                          image: 'https://i.imgur.com/ayx4yZa.png'),
+                      style: style,
                     ),
                   ),
                   const Padding(padding: EdgeInsets.only(top: 12)),
                   Center(
-                    child: Container(
-                      child: ProductTile(
-                        title: SeebTitle(
-                          name: 'Sunflower',
-                          image: 'https://i.imgur.com/xRDWdPx.jpg',
-                          controller: titleCtrl,
-                          index: 1,
-                        ),
-                        info: const SeebInfo(price: '\$0.10 / oz'),
-                        seller: const SeebSeller(
-                          image: 'https://i.imgur.com/fKtqsMi.jpg',
-                        ),
-                        style: style,
+                    child: ProductTile(
+                      title: SeebTitle(
+                        name: 'Sunflower',
+                        image: 'https://i.imgur.com/xRDWdPx.jpg',
+                        controller: titleCtrl,
+                        index: 1,
                       ),
+                      info: const SeebInfo(price: r'$0.10 / oz'),
+                      seller: const SeebSeller(
+                        image: 'https://i.imgur.com/fKtqsMi.jpg',
+                      ),
+                      style: style,
                     ),
                   ),
                   const Padding(padding: EdgeInsets.only(top: 12)),
                   Center(
-                    child: Container(
-                      child: ProductTile(
-                        title: SeebTitle(
-                          name: 'Blend',
-                          image: 'https://i.imgur.com/PItalTE.jpg',
-                          controller: titleCtrl,
-                          index: 2,
-                        ),
-                        info: const SeebInfo(price: '\$0.17 / oz'),
-                        seller: const SeebSeller(
-                            image: 'https://i.imgur.com/fKtqsMi.jpg'),
-                        style: style,
+                    child: ProductTile(
+                      title: SeebTitle(
+                        name: 'Blend',
+                        image: 'https://i.imgur.com/PItalTE.jpg',
+                        controller: titleCtrl,
+                        index: 2,
                       ),
+                      info: const SeebInfo(price: r'$0.17 / oz'),
+                      seller: const SeebSeller(
+                          image: 'https://i.imgur.com/fKtqsMi.jpg'),
+                      style: style,
                     ),
                   ),
                   const Padding(padding: EdgeInsets.only(top: 64)),
                 ],
-                physics: const BouncingScrollPhysics(),
               ),
-              color: NiceColors.background,
             ),
           ),
           Separator(),
@@ -118,7 +113,7 @@ class SeebSeller extends StatefulWidget {
   const SeebSeller({required this.image});
 
   @override
-  _SeebSellerState createState() => _SeebSellerState();
+  State<SeebSeller> createState() => _SeebSellerState();
 }
 
 class _SeebSellerState extends State<SeebSeller> {
@@ -130,14 +125,15 @@ class _SeebSellerState extends State<SeebSeller> {
         children: [
           Positioned.fill(
             child: Container(
-              color: NiceColors.background,
+              color: palette.background,
+              padding: const EdgeInsets.all(8),
               child: ClipOval(
                 child: Image.network(widget.image, fit: BoxFit.cover),
               ),
-              padding: const EdgeInsets.all(8),
             ),
           ),
           Material(
+            color: Colors.transparent,
             child: InkWell(
               onTap: () {
                 setState(() {
@@ -152,7 +148,6 @@ class _SeebSellerState extends State<SeebSeller> {
                 margin: const EdgeInsets.all(8),
               ),
             ),
-            color: Colors.transparent,
           ),
         ],
       ),
@@ -196,6 +191,7 @@ class SeebTitleState extends State<SeebTitle> {
   @override
   Widget build(context) {
     return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
       child: Stack(
         children: [
           Positioned.fill(
@@ -214,23 +210,29 @@ class SeebTitleState extends State<SeebTitle> {
           ),
           Positioned.fill(
             child: AnimatedContainer(
-              child: Image.network(
-                widget.image,
-                fit: BoxFit.cover,
-              ),
               duration: const Duration(milliseconds: 500),
               curve: Curves.ease,
               padding: EdgeInsets.only(
                 bottom: expanded ? 0 : 60,
               ),
+              child: Image.network(
+                widget.image,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
           AnimatedContainer(
+            duration: const Duration(milliseconds: 500),
+            width: expanded ? 450 : 350,
+            height: expanded ? 350 : 200,
+            curve: Curves.ease,
             child: Material(
               color: Colors.transparent,
               child: InkWell(
                 child: Align(
+                  alignment: Alignment.bottomLeft,
                   child: Padding(
+                    padding: const EdgeInsets.all(16),
                     child: Text(
                       widget.name,
                       style: const TextStyle(
@@ -238,17 +240,13 @@ class SeebTitleState extends State<SeebTitle> {
                         color: Colors.white,
                         shadows: [
                           Shadow(
-                            // bottomLeft
-                            offset: Offset.zero,
                             color: Colors.black26,
                             blurRadius: 8.0,
                           ),
                         ],
                       ),
                     ),
-                    padding: const EdgeInsets.all(16),
                   ),
-                  alignment: Alignment.bottomLeft,
                 ),
                 onTap: () {
                   if (widget.controller.expanded.value == widget.index) {
@@ -259,14 +257,9 @@ class SeebTitleState extends State<SeebTitle> {
                 },
               ),
             ),
-            duration: const Duration(milliseconds: 500),
-            width: expanded ? 450 : 350,
-            height: expanded ? 350 : 200,
-            curve: Curves.ease,
           ),
         ],
       ),
-      borderRadius: BorderRadius.circular(8),
     );
   }
 
@@ -330,6 +323,7 @@ class SeebInfoState extends State<SeebInfo> with TickerProviderStateMixin {
   @override
   Widget build(context) {
     return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
       child: Stack(
         children: [
           Positioned.fill(
@@ -350,8 +344,11 @@ class SeebInfoState extends State<SeebInfo> with TickerProviderStateMixin {
             color: Colors.transparent,
             child: InkWell(
               child: Padding(
+                padding: const EdgeInsets.all(16),
                 child: AnimatedSize(
                   alignment: Alignment.topCenter,
+                  duration: const Duration(milliseconds: 250),
+                  curve: Curves.ease,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -369,10 +366,7 @@ class SeebInfoState extends State<SeebInfo> with TickerProviderStateMixin {
                       if (expanded > 2) const SeebInfoTile(text: 'All natural'),
                     ],
                   ),
-                  duration: const Duration(milliseconds: 250),
-                  curve: Curves.ease,
                 ),
-                padding: const EdgeInsets.all(16),
               ),
               onTap: () {
                 setState(() {
@@ -384,7 +378,6 @@ class SeebInfoState extends State<SeebInfo> with TickerProviderStateMixin {
           ),
         ],
       ),
-      borderRadius: BorderRadius.circular(8),
     );
   }
 }

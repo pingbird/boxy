@@ -1,10 +1,12 @@
 import 'dart:math';
 
 import 'package:boxy/boxy.dart';
-import 'package:boxy_gallery/main.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:tuple/tuple.dart';
+
+import '../components/palette.dart';
+import '../main.dart';
 
 class BlogTilePage extends StatefulWidget {
   @override
@@ -23,16 +25,18 @@ class BlogTilePageState extends State<BlogTilePage> {
         source:
             'https://github.com/PixelToast/flutter-boxy/blob/master/example/lib/pages/blog_tile.dart',
       ),
-      backgroundColor: NiceColors.primary,
       body: Column(children: [
         Separator(),
         Expanded(
-          child: Container(
+          child: ColoredBox(
+            color: palette.background,
             child: ListView(
+              physics: const BouncingScrollPhysics(),
               children: [
                 const Padding(padding: EdgeInsets.only(top: 64)),
                 Center(
                   child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 450),
                     child: const BlogTile(
                       body: BlogDesc(
                         author: 'Cicero',
@@ -44,14 +48,11 @@ class BlogTilePageState extends State<BlogTilePage> {
                         Tuple2(MdiIcons.chatOutline, null),
                       ],
                     ),
-                    constraints: const BoxConstraints(maxWidth: 450),
                   ),
                 ),
                 const Padding(padding: EdgeInsets.only(top: 64)),
               ],
-              physics: const BouncingScrollPhysics(),
             ),
-            color: NiceColors.background,
           ),
         ),
         Separator(),
@@ -70,7 +71,7 @@ class ExpandButton extends StatefulWidget {
   });
 
   @override
-  _ExpandButtonState createState() => _ExpandButtonState();
+  State<ExpandButton> createState() => _ExpandButtonState();
 }
 
 class _ExpandButtonState extends State<ExpandButton>
@@ -105,28 +106,27 @@ class _ExpandButtonState extends State<ExpandButton>
 
   @override
   SizedBox build(context) => SizedBox(
+      width: size,
+      height: size,
       child: Material(
         borderRadius: BorderRadius.circular(size / 2),
         color: Colors.transparent,
         child: InkWell(
-          child: Center(
-            child: Transform.rotate(
-                child: const Icon(
-                  Icons.arrow_drop_down,
-                  size: 24,
-                  color: NiceColors.text,
-                ),
-                angle: pi * controller.value),
-          ),
           onTap: widget.onPressed,
           hoverColor: Colors.blueGrey.withOpacity(0.1),
           focusColor: Colors.blueGrey.withOpacity(0.2),
           highlightColor: Colors.blueGrey.withOpacity(0.3),
           splashColor: Colors.blueGrey.shade200.withOpacity(0.3),
+          child: Center(
+            child: Transform.rotate(
+                angle: pi * controller.value,
+                child: const Icon(
+                  Icons.arrow_drop_down,
+                  size: 24,
+                )),
+          ),
         ),
-      ),
-      width: size,
-      height: size);
+      ));
 }
 
 class BlogDesc extends StatefulWidget {
@@ -137,7 +137,7 @@ class BlogDesc extends StatefulWidget {
   });
 
   @override
-  _BlogDescState createState() => _BlogDescState();
+  State<BlogDesc> createState() => _BlogDescState();
 }
 
 class _BlogDescState extends State<BlogDesc> with TickerProviderStateMixin {
@@ -164,79 +164,69 @@ class _BlogDescState extends State<BlogDesc> with TickerProviderStateMixin {
             curve: Curves.ease,
             height: expandDesc ? 200 : 42,
             child: Align(
+                alignment: Alignment.topCenter,
                 child: Padding(
+                    padding: const EdgeInsets.only(
+                      right: 42,
+                      top: 8,
+                      bottom: 8,
+                      left: 8,
+                    ),
                     child: Row(children: [
                       const Padding(
-                          child: Icon(
-                            MdiIcons.rssBox,
-                            color: NiceColors.text,
-                          ),
-                          padding: EdgeInsets.only(right: 8)),
+                          padding: EdgeInsets.only(right: 8),
+                          child: Icon(MdiIcons.rssBox)),
                       Text(
                         widget.author,
-                        style: const TextStyle(
-                          color: NiceColors.text,
-                          fontSize: 18,
-                        ),
+                        style: const TextStyle(fontSize: 18),
                       ),
                       Container(
                         height: 2,
                         width: 4,
-                        color: NiceColors.text.withOpacity(0.3),
+                        color: palette.foreground.withOpacity(0.3),
                         margin: const EdgeInsets.symmetric(horizontal: 8),
                       ),
                       const Text(
                         '1h',
-                        style: TextStyle(
-                          color: NiceColors.text,
-                          fontSize: 15,
-                        ),
+                        style: TextStyle(fontSize: 15),
                       ),
                       Expanded(
                           child: Container(
                         height: 2,
                         decoration: BoxDecoration(
                           gradient: LinearGradient(colors: [
-                            NiceColors.text.withOpacity(0.1),
-                            NiceColors.text.withOpacity(0.3),
-                            NiceColors.text.withOpacity(0.1),
+                            palette.foreground.withOpacity(0.1),
+                            palette.foreground.withOpacity(0.3),
+                            palette.foreground.withOpacity(0.1),
                           ]),
                         ),
                         margin: const EdgeInsets.only(left: 12),
                       )),
-                    ]),
-                    padding: const EdgeInsets.only(
-                      right: 42,
-                      top: 8,
-                      bottom: 8,
-                      left: 8,
-                    )),
-                alignment: Alignment.topCenter),
+                    ]))),
           ),
           const AnimatedSize(
-            child: Padding(
-                child: Text(
-                  loremIpsum,
-                  style: TextStyle(color: NiceColors.text),
-                  maxLines: 3,
-                ),
-                padding: EdgeInsets.only(
-                  left: 8,
-                )),
             duration: Duration(milliseconds: 500),
             curve: Curves.ease,
             alignment: Alignment.topCenter,
+            child: Padding(
+                padding: EdgeInsets.only(
+                  left: 8,
+                ),
+                child: Text(
+                  loremIpsum,
+                  maxLines: 3,
+                )),
           ),
         ]),
         Positioned(
+            top: 0,
+            right: 0,
             child: ExpandButton(
               onPressed: () => setState(() {
                 expandDesc = !expandDesc;
               }),
               expanded: expandDesc,
-            ),
-            top: 0,
-            right: 0),
+            )),
       ]);
 }
 
@@ -252,7 +242,7 @@ class ShareButton extends StatefulWidget {
   });
 
   @override
-  _ShareButtonState createState() => _ShareButtonState();
+  State<ShareButton> createState() => _ShareButtonState();
 }
 
 class _ShareButtonState extends State<ShareButton>
@@ -263,23 +253,13 @@ class _ShareButtonState extends State<ShareButton>
 
   @override
   SizedBox build(context) => SizedBox(
+        width: kButtonSize,
+        height: kButtonSize,
         child: Material(
           color: Colors.transparent,
+          clipBehavior: Clip.antiAlias,
+          borderRadius: borderRadius,
           child: InkWell(
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border.all(
-                  width: 3,
-                  color: NiceColors.divider.withOpacity(0.5),
-                ),
-                borderRadius: borderRadius,
-              ),
-              child: Align(
-                  child: Icon(
-                (showAlt && widget.alt != null) ? widget.alt : widget.icon,
-                color: Colors.blueGrey.shade200,
-              )),
-            ),
             onTap: () => setState(() {
               showAlt = !showAlt;
             }),
@@ -287,12 +267,23 @@ class _ShareButtonState extends State<ShareButton>
             focusColor: Colors.blueGrey.withOpacity(0.2),
             highlightColor: Colors.blueGrey.withOpacity(0.3),
             splashColor: Colors.blueGrey.shade200.withOpacity(0.3),
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  width: 3,
+                  color: palette.divider.withOpacity(0.5),
+                ),
+                borderRadius: borderRadius,
+              ),
+              child: Align(
+                child: Icon(
+                  (showAlt && widget.alt != null) ? widget.alt : widget.icon,
+                  color: Colors.blueGrey.shade200,
+                ),
+              ),
+            ),
           ),
-          clipBehavior: Clip.antiAlias,
-          borderRadius: borderRadius,
         ),
-        width: kButtonSize,
-        height: kButtonSize,
       );
 }
 
@@ -302,12 +293,19 @@ class ShareMoreButton extends StatelessWidget {
   @override
   Material build(context) => Material(
         color: Colors.transparent,
+        clipBehavior: Clip.antiAlias,
+        borderRadius: borderRadius,
         child: InkWell(
+          onTap: () {},
+          hoverColor: Colors.blueGrey.withOpacity(0.1),
+          focusColor: Colors.blueGrey.withOpacity(0.2),
+          highlightColor: Colors.blueGrey.withOpacity(0.3),
+          splashColor: Colors.blueGrey.shade200.withOpacity(0.3),
           child: AnimatedContainer(
             decoration: BoxDecoration(
               border: Border.all(
                 width: 3,
-                color: NiceColors.divider.withOpacity(0.5),
+                color: palette.divider.withOpacity(0.5),
               ),
               borderRadius: borderRadius,
             ),
@@ -316,19 +314,13 @@ class ShareMoreButton extends StatelessWidget {
             duration: const Duration(milliseconds: 500),
             curve: Curves.ease,
             child: Align(
-                child: Icon(
-              Icons.more_horiz,
-              color: Colors.blueGrey.shade200,
-            )),
+              child: Icon(
+                Icons.more_horiz,
+                color: Colors.blueGrey.shade200,
+              ),
+            ),
           ),
-          onTap: () {},
-          hoverColor: Colors.blueGrey.withOpacity(0.1),
-          focusColor: Colors.blueGrey.withOpacity(0.2),
-          highlightColor: Colors.blueGrey.withOpacity(0.3),
-          splashColor: Colors.blueGrey.shade200.withOpacity(0.3),
         ),
-        clipBehavior: Clip.antiAlias,
-        borderRadius: borderRadius,
       );
 }
 

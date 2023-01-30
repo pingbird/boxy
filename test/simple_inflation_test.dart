@@ -13,12 +13,13 @@ class SimpleInflationDelegate extends BoxyDelegate {
     firstChild.position(Offset.zero);
 
     final text = Padding(
-        child: Text(
-          '^ This guy is ${firstSize.width} x ${firstSize.height}',
-          key: const GlobalObjectKey(#subtitle),
-          textAlign: TextAlign.center,
-        ),
-        padding: const EdgeInsets.all(8));
+      padding: const EdgeInsets.all(8),
+      child: Text(
+        '^ This guy is ${firstSize.width} x ${firstSize.height}',
+        key: const GlobalObjectKey(#subtitle),
+        textAlign: TextAlign.center,
+      ),
+    );
 
     // Inflate the text widget
     final secondChild = inflate(text, id: #subtitle);
@@ -38,17 +39,20 @@ class SimpleInflationDelegate extends BoxyDelegate {
 
 void main() {
   testWidgets('Consistent subtitle', (tester) async {
-    await tester.pumpWidget(TestFrame(
+    await tester.pumpWidget(
+      TestFrame(
         child: CustomBoxy(
-      key: const GlobalObjectKey(#boxy),
-      delegate: SimpleInflationDelegate(),
-      children: [
-        Container(
-          width: 100,
-          height: 50,
+          key: const GlobalObjectKey(#boxy),
+          delegate: SimpleInflationDelegate(),
+          children: const [
+            SizedBox(
+              width: 100,
+              height: 50,
+            ),
+          ],
         ),
-      ],
-    )));
+      ),
+    );
 
     final subtitle = keyWidget<Text>(#subtitle).data;
 

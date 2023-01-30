@@ -164,7 +164,9 @@ mixin RenderBoxyMixin<
   /// Marks the object for needing layout, paint, build. or compositing bits
   /// update as a result of the delegate changing.
   void notifyChangedDelegate(BaseBoxyDelegate oldDelegate) {
-    if (delegate == oldDelegate) return;
+    if (delegate == oldDelegate) {
+      return;
+    }
 
     final neededCompositing = oldDelegate.needsCompositing;
 
@@ -227,7 +229,7 @@ mixin RenderBoxyMixin<
 
   @override
   void applyPaintTransform(RenderObject child, Matrix4 transform) {
-    final parentData = child.parentData as BaseBoxyParentData;
+    final parentData = child.parentData! as BaseBoxyParentData;
     transform.multiply(parentData.transform);
   }
 
@@ -380,7 +382,7 @@ class BoxyLayerContext {
     final offsetClipPath = path.shift(offset + _render.paintOffset!);
     ClipPathLayer layer;
     if (key?.layer is ClipPathLayer) {
-      layer = (key!.layer as ClipPathLayer)
+      layer = (key!.layer! as ClipPathLayer)
         ..clipPath = offsetClipPath
         ..clipBehavior = clipBehavior;
     } else {
@@ -412,7 +414,7 @@ class BoxyLayerContext {
     final offsetClipRect = rect.shift(offset + _render.paintOffset!);
     ClipRectLayer layer;
     if (key?.layer is ClipRectLayer) {
-      layer = (key!.layer as ClipRectLayer)
+      layer = (key!.layer! as ClipRectLayer)
         ..clipRect = offsetClipRect
         ..clipBehavior = clipBehavior;
     } else {
@@ -444,7 +446,7 @@ class BoxyLayerContext {
     final offsetClipRRect = rrect.shift(offset + _render.paintOffset!);
     ClipRRectLayer layer;
     if (key?.layer is ClipRRectLayer) {
-      layer = (key!.layer as ClipRRectLayer)
+      layer = (key!.layer! as ClipRRectLayer)
         ..clipRRect = offsetClipRRect
         ..clipBehavior = clipBehavior;
     } else {
@@ -473,7 +475,7 @@ class BoxyLayerContext {
   }) {
     ColorFilterLayer layer;
     if (key?.layer is ColorFilterLayer) {
-      layer = (key!.layer as ColorFilterLayer)..colorFilter = colorFilter;
+      layer = (key!.layer! as ColorFilterLayer)..colorFilter = colorFilter;
     } else {
       layer = ColorFilterLayer(colorFilter: colorFilter);
       key?.layer = layer;
@@ -497,7 +499,7 @@ class BoxyLayerContext {
   }) {
     OffsetLayer layer;
     if (key?.layer is OffsetLayer) {
-      layer = (key!.layer as OffsetLayer)..offset = offset;
+      layer = (key!.layer! as OffsetLayer)..offset = offset;
     } else {
       layer = OffsetLayer(offset: offset);
       key?.layer = layer;
@@ -523,7 +525,7 @@ class BoxyLayerContext {
     final layerOffset = _render.paintOffset! + offset;
     TransformLayer layer;
     if (key?.layer is TransformLayer) {
-      layer = (key!.layer as TransformLayer)
+      layer = (key!.layer! as TransformLayer)
         ..transform = transform
         ..offset = layerOffset;
     } else {
@@ -561,7 +563,7 @@ class BoxyLayerContext {
   }) {
     OpacityLayer layer;
     if (key?.layer is OffsetLayer) {
-      layer = (key!.layer as OpacityLayer)..alpha = alpha;
+      layer = (key!.layer! as OpacityLayer)..alpha = alpha;
     } else {
       layer = OpacityLayer(alpha: alpha);
       key?.layer = layer;
@@ -623,7 +625,8 @@ class BaseBoxyChild extends InflatedChildHandle {
 
   bool _ignore = false;
 
-  BaseBoxyParentData get _parentData => render.parentData as BaseBoxyParentData;
+  BaseBoxyParentData get _parentData =>
+      render.parentData! as BaseBoxyParentData;
 
   /// The size of this child in the child's coordinate space, only valid after
   /// calling [BoxyChild.layout].
@@ -658,6 +661,8 @@ class BaseBoxyChild extends InflatedChildHandle {
   ///
   /// See also:
   ///
+  ///  * [positionOnAxis]
+  ///  * [positionAligned]
   ///  * [offset]
   ///  * [rect]
   void position(Offset newOffset) {
@@ -669,10 +674,23 @@ class BaseBoxyChild extends InflatedChildHandle {
   ///
   /// See also:
   ///
+  ///  * [position]
+  ///  * [positionAligned]
   ///  * [offset]
   ///  * [rect]
   void positionOnAxis(double cross, double main) {
     position(_parent.unwrapOffset(cross, main, size));
+  }
+
+  /// Position a child inside a [Rect] with an [Alignment], this should only
+  /// be called after [BoxyChild.layout].
+  ///
+  /// See also:
+  ///
+  ///  * [position]
+  ///  * [positionOnAxis]
+  void positionRect(Rect rect, [Alignment alignment = Alignment.center]) {
+    position(alignment.inscribe(size, rect).topLeft);
   }
 
   /// The offset to this child relative to the parent, can be set during layout
@@ -726,9 +744,7 @@ class BaseBoxyChild extends InflatedChildHandle {
     _parentData.userData = value;
   }
 
-  RenderBoxyMixin get _parent {
-    return render.parent as RenderBoxyMixin;
-  }
+  RenderBoxyMixin get _parent => render.parent! as RenderBoxyMixin;
 
   /// Paints the child in the current paint context, this should only be called
   /// in [BoxyDelegate.paintChildren].
@@ -746,7 +762,9 @@ class BaseBoxyChild extends InflatedChildHandle {
       'Only one of offset and transform can be provided at the same time',
     );
 
-    if (_ignore) return;
+    if (_ignore) {
+      return;
+    }
     assert(() {
       if (_parent.debugPhase != BoxyDelegatePhase.paint) {
         throw FlutterError(
@@ -841,7 +859,7 @@ class CannotInflateError<DelegateType extends BaseBoxyDelegate>
             'dry layout, but your size also depends on an inflated widget.',
           ),
           ErrorDescription(
-            'If your boxy\'s size does not depend on the size of this widget you '
+            "If your boxy's size does not depend on the size of this widget you "
             'can skip the call to `inflate` when `isDryLayout` is true',
           ),
         ]);
@@ -934,7 +952,7 @@ abstract class BaseBoxyDelegate<LayoutData extends Object,
       }
       return true;
     }());
-    return child as T;
+    return child! as T;
   }
 
   /// Gets the [BuildContext] of this boxy.
@@ -1018,7 +1036,9 @@ abstract class BaseBoxyDelegate<LayoutData extends Object,
       final lastOffset = render.paintOffset;
       render.paintingContext = context;
       render.paintOffset = lastOffset;
-      if (painter != null) painter();
+      if (painter != null) {
+        painter();
+      }
       render.paintingContext = lastContext;
       render.paintOffset = lastOffset;
     }, offset ?? render.paintOffset!, childPaintBounds: debugBounds);
@@ -1106,7 +1126,9 @@ abstract class BaseBoxyDelegate<LayoutData extends Object,
   /// required by the framework because a child might need to insert its own
   /// compositing [Layer] between two other [PictureLayer]s.
   void paintChildren() {
-    for (final child in children) child.paint();
+    for (final child in children) {
+      child.paint();
+    }
   }
 
   /// Override this method to paint below children.
@@ -1206,7 +1228,7 @@ class BoxyId<T extends Object> extends ParentDataWidget<BaseBoxyParentData> {
   void applyParentData(RenderObject renderObject) {
     assert(renderObject.parentData is BaseBoxyParentData);
     final parentData = renderObject.parentData! as BaseBoxyParentData;
-    final parent = renderObject.parent as RenderObject;
+    final parent = renderObject.parent! as RenderObject;
     final dynamic oldUserData = parentData.userData;
     if (id != parentData.id) {
       parentData.id = id;

@@ -1,9 +1,11 @@
 import 'dart:math';
 
 import 'package:boxy/boxy.dart';
-import 'package:boxy_gallery/main.dart';
 import 'package:flutter/material.dart';
 import 'package:tuple/tuple.dart';
+
+import '../components/palette.dart';
+import '../main.dart';
 
 class LineNumberPage extends StatefulWidget {
   @override
@@ -25,9 +27,9 @@ class LineNumberPageState extends State<LineNumberPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ConstrainedBox(
-                  child: child,
                   constraints:
                       const BoxConstraints.tightFor(width: settingsWidth),
+                  child: child,
                 )
               ],
             ),
@@ -36,16 +38,11 @@ class LineNumberPageState extends State<LineNumberPage> {
 
   Widget buildTitle(String name) {
     return Padding(
-      child: Text(
-        name,
-        style: const TextStyle(
-          color: NiceColors.text,
-        ),
-      ),
       padding: const EdgeInsets.only(
         left: 24,
         top: 8,
       ),
+      child: Text(name),
     );
   }
 
@@ -54,33 +51,31 @@ class LineNumberPageState extends State<LineNumberPage> {
     Widget view = LineNumberView(
       lineCount: 15,
       buildLine: (context, i) => Padding(
-        child: Text((String.fromCharCode(i + 'a'.codeUnitAt(0))) * (1 + i * 2)),
         padding: const EdgeInsets.all(2),
+        child: Text((String.fromCharCode(i + 'a'.codeUnitAt(0))) * (1 + i * 2)),
       ),
       buildNumber: (context, i) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
         child: Text(
           '${exponent == 1 ? i + 1 : pow(exponent, i).round()}',
           style: TextStyle(
-            color: NiceColors.text.withOpacity(0.7),
+            color: palette.foreground.withOpacity(0.7),
           ),
         ),
-        padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
       ),
-      numberBg: Container(
-        color: NiceColors.primary,
-      ),
+      numberBg: Container(color: palette.primary),
       numberAlignment: numberAlignment,
     );
 
     final width = constrainWidth ? maxWidth : MediaQuery.of(context).size.width;
     view = AnimatedContainer(
-      child: view,
       constraints: BoxConstraints(
         maxWidth: width,
         minWidth: constrainWidth ? width : 0,
       ),
       duration: const Duration(milliseconds: 250),
       curve: Curves.ease,
+      child: view,
     );
 
     return Scaffold(
@@ -89,27 +84,26 @@ class LineNumberPageState extends State<LineNumberPage> {
         source:
             'https://github.com/PixelToast/flutter-boxy/blob/master/example/lib/pages/line_numbers.dart',
       ),
-      backgroundColor: NiceColors.primary,
       body: Column(children: [
         Separator(),
         Expanded(
-          child: Container(
+          child: ColoredBox(
+            color: palette.background,
             child: ListView(
+              physics: const BouncingScrollPhysics(),
               children: [
                 const Padding(padding: EdgeInsets.only(top: 64)),
                 Center(
                   child: DecoratedBox(
-                    child: ClipRect(child: view),
                     decoration: BoxDecoration(
-                      border: Border.all(color: NiceColors.divider, width: 1),
+                      border: Border.all(color: palette.divider),
                     ),
+                    child: ClipRect(child: view),
                   ),
                 ),
                 const Padding(padding: EdgeInsets.only(top: 64)),
               ],
-              physics: const BouncingScrollPhysics(),
             ),
-            color: NiceColors.background,
           ),
         ),
         Separator(),
@@ -149,7 +143,6 @@ class LineNumberPageState extends State<LineNumberPage> {
                     label: 'x: ${numberAlignment.x.toStringAsFixed(1)}',
                     value: numberAlignment.x,
                     min: -1,
-                    max: 1,
                     divisions: 10,
                     onChanged: (v) => setState(() {
                       numberAlignment = Alignment(v, numberAlignment.y);
@@ -161,7 +154,6 @@ class LineNumberPageState extends State<LineNumberPage> {
                     label: 'y: ${numberAlignment.y.toStringAsFixed(1)}',
                     value: numberAlignment.y,
                     min: -1,
-                    max: 1,
                     divisions: 10,
                     onChanged: (v) => setState(() {
                       numberAlignment = Alignment(numberAlignment.x, v);
@@ -172,7 +164,7 @@ class LineNumberPageState extends State<LineNumberPage> {
               const Padding(padding: EdgeInsets.only(top: 8)),
               buildTitle('Number exponent'),
               Slider(
-                label: '${exponent.toStringAsFixed(1)}',
+                label: exponent.toStringAsFixed(1),
                 value: exponent,
                 min: 1,
                 max: 10,
@@ -212,6 +204,11 @@ class LineNumberView extends StatelessWidget {
   @override
   Widget build(context) {
     return CustomBoxy(
+      delegate: LineNumberDelegate(
+        lineCount: lineCount,
+        numberAlignment: numberAlignment,
+        lineAlignment: lineAlignment,
+      ),
       children: [
         if (numberBg != null) BoxyId(id: #numBg, child: numberBg!),
         if (lineBg != null) BoxyId(id: #lineBg, child: lineBg!),
@@ -220,11 +217,6 @@ class LineNumberView extends StatelessWidget {
           buildLine(context, i),
         ],
       ],
-      delegate: LineNumberDelegate(
-        lineCount: lineCount,
-        numberAlignment: numberAlignment,
-        lineAlignment: lineAlignment,
-      ),
     );
   }
 }
@@ -256,8 +248,6 @@ class LineNumberDelegate extends BoxyDelegate {
     final lineConstraints = BoxConstraints(
       minWidth: max(0.0, constraints.minWidth - numWidth),
       maxWidth: max(0.0, constraints.maxWidth - numWidth),
-      minHeight: 0.0,
-      maxHeight: double.infinity,
     );
 
     for (int i = 0; i < lineCount; i++) {

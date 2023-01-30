@@ -1,7 +1,9 @@
 import 'package:boxy/boxy.dart';
-import 'package:boxy_gallery/main.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart' as rx;
+
+import '../components/palette.dart';
+import '../main.dart';
 
 class ProductTitleController {
   var expanded = rx.BehaviorSubject<int>();
@@ -24,20 +26,22 @@ class ProductTileSimplePageState extends State<ProductTileSimplePage> {
         source:
             'https://github.com/PixelToast/flutter-boxy/blob/master/example/lib/pages/product_tile_simple.dart',
       ),
-      backgroundColor: NiceColors.primary,
+      backgroundColor: palette.primary,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Separator(),
           Expanded(
             child: Align(
-              child: Column(children: [
-                ProductTile(
-                  title: SeebTitle(),
-                  info: SeebInfo(),
-                  seller: SeebSeller(),
-                ),
-              ], mainAxisAlignment: MainAxisAlignment.center),
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ProductTile(
+                      title: SeebTitle(),
+                      info: SeebInfo(),
+                      seller: SeebSeller(),
+                    ),
+                  ]),
             ),
           ),
           Separator(),
@@ -58,6 +62,7 @@ class _SeebSellerState extends State<SeebSeller> {
   Widget build(context) {
     return ClipOval(
       child: Material(
+        color: palette.primary,
         child: InkWell(
           onTap: () {
             setState(() {
@@ -78,7 +83,6 @@ class _SeebSellerState extends State<SeebSeller> {
             ),
           ),
         ),
-        color: NiceColors.primary,
       ),
     );
   }
@@ -95,9 +99,14 @@ class SeebTitleState extends State<SeebTitle> {
   @override
   Widget build(context) {
     return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
       child: Stack(children: [
         Positioned.fill(child: Container(color: const Color(0xFFC7CEEA))),
         AnimatedContainer(
+          duration: const Duration(milliseconds: 500),
+          width: expanded ? 450 : 350,
+          height: expanded ? 350 : 200,
+          curve: Curves.ease,
           child: Material(
             color: Colors.transparent,
             child: InkWell(onTap: () {
@@ -106,13 +115,8 @@ class SeebTitleState extends State<SeebTitle> {
               });
             }),
           ),
-          duration: const Duration(milliseconds: 500),
-          width: expanded ? 450 : 350,
-          height: expanded ? 350 : 200,
-          curve: Curves.ease,
         ),
       ]),
-      borderRadius: BorderRadius.circular(8),
     );
   }
 

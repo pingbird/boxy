@@ -2,8 +2,10 @@ import 'dart:math';
 
 import 'package:boxy/slivers.dart';
 import 'package:boxy/utils.dart';
-import 'package:boxy_gallery/main.dart';
 import 'package:flutter/material.dart';
+
+import '../components/palette.dart';
+import '../main.dart';
 
 class SliverContainerPage extends StatefulWidget {
   @override
@@ -57,7 +59,7 @@ class SliverContainerPageState extends State<SliverContainerPage> {
   @override
   Widget build(BuildContext context) {
     final buttonTheme = ElevatedButton.styleFrom(
-      primary: NiceColors.primary,
+      backgroundColor: palette.primary,
     );
 
     return Scaffold(
@@ -66,19 +68,21 @@ class SliverContainerPageState extends State<SliverContainerPage> {
         source:
             'https://github.com/PixelToast/flutter-boxy/blob/master/example/lib/pages/sliver_container.dart',
       ),
-      backgroundColor: NiceColors.primary,
       body: Column(
         children: [
           Separator(),
           Expanded(
             child: Align(
-              child: Container(
+              child: SizedBox(
                 width: 400,
                 height: 500,
                 child: Column(
                   children: [
                     Flexible(child: SliverOverlayFrame(direction)),
                     Padding(
+                      padding: const EdgeInsets.only(
+                        top: 64,
+                      ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -104,9 +108,6 @@ class SliverContainerPageState extends State<SliverContainerPage> {
                           ),
                         ],
                       ),
-                      padding: const EdgeInsets.only(
-                        top: 64,
-                      ),
                     ),
                   ],
                 ),
@@ -129,7 +130,9 @@ class SliverOverlayFrame extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: NiceColors.text.withOpacity(0.1), width: 1),
+        border: Border.all(
+          color: palette.foreground.withOpacity(0.1),
+        ),
       ),
       child: CustomScrollView(
         scrollDirection: direction.axis,
@@ -186,7 +189,7 @@ class ColorTile extends StatefulWidget {
   const ColorTile({required this.color, required this.direction});
 
   @override
-  _ColorTileState createState() => _ColorTileState();
+  State<ColorTile> createState() => _ColorTileState();
 }
 
 class _ColorTileState extends State<ColorTile>

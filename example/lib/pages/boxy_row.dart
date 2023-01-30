@@ -1,6 +1,7 @@
 import 'package:boxy/flex.dart';
-import 'package:boxy_gallery/main.dart';
 import 'package:flutter/material.dart';
+
+import '../main.dart';
 
 class BoxyRowPage extends StatefulWidget {
   @override
@@ -50,11 +51,12 @@ class BoxyRowPageState extends State<BoxyRowPage> {
         source:
             'https://github.com/PixelToast/flutter-boxy/blob/master/example/lib/pages/boxy_row.dart',
       ),
-      backgroundColor: NiceColors.primary,
       body: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Separator(),
         Expanded(
           child: Align(
+            widthFactor: 1,
+            heightFactor: 1,
             child: LabelBox(
               label: 'BoxyRow',
               child: BoxyRow(
@@ -80,8 +82,6 @@ class BoxyRowPageState extends State<BoxyRowPage> {
                 ],
               ),
             ),
-            widthFactor: 1,
-            heightFactor: 1,
           ),
         ),
         Separator(),
@@ -134,7 +134,7 @@ class ChildCardState extends State<ChildCard>
           state = (state + 1) % 2;
           anim.animateTo(state.toDouble(), curve: Curves.ease);
         }),
-        child: Container(
+        child: SizedBox(
           width: 80 + anim.value * 45,
           height: 80 + anim.value * 45,
           child: Center(child: Text(widget.text)),
@@ -168,11 +168,11 @@ class LabelBox extends StatelessWidget {
           right: 0,
           top: 0,
           child: Align(
-              child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            color: NiceColors.primary,
-            child: Text('$label'),
-          )),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Text(label),
+            ),
+          ),
         ),
       ],
     );

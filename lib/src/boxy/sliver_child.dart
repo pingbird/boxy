@@ -34,7 +34,7 @@ class CannotLayoutSliverError extends FlutterError {
             'lay them out during a dry layout pass.',
           ),
           ErrorDescription(
-            'If your boxy\'s size does not depend on the size of the sliver you '
+            "If your boxy's size does not depend on the size of the sliver you "
             'can skip calling layout when `isDryLayout` is true.',
           ),
         ]);
@@ -85,7 +85,7 @@ class SliverBoxyChild extends BaseBoxyChild {
   RenderSliver get render => super.render as RenderSliver;
 
   RenderBoxyMixin get _parent {
-    return render.parent as RenderBoxyMixin;
+    return render.parent! as RenderBoxyMixin;
   }
 
   /// Describes the amount of space occupied by a [RenderSliver].
@@ -165,7 +165,9 @@ class SliverBoxyChild extends BaseBoxyChild {
     Offset? position,
     bool checkBounds = true,
   }) {
-    if (isIgnored) return false;
+    if (isIgnored) {
+      return false;
+    }
 
     if (offset != null) {
       assert(transform == null,

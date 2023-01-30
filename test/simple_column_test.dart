@@ -42,19 +42,21 @@ void main() {
       key: const GlobalObjectKey(#boxy),
       delegate: SimpleColumnDelegate(),
       children: [
+        const BoxyId(
+          id: #first,
+          child: SizedBox(
+            key: GlobalObjectKey(#first),
+            width: 128,
+            height: 64,
+          ),
+        ),
         BoxyId(
-            id: #first,
-            child: Container(
-              key: const GlobalObjectKey(#first),
-              width: 128,
-              height: 64,
-            )),
-        BoxyId(
-            id: #second,
-            child: Container(
-              key: const GlobalObjectKey(#second),
-              height: 32,
-            )),
+          id: #second,
+          child: Container(
+            key: const GlobalObjectKey(#second),
+            height: 32,
+          ),
+        ),
       ],
     )));
 
@@ -68,15 +70,17 @@ void main() {
   });
 
   testWidgets('Height constraints', (tester) async {
-    await tester.pumpWidget(TestFrame(
+    await tester.pumpWidget(
+      TestFrame(
+        constraints: const BoxConstraints(maxHeight: 128),
         child: CustomBoxy(
           key: const GlobalObjectKey(#boxy),
           delegate: SimpleColumnDelegate(),
           children: [
-            BoxyId(
+            const BoxyId(
                 id: #first,
-                child: Container(
-                  key: const GlobalObjectKey(#first),
+                child: SizedBox(
+                  key: GlobalObjectKey(#first),
                   width: 128,
                   height: 64,
                 )),
@@ -90,7 +94,8 @@ void main() {
                 ])),
           ],
         ),
-        constraints: const BoxConstraints(maxHeight: 128)));
+      ),
+    );
 
     final boxyRect = boxRect(keyBox(#boxy));
     final firstRect = boxRect(keyBox(#first));

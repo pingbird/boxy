@@ -76,7 +76,7 @@ class TestButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: width,
       height: height,
       child: GestureDetector(
@@ -96,7 +96,6 @@ void main() {
     Widget buildChild(int index) {
       return TestButton(
         height: 50.0,
-        width: 100.0,
         key: GlobalObjectKey(index),
         setPosition: (position) {
           lastPosition = position;
@@ -181,7 +180,7 @@ void main() {
       await tester.pumpWidget(buildFrame([
         SliverToBoxAdapter(child: buildChild(0, 10)),
         SliverToBoxAdapter(child: buildChild(1, 10)),
-        SliverToBoxAdapter(child: buildChild(2, 10), key: forwardKey),
+        SliverToBoxAdapter(key: forwardKey, child: buildChild(2, 10)),
         SliverToBoxAdapter(child: buildChild(3, 10)),
       ]));
 

@@ -41,7 +41,7 @@ class RenderBoxy<ChildHandleType extends BaseBoxyChild> extends RenderBox
   @override
   void prepareChild(ChildHandleType child) {
     super.prepareChild(child);
-    final parentData = child.render.parentData as BoxyParentData;
+    final parentData = child.render.parentData! as BoxyParentData;
     parentData.drySize = null;
     parentData.dryTransform = null;
   }
@@ -58,8 +58,9 @@ class RenderBoxy<ChildHandleType extends BaseBoxyChild> extends RenderBox
 
   @override
   void setupParentData(RenderObject child) {
-    if (child.parentData is! BoxyParentData)
+    if (child.parentData is! BoxyParentData) {
       child.parentData = BoxyParentData();
+    }
   }
 
   @override

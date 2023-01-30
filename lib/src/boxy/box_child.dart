@@ -62,11 +62,9 @@ class BoxyChild extends BaseBoxyChild {
   @override
   RenderBox get render => super.render as RenderBox;
 
-  BoxyParentData get _parentData => render.parentData as BoxyParentData;
+  BoxyParentData get _parentData => render.parentData! as BoxyParentData;
 
-  RenderBoxyMixin get _parent {
-    return render.parent as RenderBoxyMixin;
-  }
+  RenderBoxyMixin get _parent => render.parent! as RenderBoxyMixin;
 
   /// The size of this child, should only be accessed after calling [layout].
   ///
@@ -169,7 +167,7 @@ class BoxyChild extends BaseBoxyChild {
       maxHeight: rect.height,
     );
 
-    final childSize = layout(constraints, useSize: true);
+    final childSize = layout(constraints);
     final sizes = applyBoxFit(fit, childSize, rect.size);
     final scaleX = sizes.destination.width / sizes.source.width;
     final scaleY = sizes.destination.height / sizes.source.height;
@@ -185,12 +183,15 @@ class BoxyChild extends BaseBoxyChild {
   }
 
   @override
-  bool hitTest(
-      {Matrix4? transform,
-      Offset? offset,
-      Offset? position,
-      bool checkBounds = true}) {
-    if (isIgnored) return false;
+  bool hitTest({
+    Matrix4? transform,
+    Offset? offset,
+    Offset? position,
+    bool checkBounds = true,
+  }) {
+    if (isIgnored) {
+      return false;
+    }
 
     if (offset != null) {
       assert(transform == null,

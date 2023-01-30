@@ -38,7 +38,7 @@ class RenderSliverBoxy<ChildHandleType extends BaseBoxyChild>
   @override
   void prepareChild(ChildHandleType child) {
     super.prepareChild(child);
-    final parentData = child.render.parentData as BoxyParentData;
+    final parentData = child.render.parentData! as BoxyParentData;
     parentData.drySize = null;
     parentData.dryTransform = null;
   }
@@ -55,8 +55,9 @@ class RenderSliverBoxy<ChildHandleType extends BaseBoxyChild>
 
   @override
   void setupParentData(RenderObject child) {
-    if (child.parentData is! BoxyParentData)
+    if (child.parentData is! BoxyParentData) {
       child.parentData = BoxyParentData();
+    }
   }
 
   @override
@@ -239,7 +240,7 @@ abstract class SliverBoxyDelegate<LayoutData extends Object>
   /// This method should call [BoxyChild.layout] for each child. It should
   /// also specify the position of each child with [BaseBoxyChild.position].
   SliverGeometry layout() {
-    return const SliverGeometry();
+    return SliverGeometry.zero;
   }
 
   @override

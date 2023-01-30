@@ -72,17 +72,16 @@ void main() {
       ..close());
 
     await tester.pumpWidget(TestFrame(
+      constraints: const BoxConstraints(maxWidth: 400, maxHeight: 400),
       child: CustomScrollView(
         slivers: [
           SliverContainer(
             key: const GlobalObjectKey(#container),
             sliver: const TestSliverChild(),
             clipper: clipper1,
-            clipBehavior: Clip.antiAlias,
           ),
         ],
       ),
-      constraints: const BoxConstraints(maxWidth: 400, maxHeight: 400),
     ));
 
     expect(
@@ -91,7 +90,7 @@ void main() {
         ..save()
         ..clipPath(
             pathMatcher: isPathThat(includes: [
-          const Offset(0, 0),
+          Offset.zero,
           const Offset(10, 0),
           const Offset(10, 10),
         ]))
@@ -107,17 +106,16 @@ void main() {
     clipper1.wasCalled = false;
 
     await tester.pumpWidget(TestFrame(
+      constraints: const BoxConstraints(maxWidth: 400, maxHeight: 400),
       child: CustomScrollView(
         slivers: [
           SliverContainer(
             key: const GlobalObjectKey(#container),
             sliver: const TestSliverChild(),
             clipper: clipper1,
-            clipBehavior: Clip.antiAlias,
           ),
         ],
       ),
-      constraints: const BoxConstraints(maxWidth: 400, maxHeight: 400),
     ));
 
     expect(clipper1.wasCalled, false);
@@ -131,17 +129,16 @@ void main() {
       ..close());
 
     await tester.pumpWidget(TestFrame(
+      constraints: const BoxConstraints(maxWidth: 400, maxHeight: 400),
       child: CustomScrollView(
         slivers: [
           SliverContainer(
             key: const GlobalObjectKey(#container),
             sliver: const TestSliverChild(),
             clipper: clipper2,
-            clipBehavior: Clip.antiAlias,
           ),
         ],
       ),
-      constraints: const BoxConstraints(maxWidth: 400, maxHeight: 400),
     ));
 
     expect(
@@ -172,17 +169,16 @@ void main() {
     final clipper = NotifyClipper(notifier);
 
     await tester.pumpWidget(TestFrame(
+      constraints: const BoxConstraints(maxWidth: 400, maxHeight: 400),
       child: CustomScrollView(
         slivers: [
           SliverContainer(
             key: const GlobalObjectKey(#container),
             sliver: const TestSliverChild(),
             clipper: clipper,
-            clipBehavior: Clip.antiAlias,
           ),
         ],
       ),
-      constraints: const BoxConstraints(maxWidth: 400, maxHeight: 400),
     ));
 
     expect(
@@ -191,7 +187,7 @@ void main() {
         ..save()
         ..clipPath(
             pathMatcher: isPathThat(includes: [
-          const Offset(0, 0),
+          Offset.zero,
           const Offset(10, 0),
           const Offset(10, 10),
         ]))

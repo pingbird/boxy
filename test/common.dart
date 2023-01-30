@@ -8,10 +8,10 @@ Element keyElement(Object value) {
   return results.evaluate().first;
 }
 
-RenderBox keyBox(Object value) => keyElement(value).renderObject as RenderBox;
+RenderBox keyBox(Object value) => keyElement(value).renderObject! as RenderBox;
 
 RenderSliver keySliver(Object value) =>
-    keyElement(value).renderObject as RenderSliver;
+    keyElement(value).renderObject! as RenderSliver;
 
 T keyWidget<T>(Object value) {
   final widget = keyElement(value).widget;
@@ -38,18 +38,20 @@ class TestFrame extends StatelessWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) => DefaultTextStyle(
-        style: Typography.material2014().black.bodyText2!,
-        child: Directionality(
-          child: OverflowBox(
-            alignment: Alignment.topLeft,
-            minWidth: 0,
-            maxWidth: double.infinity,
-            minHeight: 0,
-            maxHeight: double.infinity,
-            child: ConstrainedBox(child: child, constraints: constraints),
-          ),
-          textDirection: TextDirection.ltr,
+  Widget build(BuildContext context) {
+    return DefaultTextStyle(
+      style: Typography.material2014().black.bodyMedium!,
+      child: Directionality(
+        textDirection: TextDirection.ltr,
+        child: OverflowBox(
+          alignment: Alignment.topLeft,
+          minWidth: 0,
+          maxWidth: double.infinity,
+          minHeight: 0,
+          maxHeight: double.infinity,
+          child: ConstrainedBox(constraints: constraints, child: child),
         ),
-      );
+      ),
+    );
+  }
 }

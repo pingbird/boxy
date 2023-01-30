@@ -327,14 +327,15 @@ extension OffsetAxisUtil on Offset {
   /// Creates an offset where [main] is the extent on [direction] and [cross]
   /// is the extent counter-clockwise to [direction].
   static Offset direction(AxisDirection direction, double cross, double main) {
-    if (direction == AxisDirection.up)
+    if (direction == AxisDirection.up) {
       return Offset(cross, -main);
-    else if (direction == AxisDirection.right)
+    } else if (direction == AxisDirection.right) {
       return Offset(main, -cross);
-    else if (direction == AxisDirection.down)
+    } else if (direction == AxisDirection.down) {
       return Offset(cross, main);
-    else
+    } else {
       return Offset(-main, cross);
+    }
   }
 
   /// Gets the component of this offset on [axis].
@@ -349,14 +350,15 @@ extension OffsetAxisUtil on Offset {
 
   /// Returns the extent from origin towards [direction].
   double directionExtent(AxisDirection direction) {
-    if (direction == AxisDirection.up)
+    if (direction == AxisDirection.up) {
       return -dy;
-    else if (direction == AxisDirection.right)
+    } else if (direction == AxisDirection.right) {
       return dx;
-    else if (direction == AxisDirection.down)
+    } else if (direction == AxisDirection.down) {
       return dy;
-    else
+    } else {
       return -dx;
+    }
   }
 
   /// Rotates this offset with [axis] where `dx` becomes the cross axis extent
@@ -505,14 +507,15 @@ extension EdgeInsetsAxisUtil on EdgeInsets {
 
   /// Gets the extent of the inset facing [direction].
   double directionExtent(AxisDirection direction) {
-    if (direction == AxisDirection.up)
+    if (direction == AxisDirection.up) {
       return top;
-    else if (direction == AxisDirection.right)
+    } else if (direction == AxisDirection.right) {
       return right;
-    else if (direction == AxisDirection.down)
+    } else if (direction == AxisDirection.down) {
       return bottom;
-    else
+    } else {
       return left;
+    }
   }
 }
 

@@ -69,14 +69,18 @@ void main() {
   testWidgets('All flexible children', (tester) async {
     for (final direction in Axis.values) {
       await tester.pumpWidget(TestFrame(
+          constraints: BoxConstraintsAxisUtil.create(
+            direction,
+            minMain: 400,
+            maxMain: 400,
+          ),
           child: BoxyFlex(
             key: const GlobalObjectKey(#flex),
             direction: direction,
             children: [
-              BoxyFlexible(
-                flex: 1,
-                child: Container(
-                  key: const GlobalObjectKey(#first),
+              const BoxyFlexible(
+                child: SizedBox(
+                  key: GlobalObjectKey(#first),
                   width: 50.0,
                   height: 50.0,
                 ),
@@ -95,11 +99,6 @@ void main() {
                 ),
               ),
             ],
-          ),
-          constraints: BoxConstraintsAxisUtil.create(
-            direction,
-            minMain: 400,
-            maxMain: 400,
           )));
 
       final flexBox = keyBox(#flex);
@@ -162,6 +161,11 @@ void main() {
   testWidgets('Mixed flexible children', (tester) async {
     for (final direction in Axis.values) {
       await tester.pumpWidget(TestFrame(
+          constraints: BoxConstraintsAxisUtil.create(
+            direction,
+            minMain: 400,
+            maxMain: 400,
+          ),
           child: BoxyFlex(
             key: const GlobalObjectKey(#flex),
             direction: direction,
@@ -185,18 +189,12 @@ void main() {
                 ),
               ),
               BoxyFlexible(
-                flex: 1,
                 fit: FlexFit.tight,
                 child: Container(
                   key: const GlobalObjectKey(#third),
                 ),
               ),
             ],
-          ),
-          constraints: BoxConstraintsAxisUtil.create(
-            direction,
-            minMain: 400,
-            maxMain: 400,
           )));
 
       final flex = boxRect(keyBox(#flex));
@@ -330,6 +328,7 @@ void main() {
           height: 100,
           child: BoxyColumn(
             key: const GlobalObjectKey(#flex),
+            intrinsicsBehavior: BoxyFlexIntrinsicsBehavior.measureMain,
             children: const [
               SizedBox(
                 key: GlobalObjectKey(#first),
@@ -339,13 +338,12 @@ void main() {
               Dominant.expanded(
                 key: GlobalObjectKey(#second),
                 child: RotatedBox(
+                  quarterTurns: 1,
                   child: Text(
                       'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
-                  quarterTurns: 1,
                 ),
               ),
             ],
-            intrinsicsBehavior: BoxyFlexIntrinsicsBehavior.measureMain,
           ),
         ),
       ),

@@ -35,9 +35,9 @@ void main() {
             animation: expectedParentData,
             builder: (context, child) {
               return BoxyId(
-                child: SizedBox(width: expectedParentData.value.toDouble()),
                 id: 'testId',
                 data: expectedParentData.value,
+                child: SizedBox(width: expectedParentData.value.toDouble()),
               );
             },
           )

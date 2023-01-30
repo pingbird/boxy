@@ -167,9 +167,15 @@ class RenderSliverContainer extends RenderSliver with RenderSliverHelpers {
         _clipper = clipper,
         _bufferExtent = bufferExtent,
         _clipSliverOnly = clipSliverOnly {
-    if (foreground != null) adoptChild(foreground!);
-    if (sliver != null) adoptChild(sliver!);
-    if (background != null) adoptChild(background!);
+    if (foreground != null) {
+      adoptChild(foreground!);
+    }
+    if (sliver != null) {
+      adoptChild(sliver!);
+    }
+    if (background != null) {
+      adoptChild(background!);
+    }
   }
 
   /// A custom clipper that defines the path to clip [sliver], [foreground], and
@@ -177,20 +183,25 @@ class RenderSliverContainer extends RenderSliver with RenderSliverHelpers {
   CustomClipper<Path>? get clipper => _clipper;
   CustomClipper<Path>? _clipper;
   set clipper(CustomClipper<Path>? newClipper) {
-    if (_clipper == newClipper) return;
+    if (_clipper == newClipper) {
+      return;
+    }
 
     final didNeedCompositing = alwaysNeedsCompositing;
     final oldClipper = _clipper;
     _clipper = newClipper;
 
-    if (didNeedCompositing != alwaysNeedsCompositing)
+    if (didNeedCompositing != alwaysNeedsCompositing) {
       markNeedsCompositingBitsUpdate();
+    }
 
     assert(newClipper != null || oldClipper != null);
     if (newClipper == null ||
         oldClipper == null ||
         newClipper.runtimeType != oldClipper.runtimeType ||
-        newClipper.shouldReclip(oldClipper)) _markNeedsClip();
+        newClipper.shouldReclip(oldClipper)) {
+      _markNeedsClip();
+    }
 
     if (attached) {
       oldClipper?.removeListener(_markNeedsClip);
@@ -201,30 +212,48 @@ class RenderSliverContainer extends RenderSliver with RenderSliverHelpers {
   @override
   void attach(PipelineOwner owner) {
     super.attach(owner);
-    if (foreground != null) foreground!.attach(owner);
+    if (foreground != null) {
+      foreground!.attach(owner);
+    }
     _clipper?.addListener(_markNeedsClip);
   }
 
   @override
   void detach() {
     super.detach();
-    if (foreground != null) foreground!.detach();
-    if (sliver != null) sliver!.detach();
-    if (background != null) background!.detach();
+    if (foreground != null) {
+      foreground!.detach();
+    }
+    if (sliver != null) {
+      sliver!.detach();
+    }
+    if (background != null) {
+      background!.detach();
+    }
     _clipper?.removeListener(_markNeedsClip);
   }
 
   @override
   void redepthChildren() {
-    if (foreground != null) redepthChild(foreground!);
-    if (sliver != null) redepthChild(sliver!);
-    if (background != null) redepthChild(background!);
+    if (foreground != null) {
+      redepthChild(foreground!);
+    }
+    if (sliver != null) {
+      redepthChild(sliver!);
+    }
+    if (background != null) {
+      redepthChild(background!);
+    }
   }
 
   /// Adopts a new child, drops the previous one.
   void updateChild(RenderObject? oldChild, RenderObject? newChild) {
-    if (oldChild != null) dropChild(oldChild);
-    if (newChild != null) adoptChild(newChild);
+    if (oldChild != null) {
+      dropChild(oldChild);
+    }
+    if (newChild != null) {
+      adoptChild(newChild);
+    }
   }
 
   Path? _clipPath;
@@ -234,7 +263,9 @@ class RenderSliverContainer extends RenderSliver with RenderSliverHelpers {
   }
 
   void _updateClip() {
-    if (_clipper == null || _clipPath != null) return;
+    if (_clipper == null || _clipPath != null) {
+      return;
+    }
     _clipPath = _clipper?.getClip(_bufferRect!.size);
     assert(_clipPath != null);
   }
@@ -248,7 +279,9 @@ class RenderSliverContainer extends RenderSliver with RenderSliverHelpers {
   /// in each direction if portions of [sliver] are out of view.
   double get bufferExtent => _bufferExtent;
   set bufferExtent(double value) {
-    if (value == _bufferExtent) return;
+    if (value == _bufferExtent) {
+      return;
+    }
     markNeedsLayout();
     _bufferExtent = value;
   }
@@ -288,19 +321,29 @@ class RenderSliverContainer extends RenderSliver with RenderSliverHelpers {
 
   @override
   void visitChildren(RenderObjectVisitor visitor) {
-    if (foreground != null) visitor(foreground!);
-    if (sliver != null) visitor(sliver!);
-    if (background != null) visitor(background!);
+    if (foreground != null) {
+      visitor(foreground!);
+    }
+    if (sliver != null) {
+      visitor(sliver!);
+    }
+    if (background != null) {
+      visitor(background!);
+    }
   }
 
   Offset _getBufferOffset(double mainAxisPosition, double mainAxisSize) {
     var delta = mainAxisPosition;
     switch (constraints.axis) {
       case Axis.horizontal:
-        if (!_rightWayUp) delta = geometry!.paintExtent - mainAxisSize - delta;
+        if (!_rightWayUp) {
+          delta = geometry!.paintExtent - mainAxisSize - delta;
+        }
         return Offset(delta, 0);
       case Axis.vertical:
-        if (!_rightWayUp) delta = geometry!.paintExtent - mainAxisSize - delta;
+        if (!_rightWayUp) {
+          delta = geometry!.paintExtent - mainAxisSize - delta;
+        }
         return Offset(0, delta);
     }
   }
@@ -358,20 +401,25 @@ class RenderSliverContainer extends RenderSliver with RenderSliverHelpers {
 
     final newRect =
         _getBufferOffset(start, _bufferMainSize) & boxConstraints.biggest;
-    if (_bufferRect == null || newRect.size != _bufferRect!.size)
+    if (_bufferRect == null || newRect.size != _bufferRect!.size) {
       _markNeedsClip();
+    }
     _bufferRect = newRect;
 
-    if (foreground != null)
-      foreground!.layout(boxConstraints, parentUsesSize: false);
+    if (foreground != null) {
+      foreground!.layout(boxConstraints);
+    }
 
-    if (background != null)
-      background!.layout(boxConstraints, parentUsesSize: false);
+    if (background != null) {
+      background!.layout(boxConstraints);
+    }
   }
 
   @override
   void applyPaintTransform(RenderObject child, Matrix4 transform) {
-    if (identical(child, sliver)) return;
+    if (identical(child, sliver)) {
+      return;
+    }
     transform.translate(_bufferRect!.left, _bufferRect!.top);
   }
 
@@ -382,17 +430,22 @@ class RenderSliverContainer extends RenderSliver with RenderSliverHelpers {
   void paint(PaintingContext context, Offset offset) {
     _updateClip();
     if (shouldClip) {
-      if (clipSliverOnly && background != null)
+      if (clipSliverOnly && background != null) {
         context.paintChild(background!, offset + _bufferRect!.topLeft);
+      }
 
       if (_bufferRect!.left == 0.0 && _bufferRect!.top == 0.0) {
         context.pushClipPath(needsCompositing, offset,
             Offset.zero & _bufferRect!.size, _clipPath!, (context, offset) {
-          if (!clipSliverOnly && background != null)
+          if (!clipSliverOnly && background != null) {
             context.paintChild(background!, offset);
-          if (sliver != null) context.paintChild(sliver!, offset);
-          if (!clipSliverOnly && foreground != null)
+          }
+          if (sliver != null) {
+            context.paintChild(sliver!, offset);
+          }
+          if (!clipSliverOnly && foreground != null) {
             context.paintChild(foreground!, offset);
+          }
         });
       } else {
         final transform =
@@ -406,11 +459,15 @@ class RenderSliverContainer extends RenderSliver with RenderSliverHelpers {
             _clipPath!,
             (context, offset) {
               offset -= _bufferRect!.topLeft;
-              if (!clipSliverOnly && background != null)
+              if (!clipSliverOnly && background != null) {
                 context.paintChild(background!, offset + _bufferRect!.topLeft);
-              if (sliver != null) context.paintChild(sliver!, offset);
-              if (!clipSliverOnly && foreground != null)
+              }
+              if (sliver != null) {
+                context.paintChild(sliver!, offset);
+              }
+              if (!clipSliverOnly && foreground != null) {
                 context.paintChild(foreground!, offset + _bufferRect!.topLeft);
+              }
             },
             clipBehavior: clipBehavior,
             oldLayer: layer as ClipPathLayer?,
@@ -418,14 +475,19 @@ class RenderSliverContainer extends RenderSliver with RenderSliverHelpers {
         });
       }
 
-      if (clipSliverOnly && foreground != null)
+      if (clipSliverOnly && foreground != null) {
         context.paintChild(foreground!, offset + _bufferRect!.topLeft);
+      }
     } else {
-      if (background != null)
+      if (background != null) {
         context.paintChild(background!, offset + _bufferRect!.topLeft);
-      if (sliver != null) context.paintChild(sliver!, offset);
-      if (foreground != null)
+      }
+      if (sliver != null) {
+        context.paintChild(sliver!, offset);
+      }
+      if (foreground != null) {
         context.paintChild(foreground!, offset + _bufferRect!.topLeft);
+      }
     }
   }
 
@@ -502,9 +564,15 @@ class _SliverContainerElement extends RenderObjectElement {
 
   @override
   void visitChildren(ElementVisitor visitor) {
-    if (foreground != null) visitor(foreground!);
-    if (sliver != null) visitor(sliver!);
-    if (background != null) visitor(background!);
+    if (foreground != null) {
+      visitor(foreground!);
+    }
+    if (sliver != null) {
+      visitor(sliver!);
+    }
+    if (background != null) {
+      visitor(background!);
+    }
   }
 
   @override
