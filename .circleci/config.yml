@@ -9,11 +9,10 @@ commands:
       - run:
           name: "Install Flutter"
           command: |-
-            touch ~/.profile
             curl -o- https://puro.dev/install.sh | PURO_VERSION="master" bash
             ~/.puro/bin/puro install-puro --path --log-level=4
             source ~/.profile
-            puro use -g beta
+            puro flutter --version
 
   pub_get:
     steps:
