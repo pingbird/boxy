@@ -7,18 +7,11 @@ commands:
   install_dart:
     steps:
       - run:
-          name: "Install Dart"
+          name: "Install Flutter"
           command: |-
-            cd ~/
-            if [[ $OSTYPE == 'darwin'* ]]; then
-            curl https://storage.googleapis.com/dart-archive/channels/$DART_RELEASE/release/$DART_VERSION/sdk/dartsdk-macos-x64-release.zip -o dart-sdk.zip
-            unzip dart-sdk.zip
-            sudo ln -s `pwd`/dart-sdk/bin/dart /usr/local/bin/dart
-            else
-            wget https://storage.googleapis.com/dart-archive/channels/$DART_RELEASE/release/$DART_VERSION/linux_packages/dart_${DART_VERSION}-1_amd64.deb
-            sudo dpkg -i dart_${DART_VERSION}-1_amd64.deb
-            fi
-            dart --version
+            curl -o- https://puro.dev/install.sh | PURO_VERSION="1.2.1" bash
+            source ~/.profile
+            puro use -g beta
 
   pub_get:
     steps:
@@ -80,8 +73,6 @@ jobs:
           cd website
           export PYTHONPATH=`pwd`
           mkdocs build
-          cd ..
-          cp installer/install.sh website/site/
       - aws-s3/sync:
           from: website/site/
           to: s3://boxy-website
