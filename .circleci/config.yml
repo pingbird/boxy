@@ -42,7 +42,7 @@ commands:
           name: "Test"
           command: |-
             cd boxy
-            dart test -r expanded
+            flutter test -r expanded
 
   test_all:
     steps:
