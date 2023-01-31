@@ -66,7 +66,7 @@ class SliverContainerPageState extends State<SliverContainerPage> {
       appBar: const GalleryAppBar(
         ['Boxy Gallery', 'Sliver Container'],
         source:
-            'https://github.com/PixelToast/boxy/blob/master/example/lib/pages/sliver_container.dart',
+            'https://github.com/PixelToast/boxy/blob/master/boxy/example/lib/pages/sliver_container.dart',
       ),
       body: Column(
         children: [

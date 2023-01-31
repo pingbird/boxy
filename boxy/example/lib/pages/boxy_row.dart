@@ -49,7 +49,7 @@ class BoxyRowPageState extends State<BoxyRowPage> {
       appBar: const GalleryAppBar(
         ['Boxy Gallery', 'BoxyRow'],
         source:
-            'https://github.com/PixelToast/boxy/blob/master/example/lib/pages/boxy_row.dart',
+            'https://github.com/PixelToast/boxy/blob/master/boxy/example/lib/pages/boxy_row.dart',
       ),
       body: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Separator(),

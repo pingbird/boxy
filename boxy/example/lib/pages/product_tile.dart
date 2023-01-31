@@ -38,7 +38,7 @@ class ProductTilePageState extends State<ProductTilePage> {
       appBar: const GalleryAppBar(
         ['Boxy Gallery', 'Product Tile'],
         source:
-            'https://github.com/PixelToast/boxy/blob/master/example/lib/pages/product_tile.dart',
+            'https://github.com/PixelToast/boxy/blob/master/boxy/example/lib/pages/product_tile.dart',
       ),
       backgroundColor: palette.primary,
       body: Column(

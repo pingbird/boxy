@@ -1,0 +1,95 @@
+version: 2.1
+
+commands:
+  install_dart:
+    steps:
+      - run:
+          name: "Install Dart"
+          command: |-
+            cd ~/
+            if [[ $OSTYPE == 'darwin'* ]]; then
+            curl https://storage.googleapis.com/dart-archive/channels/$DART_RELEASE/release/$DART_VERSION/sdk/dartsdk-macos-x64-release.zip -o dart-sdk.zip
+            unzip dart-sdk.zip
+            sudo ln -s `pwd`/dart-sdk/bin/dart /usr/local/bin/dart
+            else
+            wget https://storage.googleapis.com/dart-archive/channels/$DART_RELEASE/release/$DART_VERSION/linux_packages/dart_${DART_VERSION}-1_amd64.deb
+            sudo dpkg -i dart_${DART_VERSION}-1_amd64.deb
+            fi
+            dart --version
+
+  pub_get:
+    steps:
+      - run:
+          name: "Pub Get"
+          command: |-
+            cd boxy
+            dart pub get
+
+  format:
+    steps:
+      - run:
+          name: "Format"
+          command: |-
+            dart format --set-exit-if-changed .
+
+  analyze:
+    steps:
+      - run:
+          name: "Analyze"
+          command: |-
+            dart analyze .
+
+  test:
+    steps:
+      - run:
+          name: "Test"
+          command: |-
+            cd boxy
+            dart test -r expanded
+
+  test_all:
+    steps:
+      - checkout
+      - pub_get
+      - format
+      - analyze
+      - test
+
+jobs:
+  linux_tests:
+    environment: &dart_version
+      DART_VERSION: "2.19.0"
+      DART_RELEASE: "stable"
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - install_dart
+      - test_all
+
+  build_website:
+    environment: *dart_version
+    docker:
+      - image: cimg/python:3.9
+    steps:
+      - checkout
+      - run: |-
+          pip install -q mkdocs mkdocs-material
+          cd website
+          export PYTHONPATH=`pwd`
+          mkdocs build
+          cd ..
+          cp installer/install.sh website/site/
+      - aws-s3/sync:
+          from: website/site/
+          to: s3://boxy-website
+      - run: aws cloudfront create-invalidation --distribution-id $BOXY_CF_DISTRIBUTION --paths "/*"
+
+workflows:
+  master:
+    jobs:
+      - build_website
+    when:
+      equal: [ "master", << pipeline.git.branch >> ]
+  tests:
+    jobs:
+      - linux_tests

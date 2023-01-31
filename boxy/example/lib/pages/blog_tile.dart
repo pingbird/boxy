@@ -23,7 +23,7 @@ class BlogTilePageState extends State<BlogTilePage> {
       appBar: const GalleryAppBar(
         ['Boxy Gallery', 'Blog Tile'],
         source:
-            'https://github.com/PixelToast/boxy/blob/master/example/lib/pages/blog_tile.dart',
+            'https://github.com/PixelToast/boxy/blob/master/boxy/example/lib/pages/blog_tile.dart',
       ),
       body: Column(children: [
         Separator(),
