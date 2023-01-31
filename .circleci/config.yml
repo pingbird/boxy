@@ -20,7 +20,7 @@ commands:
           name: "Pub Get"
           command: |-
             cd boxy
-            dart pub get
+            flutter pub get
 
   format:
     steps:
