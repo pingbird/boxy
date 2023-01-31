@@ -9,7 +9,7 @@ commands:
       - run:
           name: "Install Flutter"
           command: |-
-            curl -o- https://puro.dev/install.sh | PURO_VERSION="1.2.1" bash
+            curl -o- https://puro.dev/install.sh | bash
             source ~/.profile
             puro use -g beta
 
