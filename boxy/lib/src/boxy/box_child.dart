@@ -80,16 +80,15 @@ class BoxyChild extends BaseBoxyChild {
 
   /// Lays out the child with the specified constraints and returns its size.
   ///
-  /// If [useSize] is true or absent, this boxy will re-layout when the child
-  /// changes size.
-  ///
   /// This method should only be called inside [BoxyDelegate.layout].
   ///
   /// See also:
   ///
+  ///  * [layoutWithoutSize], which is more efficient if you don't need the
+  ///    child's size.
   ///  * [layoutRect], which positions the child so that it fits in a rect.
   ///  * [layoutFit], which positions and scales the child given a [BoxFit].
-  SliverSize layout(BoxConstraints constraints, {bool useSize = true}) {
+  SliverSize layout(BoxConstraints constraints) {
     if (_parent.isDryLayout) {
       if (_parentData.drySize != null) {
         throw FlutterError(
@@ -100,6 +99,35 @@ class BoxyChild extends BaseBoxyChild {
       return _parent.wrapSize(_parentData.drySize!);
     }
 
+    _checkConstraints(constraints);
+
+    render.layout(constraints, parentUsesSize: true);
+
+    return _parent.wrapSize(render.size);
+  }
+
+  /// Like [layout] but does not return the child's size, this is usually more
+  /// efficient because the boxy doesn't need to be layed out when the child's
+  /// size changes.
+  ///
+  /// If [useSize] is true, this boxy will re-layout when the child changes
+  /// size regardless.
+  ///
+  /// See also:
+  ///
+  ///  * [layout], which does the same but returns a size.
+  ///  * [layoutRect], which positions the child so that it fits in a rect.
+  ///  * [layoutFit], which positions and scales the child given a [BoxFit].
+  void layoutWithoutSize(BoxConstraints constraints, {bool useSize = false}) {
+    if (_parent.isDryLayout) {
+      // Do nothing since the delegate doesn't need a size.
+      return;
+    }
+    _checkConstraints(constraints);
+    render.layout(constraints);
+  }
+
+  void _checkConstraints(BoxConstraints constraints) {
     assert(() {
       if (_parent.debugPhase != BoxyDelegatePhase.layout) {
         throw FlutterError(
@@ -125,10 +153,6 @@ class BoxyChild extends BaseBoxyChild {
 
       return true;
     }());
-
-    render.layout(constraints, parentUsesSize: useSize);
-
-    return _parent.wrapSize(render.size);
   }
 
   /// Lays out and positions the child so that it fits in [rect].
@@ -140,12 +164,12 @@ class BoxyChild extends BaseBoxyChild {
   ///
   ///  * [layout], which lays out the child given raw [BoxConstraints].
   ///  * [layoutFit], which positions and scales the child given a [BoxFit].
-  void layoutRect(Rect rect, {Alignment? alignment}) {
+  void layoutRect(Rect rect, {Alignment? alignment, bool useSize = true}) {
     if (alignment != null) {
-      layout(BoxConstraints.loose(rect.size));
+      final size = layout(BoxConstraints.loose(rect.size));
       position(alignment.inscribe(size, rect).topLeft);
     } else {
-      layout(BoxConstraints.tight(rect.size));
+      layoutWithoutSize(BoxConstraints.tight(rect.size), useSize: useSize);
       position(rect.topLeft);
     }
   }
