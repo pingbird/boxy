@@ -827,7 +827,7 @@ class BaseBoxyChild extends InflatedChildHandle {
   /// Sets whether or not this child should be ignored by [paint] and
   /// [BoxyChild.hitTest].
   ///
-  /// The child still needs to be layed out while ignored.
+  /// The child still needs to be laid out while ignored.
   void ignore([bool value = true]) {
     _ignore = value;
   }

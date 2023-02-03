@@ -107,7 +107,7 @@ class BoxyChild extends BaseBoxyChild {
   }
 
   /// Like [layout] but does not return the child's size, this is usually more
-  /// efficient because the boxy doesn't need to be layed out when the child's
+  /// efficient because the boxy doesn't need to be laid out when the child's
   /// size changes.
   ///
   /// If [useSize] is true, this boxy will re-layout when the child changes

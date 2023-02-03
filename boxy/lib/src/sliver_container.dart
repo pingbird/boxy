@@ -33,11 +33,11 @@ class SliverContainer extends StatelessWidget {
   /// The child sliver that this container will wrap.
   final Widget? sliver;
 
-  /// The child box widget that is layed out so that it covers the visual space
+  /// The child box widget that is laid out so that it covers the visual space
   /// of [sliver], and painted above it.
   final Widget? foreground;
 
-  /// The child box widget that is layed out so that it covers the visual space
+  /// The child box widget that is laid out so that it covers the visual space
   /// of [sliver], and painted below it.
   final Widget? background;
 

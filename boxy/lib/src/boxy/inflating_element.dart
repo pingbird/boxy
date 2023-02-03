@@ -176,7 +176,7 @@ mixin InflatingRenderObjectMixin<
   /// We use a queue instead of wrapping [performInflatingLayout] in a single
   /// [BuildOwner.buildScope] because it cannot be called reentrantly, not doing
   /// layout inside of a scope is important because a descendant [Viewport],
-  /// [CustomBoxy], [LayoutBuilder], etc. will also call it when being layed out.
+  /// [CustomBoxy], [LayoutBuilder], etc. will also call it when being laid out.
   ///
   /// Should only be called during layout inside [performInflatingLayout].
   void flushInflateQueue() {

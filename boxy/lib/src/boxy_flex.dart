@@ -31,7 +31,7 @@ enum BoxyFlexIntrinsicsBehavior {
 /// [CrossAxisAlignment.stretch] instead of [CrossAxisAlignment.center].
 ///
 /// During layout this widget searches for a [Dominant] child, if found the
-/// dominant child is layed out first and defines the maximum cross-axis of
+/// dominant child is laid out first and defines the maximum cross-axis of
 /// every non-dominant child in the flex.
 ///
 /// See also:
@@ -244,7 +244,7 @@ class BoxyFlex extends MultiChildRenderObjectWidget {
 /// [CrossAxisAlignment.stretch] instead of [CrossAxisAlignment.center].
 ///
 /// During layout this widget searches for a [Dominant] child, if found the
-/// dominant child is layed out first and defines the maximum cross-axis of
+/// dominant child is laid out first and defines the maximum cross-axis of
 /// every non-dominant child in the row.
 ///
 /// Children can override their cross-axis alignment using [BoxyFlexible.align].
@@ -299,7 +299,7 @@ class BoxyRow extends BoxyFlex {
 /// [CrossAxisAlignment.stretch] instead of [CrossAxisAlignment.center].
 ///
 /// During layout this widget searches for a [Dominant] child, if found the
-/// dominant child is layed out first and defines the maximum cross-axis of
+/// dominant child is laid out first and defines the maximum cross-axis of
 /// every non-dominant child in the flex.
 ///
 /// Children can override their cross-axis alignment using [BoxyFlexible.align].
