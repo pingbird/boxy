@@ -1,3 +1,7 @@
+## [2.0.7]
+* Fixed example project
+* Added `BoxyChild.positionRect`
+
 ## [2.0.6+2]
 * Added `BoxyDelegate.distanceToBaseline`
 * Added `BoxyDelegate.onPointerEvent`
