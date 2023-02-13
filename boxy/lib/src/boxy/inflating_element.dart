@@ -18,9 +18,9 @@ abstract class LayoutInflatingWidget extends RenderObjectWidget {
   /// Base constructor for a widget that can inflate arbitrary widgets during
   /// layout.
   const LayoutInflatingWidget({
-    Key? key,
+    super.key,
     this.children = const [],
-  }) : super(key: key);
+  });
 
   /// The list of children this boxy is a parent of.
   final List<Widget> children;
@@ -366,9 +366,8 @@ mixin InflatingRenderObjectMixin<
 ///  * [InflatingRenderObjectMixin]
 class InflatingElement extends RenderObjectElement {
   /// Constructs an InflatingElement using the specified widget.
-  InflatingElement(LayoutInflatingWidget widget)
-      : assert(!debugChildrenHaveDuplicateKeys(widget, widget.children)),
-        super(widget);
+  InflatingElement(LayoutInflatingWidget super.widget)
+      : assert(!debugChildrenHaveDuplicateKeys(widget, widget.children));
 
   @override
   LayoutInflatingWidget get widget => super.widget as LayoutInflatingWidget;

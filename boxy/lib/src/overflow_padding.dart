@@ -22,10 +22,10 @@ class OverflowPadding extends SingleChildRenderObjectWidget {
   ///
   /// The [padding] argument must not be null.
   const OverflowPadding({
-    Key? key,
+    super.key,
     required this.padding,
-    Widget? child,
-  }) : super(key: key, child: child);
+    super.child,
+  });
 
   /// The amount of space by which to inset the child.
   final EdgeInsetsGeometry padding;

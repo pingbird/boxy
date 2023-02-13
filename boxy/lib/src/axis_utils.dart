@@ -528,12 +528,11 @@ class AxisSizedBox extends SizedBox {
   /// to indicate that the size of the box should not be constrained in
   /// the corresponding dimension.
   const AxisSizedBox({
-    Key? key,
+    super.key,
     required Axis axis,
     double? cross,
     double? main,
   }) : super(
-          key: key,
           width: axis == Axis.vertical ? cross : main,
           height: axis == Axis.vertical ? main : cross,
         );

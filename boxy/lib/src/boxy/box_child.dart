@@ -38,18 +38,12 @@ class BoxyChild extends BaseBoxyChild {
   /// this should not be used directly, instead access one with
   /// [BoxyDelegate.getChild].
   BoxyChild({
-    required Object id,
-    required InflatingRenderObjectMixin parent,
-    RenderBox? render,
-    Widget? widget,
-    Element? context,
-  }) : super(
-          id: id,
-          parent: parent,
-          render: render,
-          widget: widget,
-          context: context,
-        );
+    required super.id,
+    required super.parent,
+    RenderBox? super.render,
+    super.widget,
+    super.context,
+  });
 
   /// The [RenderBox] representing this child.
   ///

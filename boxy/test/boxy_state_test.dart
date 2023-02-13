@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'common.dart';
 
 class StateTestChild extends StatefulWidget {
-  const StateTestChild({Key? key}) : super(key: key);
+  const StateTestChild({super.key});
 
   @override
   State createState() => StateTestChildState();

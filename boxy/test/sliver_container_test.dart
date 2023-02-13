@@ -51,9 +51,7 @@ class TestClipper extends CustomClipper<Path> {
 }
 
 class TestSliverChild extends StatelessWidget {
-  const TestSliverChild({
-    Key? key,
-  }) : super(key: key);
+  const TestSliverChild({super.key});
 
   @override
   Widget build(BuildContext context) => SliverList(

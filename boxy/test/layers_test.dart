@@ -60,6 +60,6 @@ void main() {
 
     final newLayer = getLayer();
     expect(newLayer, originalLayer);
-    expect(getLayer().alpha, 128);
+    expect(newLayer.alpha, 128);
   });
 }

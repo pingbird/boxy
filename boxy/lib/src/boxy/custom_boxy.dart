@@ -74,13 +74,10 @@ abstract class CustomBoxy extends LayoutInflatingWidget {
   }) = _CustomBoxy;
 
   const CustomBoxy._({
-    Key? key,
-    List<Widget> children = const <Widget>[],
+    super.key,
+    super.children,
     required this.childFactory,
-  }) : super(
-          key: key,
-          children: children,
-        );
+  });
 
   /// Constructs a CustomBoxy with [BoxBoxyDelegate] that can manage both
   /// [BoxyChild] and [SliverBoxyChild] children.
@@ -163,15 +160,10 @@ class _CustomBoxy extends CustomBoxy {
 
   /// Constructs a CustomBoxy with a delegate and optional set of children.
   const _CustomBoxy({
-    Key? key,
+    super.key,
     required this.delegate,
-    List<Widget> children = const <Widget>[],
-    InflatedChildHandleFactory childFactory = CustomBoxy.defaultChildFactory,
-  }) : super._(
-          key: key,
-          children: children,
-          childFactory: childFactory,
-        );
+    super.children,
+  }) : super._(childFactory: CustomBoxy.defaultChildFactory);
 
   @override
   RenderBoxy createRenderObject(BuildContext context) {
@@ -191,15 +183,11 @@ class _BoxCustomBoxy extends CustomBoxy {
   final BoxBoxyDelegate delegate;
 
   const _BoxCustomBoxy({
-    Key? key,
+    super.key,
     required this.delegate,
-    List<Widget> children = const <Widget>[],
-    InflatedChildHandleFactory childFactory = CustomBoxy.defaultChildFactory,
-  }) : super._(
-          key: key,
-          children: children,
-          childFactory: childFactory,
-        );
+    super.children,
+    super.childFactory = CustomBoxy.defaultChildFactory,
+  }) : super._();
 
   @override
   RenderBoxy createRenderObject(BuildContext context) {
@@ -219,15 +207,11 @@ class _SliverCustomBoxy extends CustomBoxy {
   final SliverBoxyDelegate delegate;
 
   const _SliverCustomBoxy({
-    Key? key,
+    super.key,
     required this.delegate,
-    List<Widget> children = const <Widget>[],
-    InflatedChildHandleFactory childFactory = CustomBoxy.defaultChildFactory,
-  }) : super._(
-          key: key,
-          children: children,
-          childFactory: childFactory,
-        );
+    super.children,
+    super.childFactory = CustomBoxy.defaultChildFactory,
+  }) : super._();
 
   @override
   RenderSliverBoxy createRenderObject(BuildContext context) {

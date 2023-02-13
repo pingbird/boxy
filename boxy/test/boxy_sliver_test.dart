@@ -70,9 +70,9 @@ class TestButton extends StatelessWidget {
   const TestButton({
     this.width = size,
     this.height = size,
-    Key? key,
+    super.key,
     required this.setPosition,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

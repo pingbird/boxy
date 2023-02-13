@@ -63,7 +63,7 @@ class SliverContainer extends StatelessWidget {
 
   /// Constructs a SliverContainer with the specified arguments.
   SliverContainer({
-    Key? key,
+    super.key,
     required this.sliver,
     this.foreground,
     this.background,
@@ -79,8 +79,7 @@ class SliverContainer extends StatelessWidget {
         clipper = borderRadius != null
             ? ShapeBorderClipper(
                 shape: RoundedRectangleBorder(borderRadius: borderRadius))
-            : clipper,
-        super(key: key);
+            : clipper;
 
   @override
   Widget build(context) {
@@ -127,7 +126,6 @@ class _BaseSliverContainer extends RenderObjectWidget
   final bool clipSliverOnly;
 
   const _BaseSliverContainer({
-    Key? key,
     required this.sliver,
     this.foreground,
     this.background,
@@ -135,7 +133,7 @@ class _BaseSliverContainer extends RenderObjectWidget
     this.clipper,
     this.clipBehavior = Clip.antiAlias,
     this.clipSliverOnly = false,
-  }) : super(key: key);
+  });
 
   @override
   Iterable<_SliverOverlaySlot> get slots => _SliverOverlaySlot.values;

@@ -222,12 +222,9 @@ abstract class SliverBoxyDelegate<LayoutData extends Object>
   /// Constructs a BoxyDelegate with optional [relayout] and [repaint]
   /// [Listenable]s.
   SliverBoxyDelegate({
-    Listenable? relayout,
-    Listenable? repaint,
-  }) : super(
-          relayout: relayout,
-          repaint: repaint,
-        );
+    super.relayout,
+    super.repaint,
+  });
 
   @override
   RenderSliverBoxy<BaseBoxyChild> get render =>
@@ -273,7 +270,7 @@ typedef _HitTestCallback = bool Function(
 /// [SliverHitTestResult] is missing [BoxHitTestResult.addWithPaintTransform],
 /// [HitTestResult.pushTransform] is also protected, oof.
 class _SliverBoxyHitTestResult extends SliverHitTestResult {
-  _SliverBoxyHitTestResult.wrap(HitTestResult result) : super.wrap(result);
+  _SliverBoxyHitTestResult.wrap(super.result) : super.wrap();
 
   bool addWithRawTransform({
     required Matrix4? transform,

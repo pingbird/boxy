@@ -1,5 +1,4 @@
 import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 
 import '../axis_utils.dart';
 import '../sliver_offset.dart';
@@ -60,18 +59,12 @@ class SliverBoxyChild extends BaseBoxyChild {
   /// this should not be used directly, instead access one with
   /// [BoxyDelegate.getChild].
   SliverBoxyChild({
-    required Object id,
-    required InflatingRenderObjectMixin parent,
-    RenderSliver? render,
-    Element? context,
-    Widget? widget,
-  }) : super(
-          id: id,
-          parent: parent,
-          render: render,
-          context: context,
-          widget: widget,
-        );
+    required super.id,
+    required super.parent,
+    RenderSliver? super.render,
+    super.context,
+    super.widget,
+  });
 
   /// The [RenderBox] representing this child.
   ///

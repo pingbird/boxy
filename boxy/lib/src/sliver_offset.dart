@@ -9,8 +9,7 @@ class SliverOffset extends Offset {
   final double main;
 
   /// Creates an offset with cross and main extents.
-  const SliverOffset(double dx, double dy, this.cross, this.main)
-      : super(dx, dy);
+  const SliverOffset(super.dx, super.dy, this.cross, this.main);
 
   /// Creates an offset with cross and main extents.
   SliverOffset.from(Offset offset, {Axis axis = Axis.vertical})
@@ -28,8 +27,7 @@ class SliverSize extends Size {
   final Axis axis;
 
   /// Creates a size with a width, height, and axis.
-  const SliverSize(double width, double height, this.axis)
-      : super(width, height);
+  const SliverSize(super.width, super.height, this.axis);
 
   /// Creates a size with cross and main extents.
   const SliverSize.axis(double cross, double main, this.axis)

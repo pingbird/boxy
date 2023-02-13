@@ -635,19 +635,12 @@ class BoxyLayerContext {
 class BaseBoxyChild extends InflatedChildHandle {
   /// Constructs a handle to children managed by [RenderBoxyMixin] clients.
   BaseBoxyChild({
-    required Object id,
-    required InflatingRenderObjectMixin parent,
-    RenderObject? render,
-    Element? context,
-    Widget? widget,
-  })  : assert(render == null || render.parentData != null),
-        super(
-          id: id,
-          parent: parent,
-          render: render,
-          widget: widget,
-          context: context,
-        );
+    required super.id,
+    required super.parent,
+    super.render,
+    super.context,
+    super.widget,
+  }) : assert(render == null || render.parentData != null);
 
   bool _ignore = false;
 
@@ -1239,20 +1232,16 @@ class BoxyId<T extends Object> extends ParentDataWidget<BaseBoxyParentData> {
   /// Constructs a BoxyData with an optional id, data, and child.
   const BoxyId({
     this.id,
-    Key? key,
+    super.key,
     bool? hasData,
     T? data,
-    required Widget child,
+    required super.child,
     bool alwaysRelayout = true,
     bool alwaysRepaint = true,
   })  : hasData = hasData ?? data != null,
         _data = data,
         _alwaysRelayout = alwaysRelayout,
-        _alwaysRepaint = alwaysRepaint,
-        super(
-          key: key,
-          child: child,
-        );
+        _alwaysRepaint = alwaysRepaint;
 
   /// The data to provide to the parent.
   T get data {

@@ -37,7 +37,7 @@ class SliverCard extends StatelessWidget {
 
   /// Creates a SliverCard.
   const SliverCard({
-    Key? key,
+    super.key,
     this.color,
     this.shadowColor,
     this.elevation,
@@ -46,7 +46,7 @@ class SliverCard extends StatelessWidget {
     this.clipBehavior,
     this.sliver,
     this.bufferExtent,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(context) {

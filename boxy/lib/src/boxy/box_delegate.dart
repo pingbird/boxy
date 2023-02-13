@@ -366,12 +366,9 @@ abstract class BoxBoxyDelegate<LayoutData extends Object>
   /// Constructs a BoxyDelegate with optional [relayout] and [repaint]
   /// [Listenable]s.
   BoxBoxyDelegate({
-    Listenable? relayout,
-    Listenable? repaint,
-  }) : super(
-          relayout: relayout,
-          repaint: repaint,
-        );
+    super.relayout,
+    super.repaint,
+  });
 }
 
 /// A delegate that controls the layout and paint of child widgets, used by
@@ -582,12 +579,9 @@ abstract class BoxyDelegate<LayoutData extends Object>
   /// Constructs a BoxyDelegate with optional [relayout] and [repaint]
   /// [Listenable]s.
   BoxyDelegate({
-    Listenable? relayout,
-    Listenable? repaint,
-  }) : super(
-          relayout: relayout,
-          repaint: repaint,
-        );
+    super.relayout,
+    super.repaint,
+  });
 
   @override
   Size layout() {

@@ -54,7 +54,7 @@ class BoxyFlex extends MultiChildRenderObjectWidget {
   /// disambiguate `start` or `end` values for the main or cross axis
   /// directions, the [textDirection] must not be null.
   BoxyFlex({
-    Key? key,
+    super.key,
     required this.direction,
     this.mainAxisAlignment = MainAxisAlignment.start,
     this.mainAxisSize = MainAxisSize.max,
@@ -63,14 +63,13 @@ class BoxyFlex extends MultiChildRenderObjectWidget {
     this.verticalDirection = VerticalDirection.down,
     this.textBaseline,
     BoxyFlexIntrinsicsBehavior? intrinsicsBehavior,
-    List<Widget> children = const <Widget>[],
+    super.children,
   })  : intrinsicsBehavior = intrinsicsBehavior ??
             (direction == Axis.vertical
                 ? BoxyFlexIntrinsicsBehavior.measureCross
                 : BoxyFlexIntrinsicsBehavior.measureMain),
         assert(crossAxisAlignment != CrossAxisAlignment.baseline ||
-            textBaseline != null),
-        super(key: key, children: children);
+            textBaseline != null);
 
   /// The direction to use as the main axis.
   ///
@@ -269,26 +268,17 @@ class BoxyRow extends BoxyFlex {
   /// `start` or `end` values for the [mainAxisAlignment], the [textDirection]
   /// must not be null.
   BoxyRow({
-    Key? key,
-    MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start,
-    MainAxisSize mainAxisSize = MainAxisSize.max,
-    CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.stretch,
-    TextDirection? textDirection,
-    VerticalDirection verticalDirection = VerticalDirection.down,
-    TextBaseline? textBaseline,
-    List<Widget> children = const <Widget>[],
-    BoxyFlexIntrinsicsBehavior? intrinsicsBehavior,
+    super.key,
+    super.mainAxisAlignment,
+    super.mainAxisSize,
+    super.crossAxisAlignment,
+    super.textDirection,
+    super.verticalDirection,
+    super.textBaseline,
+    super.children,
+    super.intrinsicsBehavior,
   }) : super(
-          children: children,
-          key: key,
           direction: Axis.horizontal,
-          mainAxisAlignment: mainAxisAlignment,
-          mainAxisSize: mainAxisSize,
-          crossAxisAlignment: crossAxisAlignment,
-          textDirection: textDirection,
-          verticalDirection: verticalDirection,
-          textBaseline: textBaseline,
-          intrinsicsBehavior: intrinsicsBehavior,
         );
 }
 
@@ -320,26 +310,17 @@ class BoxyColumn extends BoxyFlex {
   /// to be necessary to disambiguate `start` or `end` values for the
   /// [crossAxisAlignment], the [textDirection] must not be null.
   BoxyColumn({
-    Key? key,
-    MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start,
-    MainAxisSize mainAxisSize = MainAxisSize.max,
-    CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.stretch,
-    TextDirection? textDirection,
-    VerticalDirection verticalDirection = VerticalDirection.down,
-    TextBaseline? textBaseline,
-    List<Widget> children = const <Widget>[],
-    BoxyFlexIntrinsicsBehavior? intrinsicsBehavior,
+    super.key,
+    super.mainAxisAlignment,
+    super.mainAxisSize,
+    super.crossAxisAlignment,
+    super.textDirection,
+    super.verticalDirection,
+    super.textBaseline,
+    super.children,
+    super.intrinsicsBehavior,
   }) : super(
-          children: children,
-          key: key,
           direction: Axis.vertical,
-          mainAxisAlignment: mainAxisAlignment,
-          mainAxisSize: mainAxisSize,
-          crossAxisAlignment: crossAxisAlignment,
-          textDirection: textDirection,
-          verticalDirection: verticalDirection,
-          textBaseline: textBaseline,
-          intrinsicsBehavior: intrinsicsBehavior,
         );
 }
 
@@ -376,24 +357,24 @@ class BoxyFlexible extends ParentDataWidget<FlexParentData> {
   /// Creates a widget that controls how a child of a [Row], [Column], or [Flex]
   /// flexes.
   const BoxyFlexible({
-    Key? key,
+    super.key,
     this.flex = 1,
     this.fit = FlexFit.loose,
     this.dominant = false,
     this.crossAxisAlignment,
-    required Widget child,
-  }) : super(key: key, child: child);
+    required super.child,
+  });
 
   /// Same as the default constructor but has a [flex] factor of 0, and makes
   /// [crossAxisAlignment] a required argument.
   const BoxyFlexible.align({
-    Key? key,
+    super.key,
     this.flex = 0,
     this.fit = FlexFit.loose,
     this.dominant = false,
     required this.crossAxisAlignment,
-    required Widget child,
-  }) : super(key: key, child: child);
+    required super.child,
+  });
 
   /// The flex factor to use for this child
   ///
@@ -483,13 +464,11 @@ class Dominant extends BoxyFlexible {
   ///
   /// This is equivalent to `BoxyFlexible(flex: 0, dominant: true, child: ...)`.
   const Dominant({
-    Key? key,
-    required Widget child,
+    super.key,
+    required super.child,
   }) : super(
-          key: key,
           flex: 0,
           dominant: true,
-          child: child,
         );
 
   /// Same as the default constructor, but expands the child on the main axis
@@ -497,14 +476,11 @@ class Dominant extends BoxyFlexible {
   ///
   /// This is equivalent to `BoxyFlexible(flex: 0, dominant: true, child: ...)`.
   const Dominant.flexible({
-    Key? key,
-    int flex = 1,
-    required Widget child,
+    super.key,
+    super.flex,
+    required super.child,
   }) : super(
-          key: key,
-          flex: flex,
           dominant: true,
-          child: child,
         );
 
   /// Same as the default constructor, but expands the child on the main axis
@@ -513,15 +489,12 @@ class Dominant extends BoxyFlexible {
   /// This is equivalent to
   /// `BoxyFlexible(flex: 1, dominant: true, fit: FlexFit.tight, child: ...)`.
   const Dominant.expanded({
-    Key? key,
-    int flex = 1,
-    required Widget child,
+    super.key,
+    super.flex,
+    required super.child,
   }) : super(
-          key: key,
-          flex: flex,
           fit: FlexFit.tight,
           dominant: true,
-          child: child,
         );
 }
 

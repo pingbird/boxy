@@ -34,10 +34,10 @@ class TestFrame extends StatelessWidget {
   final BoxConstraints constraints;
 
   const TestFrame({
-    Key? key,
+    super.key,
     required this.child,
     this.constraints = const BoxConstraints(),
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
