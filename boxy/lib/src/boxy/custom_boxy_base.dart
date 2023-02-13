@@ -295,9 +295,14 @@ enum BoxyDelegatePhase {
 ///
 ///  * [BoxyDelegate]
 ///  * [BoxyLayerContext]
-class LayerKey {
+class LayerKey<T extends Layer> {
   /// The current cached layer.
-  Layer? layer;
+  T? get layer => handle.layer;
+  set layer(T? newLayer) => handle.layer = newLayer;
+
+  /// The underlying handle that prevents the layer from being disposed
+  /// prematurely.
+  final handle = LayerHandle<T>();
 }
 
 /// A convenient wrapper to [PaintingContext], provides methods to push
