@@ -1,3 +1,6 @@
+## [2.0.8]
+* Fixed bug with retaining `Layer`s
+
 ## [2.0.7]
 * Fixed example project
 * Added `BoxyChild.positionRect`
