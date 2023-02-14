@@ -70,7 +70,8 @@ jobs:
     steps:
       - checkout
       - run: |-
-          pip install -q mkdocs mkdocs-material
+          git clone https://github.com/PixelToast/mkdocs-material-insiders.git
+          pip install ./mkdocs-material-insiders
           cd website
           export PYTHONPATH=`pwd`
           mkdocs build
