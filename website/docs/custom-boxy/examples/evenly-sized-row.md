@@ -1,6 +1,7 @@
 # Evenly Sized Row
 
-In this example we take a simple row of widgets and make each of them the same size. This one is a little harder than the previous example because there are an arbitrary number of children.
+In this example we take a simple row of widgets and make each of them the same size. This one is a little more
+challenging than the previous example because we handle an arbitrary number of children.
 
 ### Original Layout
 
@@ -56,7 +57,7 @@ class MyWidget extends StatelessWidget {
 }
 ```
 
-### Complete Example
+### Making it look better
 
 To make this row prettier we want each child to be the same width, fortunately [CustomBoxy](https://pub.dev/documentation/boxy/latest/boxy/CustomBoxy-class.html) allows us to do that:
 

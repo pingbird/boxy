@@ -18,7 +18,8 @@ class MyWidget extends StatelessWidget {
         // BoxyId allows children to be accessed by name.
         BoxyId(
           // This `#hello` is called a Symbol, they are like strings but
-          // slightly more performant for naming things.
+          // can only be constructed at compile time, making them slightly
+          // more performant here.
           id: #hello,
           child: Text('Hello,'),
         ),
