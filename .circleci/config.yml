@@ -69,6 +69,9 @@ jobs:
       - image: cimg/python:3.9
     steps:
       - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - "93:cb:27:b3:11:c7:99:17:7f:95:43:c9:89:fc:8c:be"
       - run: |-
           git clone https://github.com/PixelToast/mkdocs-material-insiders.git
           pip install ./mkdocs-material-insiders
