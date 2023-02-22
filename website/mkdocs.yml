@@ -3,11 +3,11 @@ site_url: https://boxy.wiki
 nav:
   - Home: index.md
   - Primer:
-      - render-objects/introduction-to-layout.md
-      - render-objects/box-constraints.md
-      - render-objects/the-many-trees.md
-      - render-objects/interactive-example.md
-      - render-objects/learn-more.md
+      - primer/introduction-to-layout.md
+      - primer/box-constraints.md
+      - primer/the-many-trees.md
+      - primer/interactive-example.md
+      - primer/learn-more.md
   - CustomBoxy:
       - custom-boxy/introduction-to-customboxy.md
       - custom-boxy/hello-world.md
@@ -16,10 +16,10 @@ nav:
       - custom-boxy/painting.md
       - custom-boxy/layers.md
       - custom-boxy/widget-inflation.md
-      - Examples:
-        - custom-boxy/examples/square-layout.md
-        - custom-boxy/examples/evenly-sized-row.md
-        - custom-boxy/examples/product-tile.md
+      - "Example: Square Layout": custom-boxy/examples/square-layout.md
+      - "Example: Evenly Sized Row": custom-boxy/examples/evenly-sized-row.md
+      - "Example: Product Tile": custom-boxy/examples/product-tile.md
+      - "Example: Tree View": custom-boxy/examples/tree-view.md
   - Helpers:
     - Flex:
         - helpers/cross-axis-alignment.md

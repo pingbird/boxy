@@ -62,6 +62,9 @@
 .boxy-content-card {
     margin-block-start: 16px;
     margin-block-end: 16px;
+    border-radius: 4px;
+    background-position: center;
+    background-size: cover;
 }
 
 .boxy-content-card>a {
@@ -69,7 +72,10 @@
     border: 2px solid var(--md-default-fg-color--lightest);
     border-radius: 4px;
     padding: 16px;
+    overflow: hidden;
+    position: relative;
     color: var(--md-typeset-color) !important;
+    backdrop-filter: blur(4px) saturate(60%);
 }
 
 .boxy-content-card>a:hover {

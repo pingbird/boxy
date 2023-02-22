@@ -46,7 +46,7 @@ import 'package:boxy/utils.dart';
 ### Sections
 
 <div class="boxy-content-card">
-<a href="/render-objects/introduction-to-layout/">
+<a href="/primer/introduction-to-layout/">
 Introduction to Layout
 <div class="description">Learn how constraints and RenderObjects work</div>
 </a></div>
@@ -61,4 +61,30 @@ Introduction to CustomBoxy
 <a href="/helpers/cross-axis-alignment/">
 Helpers
 <div class="description">Simple layout widgets to make your life easier</div>
+</a></div>
+
+### Examples
+
+<div class="boxy-content-card" style="background-image: url('/custom-boxy/examples/image%20%281%29%20%281%29%20%281%29.png')">
+<a href="/custom-boxy/examples/square-layout/">
+Square Layout
+<div class="description">Simple square layout created with CustomBoxy</div>
+</a></div>
+
+<div class="boxy-content-card" style="background-image: url('/custom-boxy/examples/ftest_2ETeGIqwH8.png')">
+<a href="/custom-boxy/examples/evenly-sized-row/">
+Evenly Sized Row
+<div class="description">Row where each child has the same size</div>
+</a></div>
+
+<div class="boxy-content-card" style="background-image: url('/custom-boxy/examples/ftest_MyQB0wRzDZ.png')">
+<a href="/custom-boxy/examples/product-tile/">
+Product Tile
+<div class="description">Stacking children with dynamic sizes</div>
+</a></div>
+
+<div class="boxy-content-card" style="background-image: url('/custom-boxy/examples/simplified_tree_view.png')">
+<a href="/custom-boxy/examples/tree-view/">
+Tree View
+<div class="description">Complex tree layout with arbitrary widgets as nodes</div>
 </a></div>
