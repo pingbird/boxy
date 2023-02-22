@@ -2,12 +2,10 @@
 
 [BoxConstraints](https://api.flutter.dev/flutter/rendering/BoxConstraints-class.html) define a minimum and maximum length for each axis, by default it has a minimum width / height of 0, and maximum of infinity.
 
-* An axis is said to be <mark style="background-color:purple;">**tight**</mark> if the minimum and maximum is the same, e.g. `BoxConstraints(minWidth: 10.0, maxWidth: 10.0)` has a tight width. The child will not be able to size itself on that axis.
-* An axis is said to be <mark style="background-color:purple;">**loose**</mark> if the minimum is 0. The child will be able to choose its size on that axis assuming the maximum is not also 0.
-* An axis is said to be <mark style="background-color:purple;">**unbounded**</mark> if the maximum is infinity. The child will have to determine its own size on that axis, which can cause issues if the child wants to fill its available space.
-* An axis is said to be <mark style="background-color:purple;">**unconstrained**</mark> if the the minimum is 0 and the maximum is infinity. Unbounded constraints are usually also unconstrained, the child can choose any size it wants.
 
-#### Tight constraints example
+### Tight Constraints
+
+An axis is said to be <mark style="background-color:purple;">**tight**</mark> if the minimum and maximum is the same, e.g. `BoxConstraints(minWidth: 10.0, maxWidth: 10.0)` has a tight width. The child will not be able to size itself on that axis.
 
 [SizedBox](https://api.flutter.dev/flutter/widgets/SizedBox-class.html) is an example of a way to provide tight constraints to a child:
 
@@ -18,7 +16,9 @@ SizedBox(
 )
 ```
 
-#### Loose constraints example
+### Loose Constraints
+
+An axis is said to be <mark style="background-color:purple;">**loose**</mark> if the minimum is 0. The child will be able to choose its size on that axis assuming the maximum is not also 0.
 
 [Center](https://api.flutter.dev/flutter/widgets/Center-class.html) is a common way of loosening constraints:
 
@@ -32,7 +32,11 @@ SizedBox(
 )
 ```
 
-#### Unconstrained height example
+### Unconstrained / Unbounded Constraints
+
+An axis is said to be <mark style="background-color:purple;">**unbounded**</mark> if the maximum is infinity. The child will have to determine its own size on that axis, which can cause issues if the child wants to fill its available space.
+
+An axis is said to be <mark style="background-color:purple;">**unconstrained**</mark> if the the minimum is 0 and the maximum is infinity. Unbounded constraints are usually also unconstrained, the child can choose any size it wants.
 
 The most common way widgets become unconstrained is inside a list, like a [ListView](https://api.flutter.dev/flutter/widgets/ListView-class.html) or [Column](https://api.flutter.dev/flutter/widgets/Column-class.html):
 
@@ -66,7 +70,7 @@ ListView(
 )
 ```
 
-#### Quirks and Features 🚗
+### Quirks and Features 🚗
 
 One notable quirk is that children are forced to follow the constraints given by their parent, which can be unintuitive sometimes:
 
