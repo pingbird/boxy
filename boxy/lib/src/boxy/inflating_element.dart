@@ -139,6 +139,8 @@ mixin InflatingRenderObjectMixin<
   InflatingElement? _context;
   _InflationCallback? _inflater;
   var _indexedChildCount = 0;
+  var _needsBuildScope = false;
+  var _didInflate = false;
 
   /// The current element that manages this RenderObject.
   ///
@@ -187,6 +189,10 @@ mixin InflatingRenderObjectMixin<
     // This is a symptom of us not understanding how GlobalKeys work, and/or a
     // bug in the framework, but we do have exhaustive testing that ensures
     // nothing is broken *too* badly in this regard.
+    if (_inflateQueue.isEmpty && !_needsBuildScope) {
+      return;
+    }
+    _needsBuildScope = false;
     _allowSubtreeMutation(() {
       context.owner!.buildScope(context, () {
         for (final child in _inflateQueue) {
@@ -220,6 +226,7 @@ mixin InflatingRenderObjectMixin<
     _inflateQueue.add(child as ChildHandleType);
     childHandles.add(child);
     childHandleMap[id] = child;
+    _didInflate = true;
 
     return child;
   }
@@ -345,10 +352,12 @@ mixin InflatingRenderObjectMixin<
     updateChildHandles(doingLayout: true);
     context._wrapInflater((inflater) {
       _inflater = inflater;
+      _didInflate = false;
       try {
         performInflatingLayout();
       } finally {
         flushInflateQueue();
+        _needsBuildScope = _didInflate;
         _inflater = null;
       }
     });

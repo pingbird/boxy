@@ -101,7 +101,7 @@ class SeebTitleState extends State<SeebTitle> {
     return ClipRRect(
       borderRadius: BorderRadius.circular(8),
       child: Stack(children: [
-        Positioned.fill(child: Container(color: const Color(0xFFC7CEEA))),
+        const Positioned.fill(child: ColoredBox(color: Color(0xFFC7CEEA))),
         AnimatedContainer(
           duration: const Duration(milliseconds: 500),
           width: expanded ? 450 : 350,
