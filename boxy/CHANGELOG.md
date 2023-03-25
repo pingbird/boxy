@@ -1,3 +1,6 @@
+## [2.0.9]
+* Skipped calls to buildScope as a minor performance improvement
+
 ## [2.0.8]
 * Fixed bug with retaining `Layer`s
 
