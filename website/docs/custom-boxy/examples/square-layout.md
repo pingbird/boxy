@@ -6,7 +6,7 @@ The end goal of this example is to take an arbitrarily sized widget, and size it
 
 ### Complete Example
 
-To make the widget square, we will to create a [BoxyDelegate](https://pub.dev/documentation/boxy/latest/boxy/BoxyDelegate-class.html) that overrides [layout](https://pub.dev/documentation/boxy/latest/boxy/BoxyDelegate/layout.html):
+To make the widget square, we will create a [BoxyDelegate](https://pub.dev/documentation/boxy/latest/boxy/BoxyDelegate-class.html) that overrides [layout](https://pub.dev/documentation/boxy/latest/boxy/BoxyDelegate/layout.html):
 
 ![](image%20(1)%20(1)%20(1).png)
 
