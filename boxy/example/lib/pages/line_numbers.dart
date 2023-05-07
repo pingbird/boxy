@@ -63,7 +63,7 @@ class LineNumberPageState extends State<LineNumberPage> {
           ),
         ),
       ),
-      numberBg: Container(color: palette.primary),
+      numberBg: ColoredBox(color: palette.primary),
       numberAlignment: numberAlignment,
     );
 
