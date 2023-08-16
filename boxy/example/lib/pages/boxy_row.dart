@@ -61,8 +61,8 @@ class BoxyRowPageState extends State<BoxyRowPage> {
               label: 'BoxyRow',
               child: BoxyRow(
                 mainAxisSize: MainAxisSize.min,
-                children: [
-                  const ChildCard(text: 'Child 1', color: Colors.red),
+                children: const [
+                  ChildCard(text: 'Child 1', color: Colors.red),
                   Dominant(
                     child: LabelBox(
                       label: 'Dominant',
@@ -70,7 +70,7 @@ class BoxyRowPageState extends State<BoxyRowPage> {
                         label: 'Column',
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
-                          children: const [
+                          children: [
                             ChildCard(
                                 text: 'Child 2', color: Colors.lightGreen),
                             ChildCard(text: 'Child 3', color: Colors.blue),

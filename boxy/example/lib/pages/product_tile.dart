@@ -174,7 +174,7 @@ class SeebTitle extends StatefulWidget {
 }
 
 class SeebTitleState extends State<SeebTitle> {
-  late StreamSubscription subscription;
+  late StreamSubscription<void> subscription;
   late bool expanded;
 
   @override

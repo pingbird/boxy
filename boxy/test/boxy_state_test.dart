@@ -141,13 +141,13 @@ void main() {
                           inflatedNames: inflated.toList(),
                         ),
                         children: [
-                          for (var nm in children)
+                          for (final nm in children)
                             StateTestChild(key: GlobalObjectKey(nm)),
                         ],
                       ),
                     ],
                   ),
-                  for (var nm in outside)
+                  for (final nm in outside)
                     StateTestChild(key: GlobalObjectKey(nm)),
                 ],
               ),

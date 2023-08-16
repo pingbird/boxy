@@ -53,7 +53,7 @@ class BoxyFlex extends MultiChildRenderObjectWidget {
   /// to be necessary to decide which direction to lay the children in or to
   /// disambiguate `start` or `end` values for the main or cross axis
   /// directions, the [textDirection] must not be null.
-  BoxyFlex({
+  const BoxyFlex({
     super.key,
     required this.direction,
     this.mainAxisAlignment = MainAxisAlignment.start,
@@ -267,7 +267,7 @@ class BoxyRow extends BoxyFlex {
   /// unless the row has no children or only one child) or to disambiguate
   /// `start` or `end` values for the [mainAxisAlignment], the [textDirection]
   /// must not be null.
-  BoxyRow({
+  const BoxyRow({
     super.key,
     super.mainAxisAlignment,
     super.mainAxisSize,
@@ -309,7 +309,7 @@ class BoxyColumn extends BoxyFlex {
   /// any. If there is no ambient directionality, and a text direction is going
   /// to be necessary to disambiguate `start` or `end` values for the
   /// [crossAxisAlignment], the [textDirection] must not be null.
-  BoxyColumn({
+  const BoxyColumn({
     super.key,
     super.mainAxisAlignment,
     super.mainAxisSize,
@@ -438,7 +438,7 @@ class BoxyFlexible extends ParentDataWidget<FlexParentData> {
     }
 
     if (needsLayout) {
-      final AbstractNode? targetParent = renderObject.parent;
+      final targetParent = renderObject.parent;
       if (targetParent is RenderObject) {
         targetParent.markNeedsLayout();
       }
