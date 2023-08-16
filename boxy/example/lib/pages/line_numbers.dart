@@ -82,7 +82,7 @@ class LineNumberPageState extends State<LineNumberPage> {
       appBar: const GalleryAppBar(
         ['Boxy Gallery', 'Line Numbers'],
         source:
-            'https://github.com/PixelToast/boxy/blob/master/boxy/example/lib/pages/line_numbers.dart',
+            'https://github.com/pingbird/boxy/blob/master/boxy/example/lib/pages/line_numbers.dart',
       ),
       body: Column(children: [
         Separator(),

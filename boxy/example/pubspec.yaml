@@ -1,7 +1,7 @@
 name: boxy_gallery
 description: Examples for the boxy package.
 version: 1.0.0
-homepage: https://github.com/PixelToast/boxy
+homepage: https://github.com/pingbird/boxy
 
 environment:
   sdk: '>=2.18.0 <3.0.0'

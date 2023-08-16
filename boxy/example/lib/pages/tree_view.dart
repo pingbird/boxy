@@ -80,7 +80,7 @@ class TreeViewPageState extends State<TreeViewPage> {
       appBar: const GalleryAppBar(
         ['Boxy Gallery', 'Tree View'],
         source:
-            'https://github.com/PixelToast/boxy/blob/master/boxy/example/lib/pages/tree_view.dart',
+            'https://github.com/pingbird/boxy/blob/master/boxy/example/lib/pages/tree_view.dart',
       ),
       body: Column(
         children: [

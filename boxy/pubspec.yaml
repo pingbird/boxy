@@ -1,7 +1,7 @@
 name: boxy
 description: Overcome limitations of built-in layouts, advanced flex, custom multi-child layouts, slivers, and more!
 version: 2.1.0
-homepage: https://github.com/PixelToast/boxy
+homepage: https://github.com/pingbird/boxy
 documentation: https://boxy.wiki
 
 environment:
