@@ -1,5 +1,5 @@
 ## [2.1.0]
-* Support for Flutter 2.13
+* Support for Flutter 3.13
 
 ## [2.0.9]
 * Skipped calls to buildScope as a minor performance improvement
