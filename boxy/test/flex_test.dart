@@ -69,37 +69,38 @@ void main() {
   testWidgets('All flexible children', (tester) async {
     for (final direction in Axis.values) {
       await tester.pumpWidget(TestFrame(
-          constraints: BoxConstraintsAxisUtil.create(
-            direction,
-            minMain: 400,
-            maxMain: 400,
-          ),
-          child: BoxyFlex(
-            key: const GlobalObjectKey(#flex),
-            direction: direction,
-            children: [
-              const BoxyFlexible(
-                child: SizedBox(
-                  key: GlobalObjectKey(#first),
-                  width: 50.0,
-                  height: 50.0,
-                ),
+        constraints: BoxConstraintsAxisUtil.create(
+          direction,
+          minMain: 400,
+          maxMain: 400,
+        ),
+        child: BoxyFlex(
+          key: const GlobalObjectKey(#flex),
+          direction: direction,
+          children: [
+            const BoxyFlexible(
+              child: SizedBox(
+                key: GlobalObjectKey(#first),
+                width: 50.0,
+                height: 50.0,
               ),
-              Dominant.expanded(
-                flex: 2,
-                child: AxisSizedBox(
-                  axis: direction,
-                  key: const GlobalObjectKey(#second),
-                  cross: 150,
-                ),
+            ),
+            Dominant.expanded(
+              flex: 2,
+              child: AxisSizedBox(
+                axis: direction,
+                key: const GlobalObjectKey(#second),
+                cross: 150,
               ),
-              Expanded(
-                child: Container(
-                  key: const GlobalObjectKey(#third),
-                ),
+            ),
+            Expanded(
+              child: Container(
+                key: const GlobalObjectKey(#third),
               ),
-            ],
-          )));
+            ),
+          ],
+        ),
+      ));
 
       final flexBox = keyBox(#flex);
       final firstBox = keyBox(#first);
@@ -107,95 +108,103 @@ void main() {
       final thirdBox = keyBox(#third);
 
       expect(
-          firstBox.constraints,
-          BoxConstraintsAxisUtil.create(
-            direction,
-            maxMain: 100.0,
-            minCross: 150.0,
-            maxCross: 150.0,
-          ));
+        firstBox.constraints,
+        BoxConstraintsAxisUtil.create(
+          direction,
+          maxMain: 100.0,
+          minCross: 150.0,
+          maxCross: 150.0,
+        ),
+      );
 
       expect(
-          secondBox.constraints,
-          BoxConstraintsAxisUtil.tightFor(
-            direction,
-            main: 200.0,
-          ));
+        secondBox.constraints,
+        BoxConstraintsAxisUtil.tightFor(
+          direction,
+          main: 200.0,
+        ),
+      );
 
       expect(
-          thirdBox.constraints,
-          BoxConstraintsAxisUtil.tightFor(
-            direction,
-            main: 100.0,
-            cross: 150.0,
-          ));
+        thirdBox.constraints,
+        BoxConstraintsAxisUtil.tightFor(
+          direction,
+          main: 100.0,
+          cross: 150.0,
+        ),
+      );
 
       expect(
-          boxRect(flexBox),
-          equals(
-            Offset.zero & SizeAxisUtil.create(direction, 150, 400),
-          ));
+        boxRect(flexBox),
+        equals(
+          Offset.zero & SizeAxisUtil.create(direction, 150, 400),
+        ),
+      );
 
       expect(
-          boxRect(firstBox),
-          equals(
-            Offset.zero & SizeAxisUtil.create(direction, 150, 50),
-          ));
+        boxRect(firstBox),
+        equals(
+          Offset.zero & SizeAxisUtil.create(direction, 150, 50),
+        ),
+      );
 
       expect(
-          boxRect(secondBox),
-          equals(
-            OffsetAxisUtil.create(direction, 0, 50) &
-                SizeAxisUtil.create(direction, 150, 200),
-          ));
+        boxRect(secondBox),
+        equals(
+          OffsetAxisUtil.create(direction, 0, 50) &
+              SizeAxisUtil.create(direction, 150, 200),
+        ),
+      );
 
       expect(
-          boxRect(thirdBox),
-          equals(
-            OffsetAxisUtil.create(direction, 0, 250) &
-                SizeAxisUtil.create(direction, 150, 100),
-          ));
+        boxRect(thirdBox),
+        equals(
+          OffsetAxisUtil.create(direction, 0, 250) &
+              SizeAxisUtil.create(direction, 150, 100),
+        ),
+      );
     }
   });
 
   testWidgets('Mixed flexible children', (tester) async {
     for (final direction in Axis.values) {
       await tester.pumpWidget(TestFrame(
-          constraints: BoxConstraintsAxisUtil.create(
-            direction,
-            minMain: 400,
-            maxMain: 400,
-          ),
-          child: BoxyFlex(
-            key: const GlobalObjectKey(#flex),
-            direction: direction,
-            children: [
-              BoxyFlexible(
-                flex: 0,
-                child: AxisSizedBox(
-                  axis: direction,
-                  key: const GlobalObjectKey(#first),
-                  main: 100,
-                ),
+        constraints: BoxConstraintsAxisUtil.create(
+          direction,
+          minMain: 400,
+          maxMain: 400,
+        ),
+        child: BoxyFlex(
+          key: const GlobalObjectKey(#flex),
+          direction: direction,
+          children: [
+            BoxyFlexible(
+              flex: 0,
+              child: AxisSizedBox(
+                axis: direction,
+                key: const GlobalObjectKey(#first),
+                main: 100,
               ),
-              BoxyFlexible(
-                dominant: true,
-                flex: 2,
-                fit: FlexFit.tight,
-                child: AxisSizedBox(
-                  axis: direction,
-                  key: const GlobalObjectKey(#second),
-                  cross: 150,
-                ),
+            ),
+            BoxyFlexible(
+              dominant: true,
+              flex: 2,
+              fit: FlexFit.tight,
+              child: AxisSizedBox(
+                axis: direction,
+                key: const GlobalObjectKey(#second),
+                cross: 150,
               ),
-              BoxyFlexible(
-                fit: FlexFit.tight,
-                child: Container(
-                  key: const GlobalObjectKey(#third),
-                ),
+            ),
+            BoxyFlexible(
+              fit: FlexFit.tight,
+              child: Container(
+                key: const GlobalObjectKey(#third),
               ),
-            ],
-          )));
+            ),
+          ],
+        ),
+      ));
 
       final flex = boxRect(keyBox(#flex));
       final first = boxRect(keyBox(#first));
@@ -203,84 +212,92 @@ void main() {
       final third = boxRect(keyBox(#third));
 
       expect(
-          flex,
-          equals(
-            Offset.zero & SizeAxisUtil.create(direction, 150, 400),
-          ));
+        flex,
+        equals(
+          Offset.zero & SizeAxisUtil.create(direction, 150, 400),
+        ),
+      );
 
       expect(
-          first,
-          equals(
-            Offset.zero & SizeAxisUtil.create(direction, 150, 100),
-          ));
+        first,
+        equals(
+          Offset.zero & SizeAxisUtil.create(direction, 150, 100),
+        ),
+      );
 
       expect(
-          second,
-          equals(
-            OffsetAxisUtil.create(direction, 0, 100) &
-                SizeAxisUtil.create(direction, 150, 200),
-          ));
+        second,
+        equals(
+          OffsetAxisUtil.create(direction, 0, 100) &
+              SizeAxisUtil.create(direction, 150, 200),
+        ),
+      );
 
       expect(
-          third,
-          equals(
-            OffsetAxisUtil.create(direction, 0, 300) &
-                SizeAxisUtil.create(direction, 150, 100),
-          ));
+        third,
+        equals(
+          OffsetAxisUtil.create(direction, 0, 300) &
+              SizeAxisUtil.create(direction, 150, 100),
+        ),
+      );
     }
   });
 
   testWidgets('Centered cross axis', (tester) async {
     for (final direction in Axis.values) {
       await tester.pumpWidget(TestFrame(
-          child: BoxyFlex(
-        key: const GlobalObjectKey(#flex),
-        direction: direction,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const BoxyFlexible(
-            flex: 0,
-            child: SizedBox(
-              key: GlobalObjectKey(#first),
-              width: 100,
-              height: 100,
+        child: BoxyFlex(
+          key: const GlobalObjectKey(#flex),
+          direction: direction,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const BoxyFlexible(
+              flex: 0,
+              child: SizedBox(
+                key: GlobalObjectKey(#first),
+                width: 100,
+                height: 100,
+              ),
             ),
-          ),
-          BoxyFlexible(
-            dominant: true,
-            flex: 0,
-            child: AxisSizedBox(
-              axis: direction,
-              key: const GlobalObjectKey(#second),
-              cross: 300,
-              main: 100,
+            BoxyFlexible(
+              dominant: true,
+              flex: 0,
+              child: AxisSizedBox(
+                axis: direction,
+                key: const GlobalObjectKey(#second),
+                cross: 300,
+                main: 100,
+              ),
             ),
-          ),
-        ],
-      )));
+          ],
+        ),
+      ));
 
       final flex = boxRect(keyBox(#flex));
       final first = boxRect(keyBox(#first));
       final second = boxRect(keyBox(#second));
 
       expect(
-          flex,
-          equals(
-            Offset.zero & SizeAxisUtil.create(direction, 300, 200),
-          ));
+        flex,
+        equals(
+          Offset.zero & SizeAxisUtil.create(direction, 300, 200),
+        ),
+      );
 
       expect(
-          first,
-          equals(
-            OffsetAxisUtil.create(direction, 100, 0) & const Size(100, 100),
-          ));
+        first,
+        equals(
+          OffsetAxisUtil.create(direction, 100, 0) & const Size(100, 100),
+        ),
+      );
 
       expect(
-          second,
-          equals(
-            OffsetAxisUtil.create(direction, 0, 100) &
-                SizeAxisUtil.create(direction, 300, 100),
-          ));
+        second,
+        equals(
+          OffsetAxisUtil.create(direction, 0, 100) &
+              SizeAxisUtil.create(direction, 300, 100),
+        ),
+      );
     }
   });
 
