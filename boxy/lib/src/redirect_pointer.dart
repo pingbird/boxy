@@ -1,6 +1,25 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
+/// Redirects pointer events to widgets anywhere else in the tree.
+///
+/// This is useful for widgets that overflow their parent such as from a
+/// [Transform] and would otherwise not receive pointer events.
+///
+/// To use this widget, give the child you would like to receive pointer events
+/// a [GlobalKey] and pass it to the [above] or [below] parameter.
+///
+/// Note that the RedirectPointer widget needs to encompass the entire widget
+/// that should receive pointer events, we recommend wrapping the body of the
+/// [Scaffold] so that it can receive pointer events for the whole screen.
+///
+/// You may also want to wrap the targets in an [IgnorePointer] so they aren't
+/// hit tested more than once.
+///
+/// Hit testing is performed in the following order:
+/// 1. The [above] widgets in reverse.
+/// 2. The child.
+/// 3. The [below] widgets in reverse.
 class RedirectPointer extends SingleChildRenderObjectWidget {
   const RedirectPointer({
     super.key,

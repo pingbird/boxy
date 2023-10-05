@@ -47,7 +47,7 @@ void main() {
     OpacityLayer getLayer() {
       final rootLayer =
           // ignore: invalid_use_of_protected_member
-          RendererBinding.instance.renderView.layer! as TransformLayer;
+          RendererBinding.instance.renderViews.single.layer! as TransformLayer;
       final pictureLayer = rootLayer.firstChild! as PictureLayer;
       return pictureLayer.nextSibling! as OpacityLayer;
     }

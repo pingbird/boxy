@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../boxy.dart';
 
+/// Scales its child by a given factor.
+///
+/// Unlike [Transform], this widget will pass adjusted constraints to its child
+/// so that it can be laid out at the correct size without overflowing.
 class Scale extends StatelessWidget {
   const Scale({
     super.key,

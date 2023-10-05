@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'common.dart';
-import 'mock_canvas.dart';
 
 class NotifyClipper extends CustomClipper<Path> {
   final ValueNotifier<Path> notifier;

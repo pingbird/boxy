@@ -4,7 +4,7 @@ orbs:
   aws-s3: circleci/aws-s3@3.0
 
 commands:
-  install_dart:
+  install_flutter:
     steps:
       - run:
           name: "Install Flutter"
@@ -54,17 +54,13 @@ commands:
 
 jobs:
   linux_tests:
-    environment: &dart_version
-      DART_VERSION: "2.19.0"
-      DART_RELEASE: "stable"
     docker:
       - image: cimg/base:stable
     steps:
-      - install_dart
+      - install_flutter
       - test_all
 
   build_website:
-    environment: *dart_version
     docker:
       - image: cimg/python:3.9
     steps:

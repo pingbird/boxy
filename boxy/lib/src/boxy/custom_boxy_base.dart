@@ -1253,7 +1253,7 @@ class BoxyId<T extends Object> extends ParentDataWidget<BaseBoxyParentData> {
   void applyParentData(RenderObject renderObject) {
     assert(renderObject.parentData is BaseBoxyParentData);
     final parentData = renderObject.parentData! as BaseBoxyParentData;
-    final parent = renderObject.parent! as RenderObject;
+    final parent = renderObject.parent!;
     final dynamic oldUserData = parentData.userData;
     if (id != parentData.id) {
       parentData.id = id;
