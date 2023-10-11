@@ -1,3 +1,6 @@
+## [2.1.2]
+* Fixed `RedirectPointer` not being exported, thanks to mattermoran for the PR!
+
 ## [2.1.1]
 * Added the `Scale` widget which scales its child by a given factor while preserving relative size unlike `Transform`.
 * Added the `RedirectPointer` widget which allows you to hit test a child widget even if it overpaints its parent.
