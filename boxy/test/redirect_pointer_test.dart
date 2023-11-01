@@ -1,5 +1,5 @@
-import 'package:boxy/src/redirect_pointer.dart';
-import 'package:boxy/src/scale.dart';
+import 'package:boxy/redirect_pointer.dart';
+import 'package:boxy/scale.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

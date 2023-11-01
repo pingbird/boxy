@@ -1,1 +1,1 @@
-export 'package:boxy/redirect_pointer.dart';
+export 'src/redirect_pointer.dart';

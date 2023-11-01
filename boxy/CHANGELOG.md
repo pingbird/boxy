@@ -1,6 +1,10 @@
+## [2.1.2]
+* Fixed import for `RedirectPointer`
+* Fixed visitChildrenForSemantics being called for ignored children
+
 ## [2.1.1]
-* Added the `Scale` widget which scales its child by a given factor while preserving relative size unlike `Transform`.
-* Added the `RedirectPointer` widget which allows you to hit test a child widget even if it overpaints its parent.
+* Added the `Scale` widget which scales its child by a given factor while preserving relative size unlike `Transform`
+* Added the `RedirectPointer` widget which allows you to hit test a child widget even if it overpaints its parent
 
 ## [2.1.0]
 * Support for Flutter 3.13

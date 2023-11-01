@@ -235,6 +235,15 @@ mixin RenderBoxyMixin<
   }
 
   @override
+  void visitChildrenForSemantics(RenderObjectVisitor visitor) {
+    for (final child in childHandleMap.values) {
+      if (!child._ignore) {
+        visitor(child.render);
+      }
+    }
+  }
+
+  @override
   bool get alwaysNeedsCompositing => delegate.needsCompositing;
 
   /// Wraps a [Size] into a [SliverSize] using the sliver constraints of this
