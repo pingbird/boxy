@@ -1,6 +1,8 @@
-## [2.1.2]
-* Fixed import for `RedirectPointer`
+## [2.1.3]
 * Fixed visitChildrenForSemantics being called for ignored children
+
+## [2.1.2]
+* Fixed `RedirectPointer` not being exported, thanks to mattermoran for the PR!
 
 ## [2.1.1]
 * Added the `Scale` widget which scales its child by a given factor while preserving relative size unlike `Transform`

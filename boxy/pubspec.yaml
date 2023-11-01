@@ -1,11 +1,11 @@
 name: boxy
 description: Overcome limitations of built-in layouts, advanced flex, custom multi-child layouts, slivers, and more!
-version: 2.1.2
+version: 2.1.3
 homepage: https://github.com/pingbird/boxy
 documentation: https://boxy.wiki
 
 environment:
-  sdk: '>=2.18.0 <3.0.0'
+  sdk: '>=2.18.0 <4.0.0'
 
 dependencies:
   flutter:
