@@ -989,10 +989,7 @@ abstract class BaseBoxyDelegate<LayoutData extends Object,
   /// Gets the child handle with the specified [id] or returns null if there
   /// is no child with given [id].
   T? getChildOrNull<T extends ChildHandleType>(Object id) {
-    if (hasChild(id)) {
-      return getChild(id);
-    }
-    return null;
+    return render.childHandleMap[id] as T?;
   }
 
   /// Gets the [BuildContext] of this boxy.
