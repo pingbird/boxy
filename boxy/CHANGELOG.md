@@ -1,3 +1,6 @@
+## [2.2.0]
+* Added `BoxyDelegate.getChildOrNull`, thanks jtarkowski27 for the PR!
+
 ## [2.1.3]
 * Fixed visitChildrenForSemantics being called for ignored children
 
