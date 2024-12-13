@@ -733,7 +733,7 @@ class BaseBoxyChild extends InflatedChildHandle {
     return _parent.wrapOffset(Offset(transform[12], transform[13]), size);
   }
 
-  set offset(Offset newOffset) => position(offset);
+  set offset(Offset newOffset) => position(newOffset);
 
   /// The matrix transformation applied to this child, used by [paint] and
   /// [hitTest].
