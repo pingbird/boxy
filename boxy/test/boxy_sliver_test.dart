@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:boxy/boxy.dart';
 import 'package:boxy/utils.dart';
 import 'package:flutter/material.dart';
@@ -56,6 +58,25 @@ class SliverToBoxAdapterBoxy extends SliverBoxyDelegate {
       hitTestExtent: paintedChildSize,
       hasVisualOverflow: childExtent > constraints.remainingPaintExtent ||
           constraints.scrollOffset > 0.0,
+    );
+  }
+}
+
+class SliverPaddingBoxy extends SliverBoxyDelegate {
+  static const padding = 10.0;
+
+  @override
+  SliverGeometry layout() {
+    final child = getChild<SliverBoxyChild>(0);
+    final constraints = this.constraints;
+    final size = child.layout(constraints.copyWith(
+      crossAxisExtent: math.max(0.0, constraints.crossAxisExtent - padding * 2),
+    ));
+    child.positionOnAxis(padding, 0.0);
+    return size.copyWith(
+      crossAxisExtent: size.crossAxisExtent != null
+          ? size.crossAxisExtent! + padding * 2
+          : null,
     );
   }
 }
@@ -259,5 +280,49 @@ void main() {
         );
       }
     }
+  });
+
+  testWidgets('Sliver child of Sliver', (tester) async {
+    await tester.pumpWidget(TestFrame(
+      child: SizedBox(
+          width: 200,
+          height: 200,
+          child: CustomScrollView(
+            slivers: [
+              CustomBoxy.sliver(
+                key: const GlobalObjectKey(#boxy),
+                delegate: SliverPaddingBoxy(),
+                children: [
+                  SliverList(
+                    delegate: SliverChildListDelegate([
+                      Container(
+                        key: const GlobalObjectKey(0),
+                        height: 50,
+                        color: Colors.red,
+                      ),
+                      Container(
+                        key: const GlobalObjectKey(1),
+                        height: 50,
+                        color: Colors.green,
+                      ),
+                      Container(
+                        key: const GlobalObjectKey(2),
+                        height: 50,
+                        color: Colors.blue,
+                      ),
+                    ]),
+                  ),
+                ],
+              ),
+            ],
+          )),
+    ));
+
+    final redRect = boxRect(keyBox(0));
+    expect(redRect, const Rect.fromLTWH(10, 0, 180, 50));
+    final greenRect = boxRect(keyBox(1));
+    expect(greenRect, const Rect.fromLTWH(10, 50, 180, 50));
+    final blueRect = boxRect(keyBox(2));
+    expect(blueRect, const Rect.fromLTWH(10, 100, 180, 50));
   });
 }
