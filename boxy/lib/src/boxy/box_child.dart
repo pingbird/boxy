@@ -118,7 +118,7 @@ class BoxyChild extends BaseBoxyChild {
       return;
     }
     _checkConstraints(constraints);
-    render.layout(constraints);
+    render.layout(constraints, parentUsesSize: useSize);
   }
 
   void _checkConstraints(BoxConstraints constraints) {
