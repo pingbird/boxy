@@ -68,11 +68,16 @@ class SliverPaddingBoxy extends SliverBoxyDelegate {
   @override
   SliverGeometry layout() {
     final child = getChild<SliverBoxyChild>(0);
+    final child2 = getChild<SliverBoxyChild>(1);
     final constraints = this.constraints;
     final size = child.layout(constraints.copyWith(
       crossAxisExtent: math.max(0.0, constraints.crossAxisExtent - padding * 2),
     ));
+    child2.layout(constraints.copyWith(
+      crossAxisExtent: math.max(0.0, constraints.crossAxisExtent - padding * 2),
+    ));
     child.positionOnAxis(padding, 0.0);
+    child2.positionOnAxis(padding, 0.0);
     return size.copyWith(
       crossAxisExtent: size.crossAxisExtent != null
           ? size.crossAxisExtent! + padding * 2
@@ -282,7 +287,7 @@ void main() {
     }
   });
 
-  testWidgets('Sliver child of Sliver', (tester) async {
+  testWidgets('Sliver children of Sliver', (tester) async {
     await tester.pumpWidget(TestFrame(
       child: SizedBox(
           width: 200,
@@ -312,6 +317,13 @@ void main() {
                       ),
                     ]),
                   ),
+                  SliverToBoxAdapter(
+                    child: Container(
+                      key: const GlobalObjectKey(3),
+                      height: 50,
+                      color: Colors.yellow,
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -324,5 +336,7 @@ void main() {
     expect(greenRect, const Rect.fromLTWH(10, 50, 180, 50));
     final blueRect = boxRect(keyBox(2));
     expect(blueRect, const Rect.fromLTWH(10, 100, 180, 50));
+    final yellowRect = boxRect(keyBox(3));
+    expect(yellowRect, const Rect.fromLTWH(10, 0, 180, 50));
   });
 }

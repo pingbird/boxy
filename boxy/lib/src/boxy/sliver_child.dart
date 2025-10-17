@@ -39,12 +39,6 @@ class CannotLayoutSliverError extends FlutterError {
         ]);
 }
 
-/// The [ParentData] used for [RenderSliver] children of [CustomBoxy].
-///
-/// See also:
-///   * [BoxyParentData]
-class SliverBoxyParentData extends BaseBoxyParentData<RenderSliver> {}
-
 /// A handle used by [CustomBoxy] widgets to change how it lays out, paints, and
 /// hit tests its children.
 ///

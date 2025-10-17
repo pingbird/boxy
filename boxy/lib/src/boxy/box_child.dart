@@ -23,6 +23,12 @@ import 'inflating_element.dart';
 class BoxyParentData extends BaseBoxyParentData<RenderBox>
     implements MultiChildLayoutParentData {}
 
+/// The [ParentData] used for [RenderSliver] children of [CustomBoxy].
+///
+/// See also:
+///   * [BoxyParentData]
+class NonBoxBoxyParentData extends BaseBoxyParentData<RenderObject> {}
+
 /// A handle used by [CustomBoxy] widgets to change how it lays out, paints, and
 /// hit tests its children.
 ///
@@ -56,7 +62,7 @@ class BoxyChild extends BaseBoxyChild {
   @override
   RenderBox get render => super.render as RenderBox;
 
-  BoxyParentData get _parentData => render.parentData! as BoxyParentData;
+  BaseBoxyParentData get _parentData => render.parentData! as BaseBoxyParentData;
 
   RenderBoxyMixin get _parent => render.parent! as RenderBoxyMixin;
 

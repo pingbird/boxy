@@ -17,10 +17,10 @@ import 'inflating_element.dart';
 class RenderSliverBoxy<ChildHandleType extends BaseBoxyChild>
     extends RenderSliver
     with
-        ContainerRenderObjectMixin<RenderObject, BoxyParentData>,
-        InflatingRenderObjectMixin<RenderObject, BoxyParentData,
+        ContainerRenderObjectMixin<RenderObject, BaseBoxyParentData>,
+        InflatingRenderObjectMixin<RenderObject, BaseBoxyParentData,
             ChildHandleType>,
-        RenderBoxyMixin<RenderObject, BoxyParentData, ChildHandleType> {
+        RenderBoxyMixin<RenderObject, BaseBoxyParentData, ChildHandleType> {
   SliverBoxyDelegate<Object> _delegate;
 
   @override
@@ -38,7 +38,7 @@ class RenderSliverBoxy<ChildHandleType extends BaseBoxyChild>
   @override
   void prepareChild(ChildHandleType child) {
     super.prepareChild(child);
-    final parentData = child.render.parentData! as BoxyParentData;
+    final parentData = child.render.parentData! as BaseBoxyParentData;
     parentData.drySize = null;
     parentData.dryTransform = null;
   }
@@ -55,8 +55,12 @@ class RenderSliverBoxy<ChildHandleType extends BaseBoxyChild>
 
   @override
   void setupParentData(RenderObject child) {
-    if (child.parentData is! BoxyParentData) {
-      child.parentData = BoxyParentData();
+    if (child.parentData is! BaseBoxyParentData) {
+      if (child is RenderBox) {
+        child.parentData = BoxyParentData();
+      } else {
+        child.parentData = NonBoxBoxyParentData();
+      }
     }
   }
 

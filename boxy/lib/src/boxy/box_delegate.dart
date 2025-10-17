@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
+import '../../render_boxy.dart';
 import '../axis_utils.dart';
 import '../sliver_axis_utils.dart';
 import '../sliver_offset.dart';
@@ -18,10 +19,10 @@ import 'inflating_element.dart';
 ///   * [BoxyDelegate]
 class RenderBoxy<ChildHandleType extends BaseBoxyChild> extends RenderBox
     with
-        ContainerRenderObjectMixin<RenderObject, BoxyParentData>,
-        InflatingRenderObjectMixin<RenderObject, BoxyParentData,
+        ContainerRenderObjectMixin<RenderObject, BaseBoxyParentData>,
+        InflatingRenderObjectMixin<RenderObject, BaseBoxyParentData,
             ChildHandleType>,
-        RenderBoxyMixin<RenderObject, BoxyParentData, ChildHandleType> {
+        RenderBoxyMixin<RenderObject, BaseBoxyParentData, ChildHandleType> {
   BoxBoxyDelegateMixin<Object, ChildHandleType> _delegate;
 
   @override
@@ -41,7 +42,7 @@ class RenderBoxy<ChildHandleType extends BaseBoxyChild> extends RenderBox
   @override
   void prepareChild(ChildHandleType child) {
     super.prepareChild(child);
-    final parentData = child.render.parentData! as BoxyParentData;
+    final parentData = child.render.parentData! as BaseBoxyParentData;
     parentData.drySize = null;
     parentData.dryTransform = null;
   }
@@ -58,8 +59,12 @@ class RenderBoxy<ChildHandleType extends BaseBoxyChild> extends RenderBox
 
   @override
   void setupParentData(RenderObject child) {
-    if (child.parentData is! BoxyParentData) {
-      child.parentData = BoxyParentData();
+    if (child.parentData is! BaseBoxyParentData) {
+      if (child is RenderBox) {
+        child.parentData = BoxyParentData();
+      } else {
+        child.parentData = NonBoxBoxyParentData();
+      }
     }
   }
 
