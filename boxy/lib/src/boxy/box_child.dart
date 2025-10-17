@@ -62,7 +62,8 @@ class BoxyChild extends BaseBoxyChild {
   @override
   RenderBox get render => super.render as RenderBox;
 
-  BaseBoxyParentData get _parentData => render.parentData! as BaseBoxyParentData;
+  BaseBoxyParentData get _parentData =>
+      render.parentData! as BaseBoxyParentData;
 
   RenderBoxyMixin get _parent => render.parent! as RenderBoxyMixin;
 
