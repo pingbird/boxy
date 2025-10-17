@@ -1,3 +1,6 @@
+## [2.2.2]
+* Fixed bug in CustomBoxy that prevented multiple Slivers from being used
+
 ## [2.2.1]
 * Fixed small bug with `BoxyChild.offset`, thanks to Albert221 for the PR!
 

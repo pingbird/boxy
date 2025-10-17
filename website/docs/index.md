@@ -24,7 +24,7 @@ To install Boxy, add it to your dependencies in `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  boxy: ^2.2.1
+  boxy: ^2.2.2
 ```
 
 Alternatively, you can also use the pub command:
