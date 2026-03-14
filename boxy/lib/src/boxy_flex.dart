@@ -754,7 +754,7 @@ class RenderBoxyFlex extends RenderBox
 
   @override
   void setupParentData(RenderBox child) {
-    if (child.parentData is! FlexParentData) {
+    if (child.parentData is! BoxyFlexParentData) {
       child.parentData = BoxyFlexParentData();
     } else if (child.parentData is! BoxyFlexParentData) {
       final parentData = child.parentData! as FlexParentData;
@@ -1278,10 +1278,10 @@ class RenderBoxyFlex extends RenderBox
       final size = layoutChild(
           dominantChild,
           BoxConstraintsAxisUtil.create(
-            _direction,
-            maxCross: maxCrossSize,
-            minMain: _getFit(dominantChild) == FlexFit.tight ? mainSize : 0.0,
-            maxMain: mainSize,
+              _direction,
+              maxCross: maxCrossSize,
+              minMain: _getFit(dominantChild) == FlexFit.tight ? mainSize : 0.0,
+              maxMain: mainSize,
           ));
       maxCrossSize = crossSize = size.crossAxisSize(_direction);
     } else if (hasInflexible) {
@@ -1296,7 +1296,8 @@ class RenderBoxyFlex extends RenderBox
           final childConstraints = BoxConstraintsAxisUtil.create(
             _direction,
             minCross:
-                _getCrossAxisAlignment(child) == CrossAxisAlignment.stretch
+                (_getCrossAxisAlignment(child) == CrossAxisAlignment.stretch &&
+                    maxCrossSize.isFinite)
                     ? maxCrossSize
                     : 0.0,
             maxCross: maxCrossSize,
@@ -1343,7 +1344,7 @@ class RenderBoxyFlex extends RenderBox
             if (child == dominantChild) {
               flexConstraints = BoxConstraintsAxisUtil.create(
                 _direction,
-                minCross: maxCrossSize,
+                minCross: maxCrossSize.isFinite ? maxCrossSize : 0.0,
                 maxCross: maxCrossSize,
                 minMain: minChildExtent,
                 maxMain: maxChildExtent,
@@ -1352,7 +1353,8 @@ class RenderBoxyFlex extends RenderBox
               flexConstraints = BoxConstraintsAxisUtil.create(
                 _direction,
                 minCross:
-                    _getCrossAxisAlignment(child) == CrossAxisAlignment.stretch
+                    (_getCrossAxisAlignment(child) == CrossAxisAlignment.stretch &&
+                        maxCrossSize.isFinite)
                         ? maxCrossSize
                         : 0.0,
                 maxCross: maxCrossSize,
@@ -1385,9 +1387,10 @@ class RenderBoxyFlex extends RenderBox
               BoxConstraintsAxisUtil.create(
                 _direction,
                 minCross:
-                    _getCrossAxisAlignment(child) == CrossAxisAlignment.stretch
-                        ? maxCrossSize
-                        : 0.0,
+                    (_getCrossAxisAlignment(child) == CrossAxisAlignment.stretch &&
+                    maxCrossSize.isFinite)
+                    ? maxCrossSize
+                    : 0.0,
                 maxCross: maxCrossSize,
                 minMain: mainSize,
                 maxMain: mainSize,
@@ -1471,9 +1474,9 @@ class RenderBoxyFlex extends RenderBox
     late double betweenSpace;
 
     // flipMainAxis is used to decide whether to lay out left-to-right/top-to-bottom (false), or
-    // right-to-left/bottom-to-top (true). The _startIsTopLeft will return null if there's only
+    // right-to-left/bottom-to-top (true). The _startIsTopLeft will return null if there''s only
     // one child and the relevant direction is null, in which case we arbitrarily decide not to
-    // flip, but that doesn't have any detectable effect.
+    // flip, but that doesn''t have any detectable effect.
     final bool flipMainAxis =
         !(_startIsTopLeft(direction, textDirection, verticalDirection) ?? true);
     switch (_mainAxisAlignment) {
@@ -1574,7 +1577,7 @@ class RenderBoxyFlex extends RenderBox
       return;
     }
 
-    // There's no point in drawing the children if we're empty.
+    // There''s no point in drawing the children if we''re empty.
     if (size.isEmpty) {
       return;
     }
@@ -1584,25 +1587,25 @@ class RenderBoxyFlex extends RenderBox
         needsCompositing, offset, Offset.zero & size, defaultPaint);
 
     assert(() {
-      // Only set this if it's null to save work. It gets reset to null if the
+      // Only set this if it''s null to save work. It gets reset to null if the
       // _direction changes.
       final List<DiagnosticsNode> debugOverflowHints = <DiagnosticsNode>[
         ErrorDescription(
-            'The overflowing $runtimeType has an orientation of $_direction.'),
+            ''The overflowing $runtimeType has an orientation of $_direction.''),
         ErrorDescription(
-            'The edge of the $runtimeType that is overflowing has been marked '
-            'in the rendering with a yellow and black striped pattern. This is '
-            'usually caused by the contents being too big for the $runtimeType.'),
+            ''The edge of the $runtimeType that is overflowing has been marked ''
+            ''in the rendering with a yellow and black striped pattern. This is ''
+            ''usually caused by the contents being too big for the $runtimeType.''),
         ErrorHint(
-            'Consider applying a flex factor (e.g. using an Expanded widget) to '
-            'force the children of the $runtimeType to fit within the available '
-            'space instead of being sized to their natural size.'),
+            ''Consider applying a flex factor (e.g. using an Expanded widget) to ''
+            ''force the children of the $runtimeType to fit within the available ''
+            ''space instead of being sized to their natural size.''),
         ErrorHint(
-            'This is considered an error condition because it indicates that there '
-            'is content that cannot be seen. If the content is legitimately bigger '
-            'than the available space, consider clipping it with a ClipRect widget '
-            'before putting it in the flex, or using a scrollable container rather '
-            'than a Flex, like a ListView.'),
+            ''This is considered an error condition because it indicates that there ''
+            ''is content that cannot be seen. If the content is legitimately bigger ''
+            ''than the available space, consider clipping it with a ClipRect widget ''
+            ''before putting it in the flex, or using a scrollable container rather ''
+            ''than a Flex, like a ListView.''),
       ];
 
       // Simulate a child rect that overflows by the right amount. This child
@@ -1634,7 +1637,7 @@ class RenderBoxyFlex extends RenderBox
   String toStringShort() {
     String header = super.toStringShort();
     if (_hasOverflow) {
-      header += ' OVERFLOWING';
+      header += '' OVERFLOWING'';
     }
     return header;
   }
@@ -1642,18 +1645,18 @@ class RenderBoxyFlex extends RenderBox
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(EnumProperty<Axis>('direction', direction));
+    properties.add(EnumProperty<Axis>(''direction'', direction));
     properties.add(EnumProperty<MainAxisAlignment>(
-        'mainAxisAlignment', mainAxisAlignment));
-    properties.add(EnumProperty<MainAxisSize>('mainAxisSize', mainAxisSize));
+        ''mainAxisAlignment'', mainAxisAlignment));
+    properties.add(EnumProperty<MainAxisSize>(''mainAxisSize'', mainAxisSize));
     properties.add(EnumProperty<CrossAxisAlignment>(
-        'crossAxisAlignment', crossAxisAlignment));
-    properties.add(EnumProperty<TextDirection>('textDirection', textDirection,
+        ''crossAxisAlignment'', crossAxisAlignment));
+    properties.add(EnumProperty<TextDirection>(''textDirection'', textDirection,
         defaultValue: null));
     properties.add(EnumProperty<VerticalDirection>(
-        'verticalDirection', verticalDirection,
+        ''verticalDirection'', verticalDirection,
         defaultValue: null));
-    properties.add(EnumProperty<TextBaseline>('textBaseline', textBaseline,
+    properties.add(EnumProperty<TextBaseline>(''textBaseline'', textBaseline,
         defaultValue: null));
   }
 }
