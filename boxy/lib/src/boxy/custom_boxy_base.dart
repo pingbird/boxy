@@ -236,11 +236,9 @@ mixin RenderBoxyMixin<
 
   @override
   void visitChildrenForSemantics(RenderObjectVisitor visitor) {
-    for (final child in childHandleMap.values) {
-      if (!child._ignore) {
-        visitor(child.render);
-      }
-    }
+    wrapPhase(BoxyDelegatePhase.semantics, () {
+      delegate.visitChildrenForSemantics(visitor);
+    });
   }
 
   @override
@@ -293,6 +291,9 @@ enum BoxyDelegatePhase {
 
   /// The boxy is currently being hit test.
   hitTest,
+
+  /// Semantics are being visited.
+  semantics,
 }
 
 /// Cache for [Layer] objects, used by [BoxyLayerContext] methods.
@@ -912,6 +913,20 @@ abstract class BaseBoxyDelegate<LayoutData extends Object,
     Listenable? repaint,
   })  : _relayout = relayout,
         _repaint = repaint;
+
+  /// Visits each child that should be included in the semantics tree.
+  ///
+  /// The default behavior is to visit each child that is not [BaseBoxyChild.isIgnored].
+  ///
+  /// This can be overridden to change the order in which children are visited
+  /// for accessibility purposes.
+  void visitChildrenForSemantics(RenderObjectVisitor visitor) {
+    for (final child in render.childHandleMap.values) {
+      if (!child.isIgnored) {
+        visitor(child.render);
+      }
+    }
+  }
 
   final Listenable? _relayout;
   final Listenable? _repaint;

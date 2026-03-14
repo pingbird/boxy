@@ -1296,7 +1296,8 @@ class RenderBoxyFlex extends RenderBox
           final childConstraints = BoxConstraintsAxisUtil.create(
             _direction,
             minCross:
-                _getCrossAxisAlignment(child) == CrossAxisAlignment.stretch
+                (_getCrossAxisAlignment(child) == CrossAxisAlignment.stretch &&
+                    maxCrossSize.isFinite)
                     ? maxCrossSize
                     : 0.0,
             maxCross: maxCrossSize,
@@ -1343,7 +1344,7 @@ class RenderBoxyFlex extends RenderBox
             if (child == dominantChild) {
               flexConstraints = BoxConstraintsAxisUtil.create(
                 _direction,
-                minCross: maxCrossSize,
+                minCross: maxCrossSize.isFinite ? maxCrossSize : 0.0,
                 maxCross: maxCrossSize,
                 minMain: minChildExtent,
                 maxMain: maxChildExtent,
@@ -1352,7 +1353,8 @@ class RenderBoxyFlex extends RenderBox
               flexConstraints = BoxConstraintsAxisUtil.create(
                 _direction,
                 minCross:
-                    _getCrossAxisAlignment(child) == CrossAxisAlignment.stretch
+                    (_getCrossAxisAlignment(child) == CrossAxisAlignment.stretch &&
+                        maxCrossSize.isFinite)
                         ? maxCrossSize
                         : 0.0,
                 maxCross: maxCrossSize,
@@ -1385,9 +1387,10 @@ class RenderBoxyFlex extends RenderBox
               BoxConstraintsAxisUtil.create(
                 _direction,
                 minCross:
-                    _getCrossAxisAlignment(child) == CrossAxisAlignment.stretch
-                        ? maxCrossSize
-                        : 0.0,
+                    (_getCrossAxisAlignment(child) == CrossAxisAlignment.stretch &&
+                    maxCrossSize.isFinite)
+                    ? maxCrossSize
+                    : 0.0,
                 maxCross: maxCrossSize,
                 minMain: mainSize,
                 maxMain: mainSize,
@@ -1624,6 +1627,36 @@ class RenderBoxyFlex extends RenderBox
           overflowHints: debugOverflowHints);
       return true;
     }());
+  }
+
+  @override
+  void visitChildrenForSemantics(RenderObjectVisitor visitor) {
+    _forEachChildWithOrder(visitor);
+  }
+
+  void _forEachChildWithOrder(RenderObjectVisitor visitor) {
+    if (textDirection == null && direction == Axis.horizontal) {
+      return;
+    }
+    final bool flipMainAxis =
+        !(_startIsTopLeft(direction, textDirection, verticalDirection) ?? true);
+    if (flipMainAxis) {
+      RenderBox? child = lastChild;
+      while (child != null) {
+        final FlexParentData childParentData =
+            child.parentData! as FlexParentData;
+        visitor(child);
+        child = childParentData.previousSibling;
+      }
+    } else {
+      RenderBox? child = firstChild;
+      while (child != null) {
+        final FlexParentData childParentData =
+            child.parentData! as FlexParentData;
+        visitor(child);
+        child = childParentData.nextSibling;
+      }
+    }
   }
 
   @override

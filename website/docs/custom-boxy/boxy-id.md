@@ -48,7 +48,7 @@ class MyBoxyDelegate extends BoxyDelegate {
 
     // Return the size of our little column.
     return Size(
-      max(helloSize.width, worldSize.height),
+      max(helloSize.width, worldSize.width),
       helloSize.height + worldSize.height,
     );
   }
