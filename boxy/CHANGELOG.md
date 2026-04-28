@@ -1,3 +1,6 @@
+## [2.3.0]
+* Added `BoxyDelegate.childrenForSemantics` for customizing the semantics order, thanks Albert221 for the PR!
+
 ## [2.2.2]
 * Fixed bug in CustomBoxy that prevented multiple Slivers from being used
 

@@ -236,11 +236,11 @@ mixin RenderBoxyMixin<
 
   @override
   void visitChildrenForSemantics(RenderObjectVisitor visitor) {
-    for (final child in childHandleMap.values) {
-      if (!child._ignore) {
+    wrapPhase(BoxyDelegatePhase.semantics, () {
+      for (final child in delegate.childrenForSemantics) {
         visitor(child.render);
       }
-    }
+    });
   }
 
   @override
@@ -293,6 +293,9 @@ enum BoxyDelegatePhase {
 
   /// The boxy is currently being hit test.
   hitTest,
+
+  /// The boxy is currently being visited for semantics.
+  semantics,
 }
 
 /// Cache for [Layer] objects, used by [BoxyLayerContext] methods.
@@ -961,6 +964,20 @@ abstract class BaseBoxyDelegate<LayoutData extends Object,
       return true;
     }());
     return out;
+  }
+
+  /// An iterable of children to be visited for semantics, in paint order,
+  /// skipping children that are not semantically relevant.
+  ///
+  /// Override this to customize the semantics traversal order.
+  /// By default, returns [children] in paint order, filtering out
+  /// ignored children.
+  Iterable<ChildHandleType> get childrenForSemantics sync* {
+    for (final child in children) {
+      if (!child._ignore) {
+        yield child;
+      }
+    }
   }
 
   /// The most recent constraints given to this boxy by its parent.
